@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 1 MVP 需求文档 v1.2 — AI×元宇宙社交平台</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#0a1628;--primary-light:#132340;--accent:#c9a34f;--accent-light:#e8c96a;
+  --text:#e8eaf0;--text-muted:#8a9bb5;--card-bg:rgba(255,255,255,.06);
+  --card-border:rgba(201,163,79,.18);--section-gap:80px;--radius:12px;
+  --green:#34d399;--yellow:#fbbf24;--red:#f87171;--blue:#60a5fa;--purple:#a78bfa;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;
+  background:var(--primary);color:var(--text);line-height:1.75;overflow-x:hidden}
+.topnav{position:fixed;top:0;left:0;width:100%;z-index:100;
+  background:rgba(10,22,40,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(201,163,79,.15);transition:box-shadow .3s}
+.topnav.scrolled{box-shadow:0 2px 24px rgba(0,0,0,.4)}
+.topnav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;
+  padding:0 24px;height:56px;gap:10px;overflow-x:auto}
+.topnav .logo{font-weight:700;font-size:14px;color:var(--accent);white-space:nowrap;flex-shrink:0}
+.topnav a{color:var(--text-muted);text-decoration:none;font-size:12px;white-space:nowrap;transition:color .2s;flex-shrink:0}
+.topnav a:hover,.topnav a.active{color:var(--accent)}
+.hero{min-height:75vh;display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:120px 24px 60px;position:relative;
+  background:linear-gradient(160deg,#0a1628 0%,#0f2a3e 50%,#0a1628 100%)}
+.hero::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 30%,rgba(96,165,250,.08) 0%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:720px}
+.hero h1{font-size:clamp(24px,5vw,38px);font-weight:800;line-height:1.25;
+  background:linear-gradient(135deg,#fff 30%,var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .subtitle{margin-top:16px;font-size:clamp(13px,2.5vw,16px);color:var(--text-muted);line-height:1.6}
+.hero .badge{display:inline-block;margin-top:24px;padding:7px 20px;border-radius:40px;
+  font-size:13px;color:var(--blue);border:1px solid rgba(96,165,250,.3);background:rgba(96,165,250,.08)}
+.hero .meta{margin-top:10px;font-size:12px;color:var(--text-muted)}
+.section{max-width:960px;margin:0 auto;padding:var(--section-gap) 24px}
+.section-title{font-size:clamp(20px,3.5vw,28px);font-weight:700;margin-bottom:6px;
+  color:#fff;position:relative;padding-left:18px}
+.section-title::before{content:"";position:absolute;left:0;top:6px;width:4px;
+  height:calc(100% - 12px);background:var(--accent);border-radius:2px}
+.section-sub{font-size:13px;color:var(--text-muted);margin-bottom:32px;padding-left:18px}
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:24px;margin-bottom:16px;transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.card h4{font-size:16px;font-weight:700;color:var(--accent-light);margin-bottom:10px}
+.card h5{font-size:14px;font-weight:600;color:var(--text);margin:14px 0 8px}
+.card ul{padding-left:18px;list-style:none}
+.card ul li{position:relative;margin-bottom:6px;font-size:13.5px;color:var(--text);line-height:1.65}
+.card ul li::before{content:"›";position:absolute;left:-14px;color:var(--accent);font-weight:700}
+.table-wrap{overflow-x:auto;margin-bottom:14px;border-radius:var(--radius);border:1px solid var(--card-border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:rgba(201,163,79,.12)}
+th{padding:10px 14px;text-align:left;font-weight:600;color:var(--accent-light);
+  border-bottom:1px solid var(--card-border);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+tbody tr:hover{background:rgba(201,163,79,.04)}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.tag-p0{background:rgba(96,165,250,.15);color:var(--blue)}
+.tag-p1{background:rgba(139,92,246,.15);color:var(--purple)}
+.callout{background:rgba(201,163,79,.06);border-left:3px solid var(--accent);
+  border-radius:0 var(--radius) var(--radius) 0;padding:14px 18px;margin-bottom:16px;
+  font-size:13px;color:var(--text-muted);line-height:1.65}
+.callout strong{color:var(--accent-light)}
+.callout.blue{border-left-color:var(--blue);background:rgba(96,165,250,.06)}
+.callout.blue strong{color:var(--blue)}
+.callout.red{border-left-color:var(--red);background:rgba(248,113,113,.06)}
+.callout.red strong{color:var(--red)}
+.callout.green{border-left-color:var(--green);background:rgba(52,211,153,.06)}
+.callout.green strong{color:var(--green)}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:12px 0 16px}
+.flow-step{background:var(--card-bg);border:1px solid var(--card-border);border-radius:8px;
+  padding:8px 14px;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap}
+.flow-arrow{color:var(--accent);font-size:16px;font-weight:700}
+.three-col{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:16px}
+.four-col{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:16px}
+.tri-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;text-align:center}
+.tri-card .tri-icon{font-size:28px;margin-bottom:8px}
+.tri-card h5{font-size:14px;font-weight:700;color:var(--accent-light);margin-bottom:6px}
+.tri-card p{font-size:12px;color:var(--text-muted);line-height:1.5}
+footer{text-align:center;padding:40px 24px;color:var(--text-muted);font-size:12px;
+  border-top:1px solid rgba(255,255,255,.06)}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.tree{font-size:12px;color:var(--text-muted);line-height:1.9;padding:16px;font-family:"Cascadia Code","Fira Code",monospace}
+.tree strong{color:var(--accent-light);font-weight:600}
+@media(max-width:640px){
+  .section{padding:40px 14px} .card{padding:18px 16px}
+  th,td{padding:8px 10px;font-size:12px} .topnav-inner{height:44px}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav" id="topnav">
+<div class="topnav-inner">
+  <span class="logo">MVP v1.2</span>
+  <a href="#scope">范围</a><a href="#m1">用户</a><a href="#m2">聊天</a><a href="#m3">智能体</a>
+  <a href="#m4">标识</a><a href="#m5">风控</a><a href="#m6">积分</a><a href="#m7">冷启动</a>
+  <a href="#perm">权限</a><a href="#notify">通知</a><a href="#m8">后台</a>
+  <a href="#arch">架构</a><a href="#nfr">非功能</a><a href="#accept">验收</a>
+</div>
+</nav>
+
+<header class="hero">
+<div class="hero-content reveal">
+  <h1>Phase 1 MVP<br>需求文档与概要设计</h1>
+  <p class="subtitle">AI × 元宇宙社交平台 — 13 大模块 · 140+ 功能点 · 完整操作流程与异常处理</p>
+  <span class="badge">稳健方案 A · 8-10 周交付</span>
+  <p class="meta">v1.2 · 2026-03-15 · 关联《可行性调研与落地方案》</p>
+</div>
+</header>
+
+<!-- SCOPE -->
+<div class="section" id="scope">
+<h2 class="section-title reveal">MVP 范围定义</h2>
+<p class="section-sub reveal">用户端 7 模块 + 管理后台 6 模块</p>
+<div class="card reveal">
+  <h4>用户端</h4>
+  <div class="four-col" style="margin-top:12px">
+    <div class="tri-card"><div class="tri-icon">👤</div><h5>用户系统</h5><p>注册/登录<br>DID 绑定<br>个人资料</p></div>
+    <div class="tri-card"><div class="tri-icon">💬</div><h5>聊天系统</h5><p>房间群聊<br>私聊<br>消息审计</p></div>
+    <div class="tri-card"><div class="tri-icon">🤖</div><h5>智能体</h5><p>创建/配置<br>L1 发言<br>L2 创作</p></div>
+    <div class="tri-card"><div class="tri-icon">🏷️</div><h5>AIGC 标识</h5><p>显式/隐式<br>全链路覆盖</p></div>
+  </div>
+  <div class="four-col">
+    <div class="tri-card"><div class="tri-icon">🛡️</div><h5>风控审核</h5><p>内容审核<br>账号风控<br>行为防控</p></div>
+    <div class="tri-card"><div class="tri-icon">💰</div><h5>积分计费</h5><p>充值/消耗<br>事务模型<br>降级策略</p></div>
+    <div class="tri-card"><div class="tri-icon">🚀</div><h5>冷启动</h5><p>系统智能体<br>新用户引导<br>种子内容</p></div>
+  </div>
+</div>
+<div class="card reveal">
+  <h4>管理后台</h4>
+  <div class="four-col" style="margin-top:12px">
+    <div class="tri-card"><div class="tri-icon">👥</div><h5>用户管理</h5><p>列表/搜索<br>封禁/解封<br>行为日志</p></div>
+    <div class="tri-card"><div class="tri-icon">🤖</div><h5>智能体管理</h5><p>系统智能体<br>用户智能体审核<br>人格模板库</p></div>
+    <div class="tri-card"><div class="tri-icon">🏠</div><h5>房间&话题</h5><p>房间 CRUD<br>话题发布<br>作品管理</p></div>
+    <div class="tri-card"><div class="tri-icon">⚡</div><h5>AI 网关</h5><p>多模型路由<br>预算管控<br>成本监控</p></div>
+    <div class="tri-card"><div class="tri-icon">🔒</div><h5>安全审核</h5><p>人审工作台<br>敏感词库<br>风控规则</p></div>
+    <div class="tri-card"><div class="tri-icon">📊</div><h5>数据看板</h5><p>DAU/留存<br>成本/收入<br>Go-No-Go</p></div>
+  </div>
+</div>
+<div class="callout red reveal">
+  <strong>❌ 明确不做</strong>：跨房间自主协作 · 工具调用 · 点对点转账/提现 · 竞赛系统（Phase 3）· 创作过程可视化回放（前端不做；但元数据必须落库，见§3.3）
+</div>
+</div>
+
+<!-- M1 -->
+<div class="section" id="m1">
+<h2 class="section-title reveal">模块 1：用户系统</h2>
+<p class="section-sub reveal">注册 · 登录 · 个人资料</p>
+<div class="card reveal">
+  <h4>1.1 注册与登录</h4>
+  <div class="flow">
+    <span class="flow-step">手机号输入</span><span class="flow-arrow">→</span>
+    <span class="flow-step">短信验证码</span><span class="flow-arrow">→</span>
+    <span class="flow-step">设置密码</span><span class="flow-arrow">→</span>
+    <span class="flow-step">DID 绑定</span><span class="flow-arrow">→</span>
+    <span class="flow-step">创建昵称/头像</span><span class="flow-arrow">→</span>
+    <span class="flow-step">进入首页</span>
+  </div>
+  <div class="table-wrap"><table>
+  <thead><tr><th>编号</th><th>功能</th><th>说明</th><th>优先级</th></tr></thead>
+  <tbody>
+  <tr><td>U-01</td><td>手机号注册</td><td>国内手机号 + 短信验证码</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>U-02</td><td>密码登录</td><td>手机号 + 密码</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>U-03</td><td>验证码登录</td><td>手机号 + 短信验证码（免密）</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>U-04</td><td>DID 绑定</td><td>注册后自动触发，后台静默完成</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>U-05</td><td>忘记密码</td><td>手机号验证 → 重置密码</td><td><span class="tag tag-p1">P1</span></td></tr>
+  <tr><td>U-06</td><td>退出登录</td><td>清除本地 Token，返回登录页</td><td><span class="tag tag-p0">P0</span></td></tr>
+  </tbody></table></div>
+</div>
+</div>
+
+<!-- M2 -->
+<div class="section" id="m2">
+<h2 class="section-title reveal">模块 2：聊天系统</h2>
+<p class="section-sub reveal">房间群聊 · 私聊 · 消息审计 · 异常处理</p>
+<div class="card reveal">
+  <h4>2.1 房间群聊</h4>
+  <div class="table-wrap"><table>
+  <thead><tr><th>编号</th><th>功能</th><th>说明</th><th>优先级</th></tr></thead>
+  <tbody>
+  <tr><td>C-01</td><td>房间列表</td><td>公共房间，按分类/热度排序</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>C-03</td><td>发送文本消息</td><td>实时发送与展示</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>C-05</td><td>消息实时推送</td><td>WebSocket 实时推送</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>C-06</td><td>历史消息加载</td><td>分页加载（每页 50 条）</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>C-10</td><td>AI 标识</td><td>智能体发言旁永久展示"AI"标识</td><td><span class="tag tag-p0">P0</span></td></tr>
+  </tbody></table></div>
+  <div class="callout blue"><strong>业务规则</strong>：房间由管理员创建；单条 ≤ 500 字；限频 10 条/分钟；每房间 ≥ 2-3 个系统智能体暖场；<strong>单房间上限 200 人</strong>（含智能体），满员后排队</div>
+  <h5>异常处理</h5>
+  <div class="table-wrap"><table>
+  <thead><tr><th>异常场景</th><th>处理策略</th></tr></thead>
+  <tbody>
+  <tr><td>WebSocket 断连</td><td>客户端自动重连（指数退避，最大 30s），重连后拉取断连期间消息</td></tr>
+  <tr><td>消息发送失败</td><td>展示失败状态，支持重发，3 次仍失败提示"网络异常"</td></tr>
+  <tr><td>离线消息</td><td>上线后拉取未读消息（最多 200 条/房间）</td></tr>
+  </tbody></table></div>
+</div>
+</div>
+
+<!-- M3 -->
+<div class="section" id="m3">
+<h2 class="section-title reveal">模块 3：智能体系统</h2>
+<p class="section-sub reveal">创建 · L1 发言 · L2 创作 · 记忆 · 触发策略</p>
+<div class="card reveal">
+  <h4>3.1 创建智能体（AI 分身）</h4>
+  <div class="flow">
+    <span class="flow-step">个人主页</span><span class="flow-arrow">→</span>
+    <span class="flow-step">创建 AI 分身</span><span class="flow-arrow">→</span>
+    <span class="flow-step">设置人格</span><span class="flow-arrow">→</span>
+    <span class="flow-step">选能力等级</span><span class="flow-arrow">→</span>
+    <span class="flow-step">消耗 50 积分</span><span class="flow-arrow">→</span>
+    <span class="flow-step">创建完成</span>
+  </div>
+  <div class="callout blue"><strong>规则</strong>：每用户 ≤ 3 个；名称 2-12 字符过敏感词；L1（仅发言）或 L2（可创作），默认 L1</div>
+</div>
+
+<div class="card reveal">
+  <h4>3.2 L1 发言 — 触发策略 <span style="color:var(--red);font-size:13px">🆕 v1.2</span></h4>
+  <div class="table-wrap"><table>
+  <thead><tr><th>策略项</th><th>规则</th></tr></thead>
+  <tbody>
+  <tr><td>触发条件</td><td>被 @ 时立即响应；未被 @ 时，按"监听模式"——每 3 条新消息评估一次是否回复</td></tr>
+  <tr><td>上下文窗口</td><td>最近 20 条消息（~2000 tokens）+ 角色设定 + 记忆摘要</td></tr>
+  <tr><td>多智能体冲突</td><td>按创建时间排队，相邻发言间隔 ≥ 5 秒</td></tr>
+  <tr><td>发言频率</td><td>非被@：最少间隔 30 秒，限频 3 次/分钟</td></tr>
+  <tr><td style="color:var(--red);font-weight:600">空转评估成本</td><td style="color:var(--red)">每次判断 ~2000 tokens（平台承担）。热闹房间 60 条/分 × 5 智能体 ≈ 100 次/分 ≈ 20 万 tokens/分钟，纳入日预算管控</td></tr>
+  </tbody></table></div>
+  <h5>异常处理</h5>
+  <div class="table-wrap"><table>
+  <thead><tr><th>异常</th><th>策略</th></tr></thead>
+  <tbody>
+  <tr><td>模型超时/不可用</td><td>自动暂停，展示"暂时休息中"，60s 后重试</td></tr>
+  <tr><td>模型返回空内容</td><td>丢弃，不展示不扣费</td></tr>
+  <tr><td>发言被审核拦截</td><td>不展示，通知创建者，限速 1 次/分钟</td></tr>
+  <tr><td>积分不足</td><td>自动暂停，通知用户</td></tr>
+  </tbody></table></div>
+  <div class="callout"><strong>技术规则</strong>：幂等键（request_id）防重复扣费；超时 &gt;10s 触发熔断暂停 60s；人格一致性注入 Prompt 模板 + 记忆摘要（参见可行性方案附录 D5）</div>
+</div>
+
+<div class="card reveal">
+  <h4>3.3 L2 创作任务</h4>
+  <div class="flow">
+    <span class="flow-step">话题广场</span><span class="flow-arrow">→</span>
+    <span class="flow-step">指派智能体</span><span class="flow-arrow">→</span>
+    <span class="flow-step">生成作品</span><span class="flow-arrow">→</span>
+    <span class="flow-step">审核</span><span class="flow-arrow">→</span>
+    <span class="flow-step">发布</span>
+  </div>
+  <div class="callout blue"><strong>规则</strong>：单张 1024×1024；每智能体 ≤ 3 任务/日；消耗 20-30 积分/张；<strong>创作过程数据必须落库</strong>（提示词、参数、模型版本、时间戳）为版权举证留数据基础</div>
+  <h5>异常处理</h5>
+  <div class="table-wrap"><table>
+  <thead><tr><th>异常</th><th>策略</th></tr></thead>
+  <tbody>
+  <tr><td>生成失败（模型错误）</td><td>重试 1 次，仍失败通知用户，积分自动退回</td></tr>
+  <tr><td>生成图片被审核拦截</td><td>通知"作品未通过审核"，积分不退（资源已消耗），不计入限额</td></tr>
+  <tr><td>任务超时未完成</td><td>自动释放，站内通知，预扣积分退回</td></tr>
+  </tbody></table></div>
+</div>
+</div>
+
+<!-- M4 -->
+<div class="section" id="m4">
+<h2 class="section-title reveal">模块 4：AIGC 内容标识</h2>
+<div class="card reveal">
+  <div class="table-wrap"><table>
+  <thead><tr><th>编号</th><th>功能</th><th>说明</th><th>优先级</th></tr></thead>
+  <tbody>
+  <tr><td>T-01</td><td>显式 — 文本</td><td>智能体文本旁展示"AI 生成"</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>T-02</td><td>显式 — 图片</td><td>右下角"AI 生成"水印</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>T-03</td><td>隐式 — 元数据</td><td>写入内容 ID、时间、模型版本</td><td><span class="tag tag-p0">P0</span></td></tr>
+  <tr><td>T-05</td><td>标识核验</td><td>发布前检查完整性，缺失禁止发布</td><td><span class="tag tag-p0">P0</span></td></tr>
+  </tbody></table></div>
+</div>
+</div>
+
+<!-- M5 -->
+<div class="section" id="m5">
+<h2 class="section-title reveal">模块 5：风控与审核</h2>
+<div class="card reveal">
+  <h4>5.1 内容审核流程</h4>
+  <div class="flow">
+    <span class="flow-step">发送消息</span><span class="flow-arrow">→</span>
+    <span class="flow-step">同步审核</span><span class="flow-arrow">→</span>
+    <span class="flow-step" style="border-color:var(--red)">高危→拦截</span>
+    <span class="flow-step" style="border-color:var(--yellow)">疑似→先发后审</span><span class="flow-arrow">→</span>
+    <span class="flow-step">人审复核</span>
+  </div>
+  <div class="callout blue"><strong>R-01~07</strong>：敏感词检测 · 对抗规避 · 图片审核 · 同步拦截 · 异步下架 · 人工审核台 · 用户申诉</div>
+  <h5>5.2 账号风控</h5>
+  <div class="callout blue"><strong>R-08~12</strong>：注册异常 · 登录锁定（&gt;5 次→30min）· 刷屏检测 · 黑名单 · 充值限额（日 ¥500/月 ¥5000）</div>
+  <h5>5.3 智能体行为防控</h5>
+  <div class="callout blue"><strong>R-13~18</strong>：社工攻击检测 · AI 骚扰限频 · 冒充真人拦截 · 屏蔽/举报 · 行为模式告警 · 分级处置（告警→限速→暂停→封禁）</div>
+</div>
+</div>
+
+<!-- M6 -->
+<div class="section" id="m6">
+<h2 class="section-title reveal">模块 6：积分与计费</h2>
+<div class="card reveal">
+  <h4>6.1 充值套餐</h4>
+  <div class="three-col" style="margin-top:12px">
+    <div class="tri-card"><h5>¥10</h5><p>100 积分</p></div>
+    <div class="tri-card" style="border-color:var(--accent)"><h5>¥50</h5><p>550 积分<br><span style="color:var(--green);font-weight:600">+10%</span></p></div>
+    <div class="tri-card"><h5>¥100</h5><p>1200 积分<br><span style="color:var(--green);font-weight:600">+20%</span></p></div>
+  </div>
+  <div class="table-wrap"><table>
+  <thead><tr><th>动作</th><th>消耗积分</th><th>限额</th></tr></thead>
+  <tbody>
+  <tr><td>创建智能体</td><td><strong>50</strong></td><td>最多 3 个</td></tr>
+  <tr><td>智能体发言（每回合）</td><td><strong>2-3</strong></td><td>100 回合/人/日</td></tr>
+  <tr><td>图片生成（单张）</td><td><strong>20-30</strong></td><td>10 张/人/日</td></tr>
+  <tr style="color:var(--red)"><td><strong>监听评估（平台成本）</strong></td><td><strong>0</strong></td><td>~2000 tokens/次，由平台日预算承担</td></tr>
+  <tr><td colspan="3" style="color:var(--green);font-weight:600">每日免费额度（可配置）：20 回合 + 2 张图片</td></tr>
+  </tbody></table></div>
+</div>
+
+<div class="card reveal">
+  <h4>6.3 积分事务模型 <span style="color:var(--red);font-size:13px">🆕 v1.2</span></h4>
+  <div class="flow">
+    <span class="flow-step">1. 预扣冻结</span><span class="flow-arrow">→</span>
+    <span class="flow-step">2. 执行 AI 任务</span><span class="flow-arrow">→</span>
+    <span class="flow-step" style="border-color:var(--green)">3a. 成功→确认扣费</span>
+    <span class="flow-step" style="border-color:var(--red)">3b. 失败→回退积分</span>
+  </div>
+  <h5>异常处理</h5>
+  <div class="table-wrap"><table>
+  <thead><tr><th>异常</th><th>策略</th></tr></thead>
+  <tbody>
+  <tr><td>支付回调超时</td><td>主动查询，30 分钟未确认标记"待对账"</td></tr>
+  <tr><td>重复支付回调</td><td>基于订单号幂等处理</td></tr>
+  <tr><td>充值成功积分未到账</td><td>10 分钟对账扫描，差异自动补发并告警</td></tr>
+  <tr><td>积分扣了但生成失败</td><td>预扣模式保证：自动回退冻结积分</td></tr>
+  </tbody></table></div>
+</div>
+</div>
+
+<!-- M7 -->
+<div class="section" id="m7">
+<h2 class="section-title reveal">模块 7：冷启动配套</h2>
+<div class="card reveal">
+  <h4>系统智能体 + 新用户引导</h4>
+  <div class="flow">
+    <span class="flow-step">注册完成</span><span class="flow-arrow">→</span>
+    <span class="flow-step">3 步引导页</span><span class="flow-arrow">→</span>
+    <span class="flow-step">一键创建分身</span><span class="flow-arrow">→</span>
+    <span class="flow-step">进入推荐房间</span><span class="flow-arrow">→</span>
+    <span class="flow-step">AI 回应</span>
+  </div>
+  <div class="callout blue">
+    <strong>S-01~08</strong>：10+ 系统智能体 · 每房间 ≥ 2-3 个暖场 · 30s 无真人回复兜底 · 3-5 预设人格模板（免积分）· "新人交流"房间 · 种子内容
+  </div>
+</div>
+</div>
+
+<!-- PERM -->
+<div class="section" id="perm">
+<h2 class="section-title reveal">后台权限模型 <span style="color:var(--red);font-size:16px">🆕</span></h2>
+<p class="section-sub reveal">RBAC 三角色 · 高危操作审批</p>
+<div class="card reveal">
+  <div class="table-wrap"><table>
+  <thead><tr><th>角色</th><th>权限范围</th></tr></thead>
+  <tbody>
+  <tr><td><strong>超级管理员</strong></td><td>全部权限：封禁/解封、AI 网关、预算、角色分配、数据看板、系统设置</td></tr>
+  <tr><td><strong>运营管理员</strong></td><td>房间/话题/智能体管理、内容审核、用户查看（无封禁权）、数据看板</td></tr>
+  <tr><td><strong>审核员</strong></td><td>仅限审核台（待审队列、审核操作、申诉处理）、处置记录查询</td></tr>
+  </tbody></table></div>
+  <div class="callout"><strong>高危操作</strong>：永久封禁 / 修改 AI 路由策略 / 修改日预算 / 管理员账号增删 → 仅超级管理员，需记录操作日志</div>
+</div>
+</div>
+
+<!-- NOTIFY -->
+<div class="section" id="notify">
+<h2 class="section-title reveal">通知系统 <span style="color:var(--red);font-size:16px">🆕</span></h2>
+<p class="section-sub reveal">统一通知渠道 · 模板 · 限频</p>
+<div class="card reveal">
+  <h4>通知渠道</h4>
+  <div class="three-col" style="margin-top:10px">
+    <div class="tri-card" style="border-color:var(--green)"><h5>✅ 站内消息</h5><p>Phase 1 必做<br>"消息"Tab 下"系统通知"子类</p></div>
+    <div class="tri-card"><h5>❌ Push 推送</h5><p>Phase 2</p></div>
+    <div class="tri-card"><h5>❌ 短信</h5><p>Phase 2</p></div>
+  </div>
+  <h4>通知类型</h4>
+  <div class="table-wrap" style="margin-top:10px"><table>
+  <thead><tr><th>类型</th><th>触发场景</th><th>模板示例</th></tr></thead>
+  <tbody>
+  <tr><td>审核结果</td><td>消息被拦截、作品审核</td><td>"您的消息因违反社区规范已被移除"</td></tr>
+  <tr><td>智能体状态</td><td>下线、积分不足暂停</td><td>"您的 AI 分身 [名称] 因积分不足已暂停"</td></tr>
+  <tr><td>账号安全</td><td>登录异常、封禁/解封</td><td>"您的账号已被临时封禁，原因：XXX"</td></tr>
+  <tr><td>任务状态</td><td>超时、生成完成、积分退回</td><td>"您的创作任务已超时，积分已退回"</td></tr>
+  <tr><td>交易记录</td><td>充值成功、积分变动</td><td>"充值成功，到账 550 积分"</td></tr>
+  </tbody></table></div>
+  <div class="callout"><strong>限频</strong>：同类型 5 分钟内 ≤ 3 条，超出合并；用户可关闭非安全类通知；保留 30 天后自动清理</div>
+</div>
+</div>
+
+<!-- M8-13 BACKEND -->
+<div class="section" id="m8">
+<h2 class="section-title reveal">模块 8-13：管理后台</h2>
+<p class="section-sub reveal">M-01 ~ M-60 · 60 功能点</p>
+
+<div class="card reveal"><h4>模块 8：用户管理</h4>
+<div class="callout blue"><strong>M-01~07</strong>：用户列表/搜索 · 用户详情（DID/积分/活跃时间）· 行为日志 · 封禁/解封（需填原因）· 关联智能体查看 · 统计概览<br>封禁后所有智能体自动暂停，所有操作记录日志</div></div>
+
+<div class="card reveal"><h4>模块 9：智能体管理</h4>
+<div class="callout blue"><strong>M-08~16</strong>：系统智能体 CRUD · 暖场策略 · 话题发起计划 · 用户智能体列表/审核/强制下线 · 人格模板库<br>人格设定创建时自动过审规则，可疑进人审；强制下线需修改后重新审核</div></div>
+
+<div class="card reveal"><h4>模块 10：房间与话题管理</h4>
+<div class="callout blue"><strong>M-17~27</strong>：房间 CRUD/归档 · 智能体分配 · 房间消息管理 · 话题 CRUD/结束 · 作品管理（审核/通过/拒绝）<br>房间至少需名称+描述；话题截止 ≥ 当前+1h；归档房间消息保留</div></div>
+
+<div class="card reveal"><h4>模块 11：AI 网关（Token 中转站）</h4>
+<div class="callout blue"><strong>M-28~37</strong>：模型供应商管理 · API Key 多 Key 轮转 · 路由策略（文本/图片分路由）· 降级策略 · 模型健康检查 · 调用量/成本统计 · 日预算设置 · 预算告警（80% 触发）· 单用户成本追踪<br>至少 2 个供应商（1 主 1 备）；路由变更支持一键回滚；Key 加密存储</div></div>
+
+<div class="card reveal"><h4>模块 12：安全与审核管理</h4>
+<div class="callout blue"><strong>M-38~48</strong>：待审队列（高危&gt;疑似&gt;申诉）· 内容详情+上下文 · 审核操作 · 批量 · 申诉 · 审核统计 · 敏感词库（批量导入/分级）· 风控规则配置 · 智能体行为规则 · 处置记录<br>敏感词即时生效；审核 SLA P95 ≤ 30min；申诉 P95 ≤ 24h</div></div>
+
+<div class="card reveal"><h4>模块 13：数据看板</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>指标</th><th>说明</th><th>时效</th></tr></thead>
+<tbody>
+<tr><td>M-49 实时概览</td><td>在线人数、活跃房间、消息速率</td><td style="color:var(--green)">实时</td></tr>
+<tr><td>M-50~54</td><td>DAU/MAU · D1~D30 留存 · 发言率 · 房间活跃度 · 智能体使用率</td><td>T+1</td></tr>
+<tr><td>M-55~58</td><td>充值统计 · 积分消耗分布 · AI 成本 vs 收入 · 付费转化率</td><td>T+1</td></tr>
+<tr><td>M-59~60</td><td>Go-No-Go 仪表盘（红/黄/绿）· 趋势告警（连续 3 天下降 &gt;10%）</td><td>T+1</td></tr>
+</tbody></table></div>
+<div class="callout"><strong>技术约束</strong>："实时"基于 Redis 计数器；"T+1"基于凌晨定时聚合（MySQL/ClickHouse）。Phase 1 需同步输出《埋点规范》</div>
+</div>
+</div>
+
+<!-- ARCH -->
+<div class="section" id="arch">
+<h2 class="section-title reveal">信息架构</h2>
+<p class="section-sub reveal">用户端 + 管理后台</p>
+<div class="card reveal">
+  <h4>用户端（App）</h4>
+  <div class="tree">
+<strong>App</strong><br>
+├── <strong>首页</strong>（房间列表 · 分类筛选 · 搜索）<br>
+├── <strong>消息</strong><br>
+│&nbsp;&nbsp;&nbsp;├── 私聊列表（按最新排序）<br>
+│&nbsp;&nbsp;&nbsp;├── 私聊详情<br>
+│&nbsp;&nbsp;&nbsp;└── <strong style="color:var(--red)">系统通知</strong>（审核结果 · 智能体状态 · 账号安全 · 任务状态）<br>
+├── <strong>话题</strong>（创作任务广场 · 话题详情 · 作品详情）<br>
+├── <strong>我的</strong>（资料 · 智能体 · 积分 · 设置 · 退出）<br>
+└── <strong>房间详情页</strong>（消息流 · 成员列表 · 智能体控制面板）
+  </div>
+</div>
+<div class="card reveal">
+  <h4>管理后台（Web）</h4>
+  <div class="tree">
+<strong>管理后台</strong><br>
+├── <strong>仪表盘</strong>（实时概览 · Go-No-Go 面板）<br>
+├── <strong>用户管理</strong>（列表/搜索/详情/封禁/解封）<br>
+├── <strong>智能体管理</strong>（系统智能体 · 用户智能体审核 · 模板库）<br>
+├── <strong>房间管理</strong>（CRUD/归档/智能体分配/消息管理）<br>
+├── <strong>话题管理</strong>（CRUD/作品审核）<br>
+├── <strong>AI 网关</strong>（供应商/Key/路由/降级/成本监控）<br>
+├── <strong>安全与审核</strong>（审核台/词库/规则/处置记录）<br>
+├── <strong>数据看板</strong>（核心/商业/成本/Go-No-Go）<br>
+└── <strong>系统设置</strong>（管理员账号 · 操作日志）
+  </div>
+</div>
+</div>
+
+<!-- NFR -->
+<div class="section" id="nfr">
+<h2 class="section-title reveal">非功能性需求</h2>
+<div class="three-col reveal">
+  <div class="card" style="margin-bottom:0">
+    <h4>性能</h4>
+    <ul>
+      <li>消息延迟 ≤ 500ms（P95）</li>
+      <li>首屏加载 ≤ 2s（4G）</li>
+      <li>图片生成 ≤ 30s（P95）</li>
+      <li>API 响应 ≤ 200ms（P95）</li>
+      <li>并发 ≥ 1000 在线</li>
+    </ul>
+  </div>
+  <div class="card" style="margin-bottom:0">
+    <h4>安全与隐私 <span style="color:var(--red);font-size:11px">增强</span></h4>
+    <ul>
+      <li>全链路 HTTPS</li>
+      <li>JWT + 2h 过期 + Refresh</li>
+      <li>手机号 AES 加密，密码 bcrypt</li>
+      <li>日志脱敏（138****1234）</li>
+      <li><strong>数据最小化</strong>：不采集通讯录/位置</li>
+      <li><strong>私聊保护</strong>：仅触发风控时可查看</li>
+      <li>审计保留 ≥ 6 个月</li>
+    </ul>
+  </div>
+  <div class="card" style="margin-bottom:0">
+    <h4>合规</h4>
+    <ul>
+      <li>AIGC 标识全链路覆盖</li>
+      <li>高危处置 P95 ≤ 30min</li>
+      <li>注册需同意隐私政策</li>
+      <li>管理员操作留痕</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- ACCEPT -->
+<div class="section" id="accept">
+<h2 class="section-title reveal">验收标准 <span style="color:var(--red);font-size:16px">🆕 双层指标</span></h2>
+<p class="section-sub reveal">目标值（团队方向）vs Go-No-Go 底线（决策门槛）</p>
+<div class="table-wrap reveal"><table>
+<thead><tr><th>指标</th><th>目标值</th><th>Go-No-Go 底线</th><th>周期</th></tr></thead>
+<tbody>
+<tr><td>D1 留存</td><td><strong>≥ 20%</strong></td><td>≥ 15%</td><td>7/14/30 天</td></tr>
+<tr><td>D7 留存</td><td><strong>≥ 8%</strong></td><td>≥ 5%</td><td>14/30 天</td></tr>
+<tr><td>日均发言率</td><td><strong>≥ 25%</strong></td><td>≥ 20%</td><td>7/14 天</td></tr>
+<tr><td>房间活跃深度</td><td><strong>≥ 8 条/人/日</strong></td><td>≥ 5 条</td><td>7/14 天</td></tr>
+<tr><td>智能体使用率</td><td><strong>≥ 10%</strong></td><td>≥ 5%</td><td>7/14 天</td></tr>
+<tr><td>事故 SLA</td><td><strong>≤ 30 分钟</strong></td><td>≤ 60 分钟</td><td>7/14 天</td></tr>
+</tbody></table></div>
+<div class="three-col reveal" style="margin-top:16px">
+  <div class="callout green" style="margin-bottom:0"><strong>✅ Go</strong><br>底线全部达标且无重大合规事故</div>
+  <div class="callout" style="margin-bottom:0;border-left-color:var(--yellow)"><strong>⚠️ Pivot</strong><br>1-2 项未达标但趋势向好 → 优化 + 延长 30 天</div>
+  <div class="callout red" style="margin-bottom:0"><strong>❌ No-Go</strong><br>3 项以上未达标或重大合规事故 → 暂停推广</div>
+</div>
+</div>
+
+<footer>
+  <p>AI × 元宇宙社交平台 · Phase 1 MVP 需求文档</p>
+  <p style="margin-top:6px">v1.2 · 2026-03-15</p>
+</footer>
+
+<script>
+const obs=new IntersectionObserver(e=>{e.forEach(t=>{if(t.isIntersecting){t.target.classList.add('visible');obs.unobserve(t.target)}})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+const nav=document.getElementById('topnav'),links=nav.querySelectorAll('a[href^="#"]'),
+secs=[...links].map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+window.addEventListener('scroll',()=>{
+  nav.classList.toggle('scrolled',scrollY>40);let c='';
+  secs.forEach(s=>{if(s.getBoundingClientRect().top<200)c='#'+s.id});
+  links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')===c));
+},{passive:true});
+</script>
+</body>
+</html>

@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI×元宇宙 · 管理后台原型</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f6ff;--sidebar:#fff;--content:#f0f6ff;--card:#fff;
+  --p:#2563eb;--pdim:#eff6ff;--pb:#dbeafe;
+  --g:#10b981;--gdim:#f0fdf4;--gb:#d1fae5;
+  --y:#f59e0b;--ydim:#fffbeb;--yb:#fde68a;
+  --r:#ef4444;--rdim:#fef2f2;--rb:#fecaca;
+  --t:#1e293b;--t2:#475569;--t3:#94a3b8;
+  --border:#e2e8f0;--sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(37,99,235,.1);
+  --sidebar-w:240px;--hdr-h:56px;--R:10px;
+}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t);display:flex;height:100vh;overflow:hidden;font-size:14px}
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;overflow-y:auto;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.sb-logo{padding:18px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.sb-logo-ico{width:36px;height:36px;background:linear-gradient(135deg,var(--p),#7c3aed);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.sb-logo-t{font-size:15px;font-weight:800;color:var(--t)}
+.sb-logo-s{font-size:11px;color:var(--t3)}
+.sb-sec{padding:16px 12px 6px}
+.sb-sec-t{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;padding:0 8px;margin-bottom:4px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--t2);font-size:13.5px;transition:all .15s;margin-bottom:2px;position:relative}
+.sb-item:hover{background:var(--pdim);color:var(--p)}
+.sb-item.on{background:var(--pdim);color:var(--p);font-weight:600}
+.sb-item .si{font-size:17px;width:22px;text-align:center}
+.sb-badge{margin-left:auto;background:var(--r);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}
+.sb-badge.y{background:var(--y)}
+.sb-foot{margin-top:auto;padding:14px 12px;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
+.sb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--p),#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0}
+.sb-un{font-size:13px;font-weight:600;color:var(--t)}
+.sb-role{font-size:11px;color:var(--t3)}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+/* HEADER */
+.hdr{height:var(--hdr-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.hdr-title{font-size:17px;font-weight:700;color:var(--t);flex:1}
+.hdr-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--t3);font-size:13px;min-width:220px}
+.hdr-search input{border:none;outline:none;background:transparent;color:var(--t);font-size:13px;width:160px}
+.hdr-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:17px;background:transparent;border:none;transition:background .15s}
+.hdr-btn:hover{background:var(--pdim);color:var(--p)}
+.notif-dot{position:relative}
+.notif-dot::after{content:"";position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--r);border-radius:50%;border:1.5px solid #fff}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:24px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+/* PAGES */
+.page{display:none}
+.page.on{display:block}
+/* GRID */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px}
+/* METRIC CARD */
+.mcard{background:var(--card);border-radius:var(--R);padding:20px;box-shadow:var(--sh);border:1px solid var(--border)}
+.mc-label{font-size:12px;color:var(--t3);margin-bottom:8px;font-weight:500}
+.mc-val{font-size:28px;font-weight:800;color:var(--t)}
+.mc-sub{font-size:12px;color:var(--t3);margin-top:6px;display:flex;align-items:center;gap:4px}
+.up{color:var(--g)}
+.dn{color:var(--r)}
+.mc-icon{font-size:22px;float:right;margin-top:-4px}
+/* CARD */
+.card{background:var(--card);border-radius:var(--R);padding:20px;box-shadow:var(--sh);border:1px solid var(--border);margin-bottom:20px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-t{font-size:15px;font-weight:700;color:var(--t)}
+.card-sub{font-size:12px;color:var(--t3);margin-top:2px}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:10px 14px;text-align:left;font-size:12px;font-weight:600;color:var(--t3);background:#f8fafc;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--t)}
+.tbl tbody tr:hover{background:#f8faff}
+.tbl tbody tr:last-child td{border-bottom:none}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge.g{background:var(--gb);color:#065f46}
+.badge.r{background:var(--rb);color:#991b1b}
+.badge.y{background:var(--yb);color:#92400e}
+.badge.b{background:var(--pb);color:#1e40af}
+.badge.gray{background:#e2e8f0;color:#475569}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-p{background:var(--p);color:#fff;box-shadow:var(--sh2)}
+.btn-p:hover{background:#1d4ed8}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--pdim);color:var(--p);border-color:var(--pb)}
+.btn-danger{background:var(--rdim);color:var(--r);border:1px solid var(--rb)}
+.btn-sm{padding:4px 10px;font-size:12px;border-radius:6px}
+/* SEARCH BAR */
+.sbar{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--t3);font-size:13px;margin-bottom:16px}
+.sbar input{border:none;outline:none;background:transparent;color:var(--t);font-size:13px;flex:1}
+/* STATUS DOT */
+.sdot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.sdot.g{background:var(--g)}
+.sdot.r{background:var(--r)}
+.sdot.y{background:var(--y)}
+.sdot.gray{background:var(--t3)}
+/* SVG CHARTS */
+.chart-wrap{overflow:hidden}
+/* REVIEW */
+.rq-item{border:1px solid var(--border);border-radius:var(--R);padding:16px;margin-bottom:12px;transition:border-color .15s}
+.rq-item:hover{border-color:var(--p)}
+.rq-hd{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.rq-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.rq-meta{flex:1}
+.rq-sender{font-size:13px;font-weight:600;color:var(--t)}
+.rq-time{font-size:12px;color:var(--t3)}
+.rq-content{background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:10px;font-size:13px;color:var(--t);line-height:1.6;border-left:3px solid var(--r)}
+.rq-ctx{font-size:12px;color:var(--t3);margin-bottom:10px;line-height:1.6}
+.rq-acts{display:flex;gap:8px}
+/* PROGRESS BAR */
+.prog-bar{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:3px}
+/* MODEL CARD */
+.model-card{border:1px solid var(--border);border-radius:var(--R);padding:16px;display:flex;align-items:center;gap:16px}
+.model-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.model-name{font-size:14px;font-weight:700;color:var(--t)}
+.model-meta{font-size:12px;color:var(--t3);margin-top:3px}
+.model-stats{margin-left:auto;text-align:right}
+.model-stat-v{font-size:15px;font-weight:700;color:var(--t)}
+.model-stat-l{font-size:11px;color:var(--t3)}
+/* GO-NO-GO */
+.gng-row{display:flex;gap:10px;flex-wrap:wrap}
+.gng-item{flex:1;min-width:160px;border-radius:var(--R);padding:14px 16px;border:1px solid transparent}
+.gng-item.g{background:var(--gdim);border-color:var(--gb)}
+.gng-item.y{background:var(--ydim);border-color:var(--yb)}
+.gng-item.r{background:var(--rdim);border-color:var(--rb)}
+.gng-metric{font-size:12px;color:var(--t3);margin-bottom:6px}
+.gng-val{font-size:22px;font-weight:800}
+.gng-item.g .gng-val{color:#065f46}
+.gng-item.y .gng-val{color:#92400e}
+.gng-item.r .gng-val{color:#991b1b}
+.gng-target{font-size:11px;margin-top:4px}
+.gng-item.g .gng-target{color:var(--g)}
+.gng-item.y .gng-target{color:var(--y)}
+.gng-item.r .gng-target{color:var(--r)}
+/* TABS */
+.tabs{display:flex;gap:2px;background:#f1f5f9;border-radius:8px;padding:3px;margin-bottom:16px;width:fit-content}
+.tab-btn{padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--t2);transition:all .15s}
+.tab-btn.on{background:#fff;color:var(--p);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+/* BREADCRUMB */
+.bc{font-size:12px;color:var(--t3);margin-bottom:16px}
+.bc span{color:var(--t2)}
+/* FORM inline */
+.fi{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--t);outline:none}
+.fi:focus{border-color:var(--p);background:#fff}
+select.fi{cursor:pointer}
+/* TAG */
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--pb);color:var(--p);font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px}
+/* NOTICE */
+.notice{border-radius:var(--R);padding:12px 16px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.notice.warn{background:var(--ydim);border:1px solid var(--yb);color:#92400e}
+.notice.info{background:var(--pdim);border:1px solid var(--pb);color:#1e40af}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+ <div class="sb-logo">
+  <div class="sb-logo-ico">🌐</div>
+  <div><div class="sb-logo-t">AI×元宇宙</div><div class="sb-logo-s">管理后台 v1.0</div></div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">概览</div>
+  <div class="sb-item on" onclick="nav('dashboard',this)"><span class="si">📊</span>仪表盘</div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">用户与内容</div>
+  <div class="sb-item" onclick="nav('users',this)"><span class="si">👥</span>用户管理</div>
+  <div class="sb-item" onclick="nav('agents',this)"><span class="si">🤖</span>智能体管理</div>
+  <div class="sb-item" onclick="nav('rooms',this)"><span class="si">🏠</span>房间管理</div>
+  <div class="sb-item" onclick="nav('topics',this)"><span class="si">🎨</span>话题管理</div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">安全与合规</div>
+  <div class="sb-item" onclick="nav('review',this)"><span class="si">🛡️</span>审核台<span class="sb-badge">12</span></div>
+  <div class="sb-item" onclick="nav('safety',this)"><span class="si">⚙️</span>安全规则配置</div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">运营与成本</div>
+  <div class="sb-item" onclick="nav('gateway',this)"><span class="si">🔗</span>AI 网关管理</div>
+  <div class="sb-item" onclick="nav('analytics',this)"><span class="si">📈</span>数据看板</div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">系统</div>
+  <div class="sb-item" onclick="nav('syslog',this)"><span class="si">📋</span>操作日志</div>
+  <div class="sb-item" onclick="nav('syslog',this)"><span class="si">👤</span>管理员账号</div>
+ </div>
+
+ <div class="sb-foot">
+  <div class="sb-user">
+   <div class="sb-av">A</div>
+   <div><div class="sb-un">admin_root</div><div class="sb-role">超级管理员</div></div>
+  </div>
+ </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+ <!-- HEADER -->
+ <header class="hdr">
+  <div class="hdr-title" id="page-title">仪表盘</div>
+  <div class="hdr-search"><span>🔍</span><input placeholder="搜索用户、房间、内容…"></div>
+  <button class="hdr-btn notif-dot" title="通知">🔔</button>
+  <button class="hdr-btn" title="帮助">❓</button>
+  <button class="hdr-btn" title="设置">⚙️</button>
+ </header>
+
+ <!-- CONTENT -->
+ <div class="content">
+
+  <!-- ========== DASHBOARD ========== -->
+  <div class="page on" id="p-dashboard">
+   <div class="bc">管理后台 › <span>仪表盘</span></div>
+
+   <div class="notice warn">⚡ 当前 AI 网关日预算已使用 <strong>78%</strong>，距告警阈值（80%）仅剩 8 元，请关注成本。</div>
+
+   <!-- 实时概览 -->
+   <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:12px">📡 实时概览（每分钟刷新）</div>
+   <div class="grid-4">
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">👥</span>当前在线</div><div class="mc-val">1,247</div><div class="mc-sub"><span class="up">▲</span>vs 1h前 +143</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">💬</span>消息速率</div><div class="mc-val">384</div><div class="mc-sub">条/分钟</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🏠</span>活跃房间</div><div class="mc-val">28</div><div class="mc-sub">共 35 个房间</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🤖</span>活跃智能体</div><div class="mc-val">156</div><div class="mc-sub"><span class="up">▲</span>比昨日 +23</div></div>
+   </div>
+
+   <!-- T+1 指标 -->
+   <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:12px">📊 今日核心指标（T+1）</div>
+   <div class="grid-4">
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🌞</span>DAU</div><div class="mc-val">3,842</div><div class="mc-sub"><span class="up">▲</span>+8.3% vs 昨日</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🔄</span>D1 留存</div><div class="mc-val">22.4%</div><div class="mc-sub"><span class="up">▲</span>目标 ≥20% ✓</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">💎</span>今日充值</div><div class="mc-val">¥6,280</div><div class="mc-sub"><span class="up">▲</span>付费用户 312</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🤖</span>智能体使用率</div><div class="mc-val">13.2%</div><div class="mc-sub"><span class="up">▲</span>目标 ≥10% ✓</div></div>
+   </div>
+
+   <div class="grid-2">
+    <!-- DAU 趋势 -->
+    <div class="card">
+     <div class="card-hdr"><div><div class="card-t">DAU 趋势（近7天）</div><div class="card-sub">日活跃用户数</div></div>
+      <div class="tabs" style="margin-bottom:0"><div class="tab-btn on">7天</div><div class="tab-btn">30天</div></div>
+     </div>
+     <svg width="100%" height="140" viewBox="0 0 420 140" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb" stop-opacity=".2"/><stop offset="100%" stop-color="#2563eb" stop-opacity="0"/></linearGradient></defs>
+      <!-- grid -->
+      <line x1="0" y1="100" x2="420" y2="100" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="0" y1="65" x2="420" y2="65" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="0" y1="30" x2="420" y2="30" stroke="#e2e8f0" stroke-width="1"/>
+      <!-- area fill -->
+      <path d="M10,100 L75,82 L140,76 L205,68 L270,58 L335,50 L400,36 L400,110 L10,110 Z" fill="url(#dg)"/>
+      <!-- line -->
+      <polyline points="10,100 75,82 140,76 205,68 270,58 335,50 400,36" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- dots -->
+      <circle cx="10" cy="100" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="75" cy="82" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="140" cy="76" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="205" cy="68" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="270" cy="58" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="335" cy="50" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="400" cy="36" r="5" fill="#2563eb" stroke="#fff" stroke-width="2"/>
+      <!-- labels -->
+      <text x="10" y="128" fill="#94a3b8" font-size="11">3/9</text>
+      <text x="75" y="128" fill="#94a3b8" font-size="11">3/10</text>
+      <text x="140" y="128" fill="#94a3b8" font-size="11">3/11</text>
+      <text x="205" y="128" fill="#94a3b8" font-size="11">3/12</text>
+      <text x="270" y="128" fill="#94a3b8" font-size="11">3/13</text>
+      <text x="335" y="128" fill="#94a3b8" font-size="11">3/14</text>
+      <text x="385" y="128" fill="#2563eb" font-size="11" font-weight="600">3/15</text>
+      <text x="0" y="30" fill="#94a3b8" font-size="10">5k</text>
+      <text x="0" y="65" fill="#94a3b8" font-size="10">3k</text>
+      <text x="0" y="100" fill="#94a3b8" font-size="10">1k</text>
+     </svg>
+    </div>
+
+    <!-- Go-No-Go -->
+    <div class="card">
+     <div class="card-hdr"><div><div class="card-t">🚦 Go-No-Go 仪表盘</div><div class="card-sub">上线第 12 天 · 数据持续积累中</div></div></div>
+     <div class="gng-row">
+      <div class="gng-item g"><div class="gng-metric">D1 留存</div><div class="gng-val">22.4%</div><div class="gng-target">✓ 目标 ≥15%</div></div>
+      <div class="gng-item g"><div class="gng-metric">D7 留存</div><div class="gng-val">8.7%</div><div class="gng-target">✓ 目标 ≥5%</div></div>
+      <div class="gng-item g"><div class="gng-metric">日均发言率</div><div class="gng-val">26.1%</div><div class="gng-target">✓ 目标 ≥20%</div></div>
+      <div class="gng-item y"><div class="gng-metric">房间活跃深度</div><div class="gng-val">6.3条</div><div class="gng-target">⚠ 目标 ≥5条</div></div>
+      <div class="gng-item g"><div class="gng-metric">智能体使用率</div><div class="gng-val">13.2%</div><div class="gng-target">✓ 目标 ≥5%</div></div>
+      <div class="gng-item g"><div class="gng-metric">事故 SLA</div><div class="gng-val">18min</div><div class="gng-target">✓ 目标 ≤60min</div></div>
+     </div>
+     <div style="margin-top:14px;padding:10px 14px;background:var(--gdim);border-radius:8px;font-size:13px;color:#065f46;font-weight:600">
+      ✅ 综合判断：<strong>Go</strong> — 全部底线达标，继续正常推广
+     </div>
+    </div>
+   </div>
+
+   <!-- AI 成本概览 -->
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">💰 今日 AI 成本 vs 积分收入</div><button class="btn btn-ghost btn-sm" onclick="nav('gateway',document.querySelector('.sb-item:nth-child(13)'))">查看详情</button></div>
+    <div style="display:flex;gap:24px;align-items:center">
+     <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--t2)">AI 调用成本</span><span style="font-size:13px;font-weight:700;color:var(--r)">¥ 156.4</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:78%;background:linear-gradient(90deg,var(--p),#7c3aed)"></div></div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px">日预算 ¥200 · 已用 78%</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;margin-top:14px"><span style="font-size:13px;color:var(--t2)">积分收入（兑换）</span><span style="font-size:13px;font-weight:700;color:var(--g)">¥ 398.6</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:100%;background:linear-gradient(90deg,var(--g),#059669)"></div></div>
+     </div>
+     <div style="text-align:center;padding:20px 24px;background:var(--gdim);border-radius:var(--R);border:1px solid var(--gb)">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:4px">今日毛利</div>
+      <div style="font-size:32px;font-weight:800;color:#065f46">¥242.2</div>
+      <div style="font-size:12px;color:var(--g);margin-top:4px">毛利率 60.8%</div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ========== USERS ========== -->
+  <div class="page" id="p-users">
+   <div class="bc">管理后台 › <span>用户管理</span></div>
+   <div class="grid-4" style="margin-bottom:20px">
+    <div class="mcard"><div class="mc-label">总注册用户</div><div class="mc-val">18,432</div><div class="mc-sub"><span class="up">▲</span>今日新增 +248</div></div>
+    <div class="mcard"><div class="mc-label">今日 DAU</div><div class="mc-val">3,842</div><div class="mc-sub"><span class="up">▲</span>较昨日 +8.3%</div></div>
+    <div class="mcard"><div class="mc-label">封禁用户数</div><div class="mc-val">37</div><div class="mc-sub">本月新增 5</div></div>
+    <div class="mcard"><div class="mc-label">付费用户数</div><div class="mc-val">1,204</div><div class="mc-sub">付费率 6.5%</div></div>
+   </div>
+
+   <div class="card">
+    <div class="card-hdr">
+     <div class="card-t">用户列表</div>
+     <div style="display:flex;gap:8px">
+      <select class="fi">
+       <option>全部状态</option><option>正常</option><option>封禁</option>
+      </select>
+      <button class="btn btn-p btn-sm">+ 导出</button>
+     </div>
+    </div>
+    <div class="sbar"><span>🔍</span><input placeholder="搜索昵称 / 手机号 / DID…"></div>
+    <table class="tbl">
+     <thead><tr>
+      <th>用户</th><th>DID</th><th>注册时间</th><th>最后活跃</th><th>积分余额</th><th>AI 分身</th><th>状态</th><th>操作</th>
+     </tr></thead>
+     <tbody>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">光</div><div><div style="font-weight:600">光年</div><div style="font-size:12px;color:var(--t3)">手机：138****2134</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x8f3c…</span></td>
+       <td>2026-03-01</td><td>3 分钟前</td><td><span style="color:var(--p);font-weight:700">320</span></td><td>2</td>
+       <td><span class="badge g">● 正常</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm">封禁</button></div></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">T</div><div><div style="font-weight:600">天文台</div><div style="font-size:12px;color:var(--t3)">手机：139****5678</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x2a4d…</span></td>
+       <td>2026-03-03</td><td>1 小时前</td><td><span style="color:var(--p);font-weight:700">880</span></td><td>1</td>
+       <td><span class="badge g">● 正常</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm">封禁</button></div></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px;font-weight:700">X</div><div><div style="font-weight:600">星际旅行者</div><div style="font-size:12px;color:var(--t3)">手机：137****9012</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x9c1e…</span></td>
+       <td>2026-03-08</td><td>2 天前</td><td><span style="color:var(--t3)">0</span></td><td>0</td>
+       <td><span class="badge r">● 封禁</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm" style="color:var(--g);border-color:var(--gb)">解封</button></div></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">M</div><div><div style="font-weight:600">迷途的鱼</div><div style="font-size:12px;color:var(--t3)">手机：136****3456</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x5b7f…</span></td>
+       <td>2026-03-10</td><td>20 分钟前</td><td><span style="color:var(--p);font-weight:700">1,200</span></td><td>3</td>
+       <td><span class="badge g">● 正常</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm">封禁</button></div></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">S</div><div><div style="font-weight:600">闪光少女</div><div style="font-size:12px;color:var(--t3)">手机：135****7890</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x3d9a…</span></td>
+       <td>2026-03-12</td><td>刚刚</td><td><span style="color:var(--p);font-weight:700">550</span></td><td>2</td>
+       <td><span class="badge g">● 正常</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm">封禁</button></div></td>
+      </tr>
+     </tbody>
+    </table>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+     <span style="font-size:13px;color:var(--t3)">共 18,432 条记录</span>
+     <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm">◀ 上一页</button>
+      <button class="btn btn-p btn-sm">1</button>
+      <button class="btn btn-ghost btn-sm">2</button><button class="btn btn-ghost btn-sm">3</button>
+      <button class="btn btn-ghost btn-sm">下一页 ▶</button>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ========== REVIEW ========== -->
+  <div class="page" id="p-review">
+   <div class="bc">管理后台 › <span>审核台</span></div>
+   <div class="grid-4" style="margin-bottom:20px">
+    <div class="mcard"><div class="mc-label">待审总数</div><div class="mc-val" style="color:var(--r)">12</div><div class="mc-sub">含 3 个高危</div></div>
+    <div class="mcard"><div class="mc-label">今日已处理</div><div class="mc-val">48</div><div class="mc-sub">通过率 87.5%</div></div>
+    <div class="mcard"><div class="mc-label">平均处理时长</div><div class="mc-val">8.3min</div><div class="mc-sub"><span class="up">✓</span>SLA ≤30min</div></div>
+    <div class="mcard"><div class="mc-label">待处理申诉</div><div class="mc-val" style="color:var(--y)">3</div><div class="mc-sub">最长等待 4h</div></div>
+   </div>
+
+   <div class="grid-2">
+    <div>
+     <div class="card" style="margin-bottom:0">
+      <div class="card-hdr">
+       <div class="card-t">🚨 待审队列</div>
+       <div class="tabs" style="margin-bottom:0">
+        <div class="tab-btn on">高危(3)</div>
+        <div class="tab-btn">疑似(9)</div>
+        <div class="tab-btn">申诉(3)</div>
+       </div>
+      </div>
+
+      <div class="rq-item">
+       <div class="rq-hd">
+        <div class="rq-icon" style="background:var(--rdim)">🚨</div>
+        <div class="rq-meta"><div class="rq-sender">用户：星际旅行者 <span class="badge r" style="font-size:11px">高危</span></div><div class="rq-time">今天 14:28 · 房间：宇宙漫游者</div></div>
+       </div>
+       <div class="rq-content">*** [已脱敏] 命中规则：涉政敏感词 + 引导转账 ***</div>
+       <div class="rq-ctx">上下文（前2条）：用户在讨论 AI 意识话题 → 突然转向敏感内容 → 触发同步拦截</div>
+       <div class="rq-acts">
+        <button class="btn btn-ghost btn-sm">✓ 通过</button>
+        <button class="btn btn-danger btn-sm">✗ 拒绝</button>
+        <button class="btn btn-ghost btn-sm">↑ 升级处理</button>
+        <button class="btn btn-ghost btn-sm">⊘ 封禁用户</button>
+       </div>
+      </div>
+
+      <div class="rq-item">
+       <div class="rq-hd">
+        <div class="rq-icon" style="background:var(--rdim)">🚨</div>
+        <div class="rq-meta"><div class="rq-sender">智能体：暗影使者 <span class="badge r" style="font-size:11px">高危</span></div><div class="rq-time">今天 14:15 · 创建者：user_abc123</div></div>
+       </div>
+       <div class="rq-content">角色设定内容命中规则：冒充真人 + 诱导用户分享个人信息</div>
+       <div class="rq-ctx">检测到关键词："我是真实存在的人"、"告诉我你的学校和宿舍号" → 社工攻击模式</div>
+       <div class="rq-acts">
+        <button class="btn btn-ghost btn-sm">✓ 通过</button>
+        <button class="btn btn-danger btn-sm">✗ 强制下线</button>
+        <button class="btn btn-ghost btn-sm">⚑ 标记误判</button>
+       </div>
+      </div>
+
+      <div class="rq-item" style="border-color:var(--yb)">
+       <div class="rq-hd">
+        <div class="rq-icon" style="background:var(--ydim)">⚠️</div>
+        <div class="rq-meta"><div class="rq-sender">用户：闪光少女 <span class="badge y" style="font-size:11px">疑似</span></div><div class="rq-time">今天 13:52 · 私聊消息</div></div>
+       </div>
+       <div class="rq-content">「小红书上有个赚钱方法，你想听吗？加我微信：xxxx」</div>
+       <div class="rq-ctx">风险：广告欺诈 / 诱导外跳 | 用户今日已触发 3 次疑似规则</div>
+       <div class="rq-acts">
+        <button class="btn btn-ghost btn-sm">✓ 通过</button>
+        <button class="btn btn-danger btn-sm">✗ 拒绝下架</button>
+        <button class="btn btn-ghost btn-sm">⊘ 限速处置</button>
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <div>
+     <div class="card">
+      <div class="card-t" style="margin-bottom:14px">📊 审核统计（今日）</div>
+      <svg width="100%" height="160" viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+       <!-- bar chart: 6 time slots -->
+       <text x="0" y="150" fill="#94a3b8" font-size="10">08:00</text>
+       <text x="45" y="150" fill="#94a3b8" font-size="10">10:00</text>
+       <text x="90" y="150" fill="#94a3b8" font-size="10">12:00</text>
+       <text x="135" y="150" fill="#94a3b8" font-size="10">14:00</text>
+       <text x="180" y="150" fill="#94a3b8" font-size="10">16:00</text>
+       <text x="225" y="150" fill="#94a3b8" font-size="10">18:00</text>
+       <line x1="0" y1="130" x2="290" y2="130" stroke="#e2e8f0" stroke-width="1"/>
+       <rect x="8" y="100" width="24" height="30" rx="4" fill="#dbeafe"/>
+       <rect x="53" y="80" width="24" height="50" rx="4" fill="#dbeafe"/>
+       <rect x="98" y="60" width="24" height="70" rx="4" fill="#dbeafe"/>
+       <rect x="143" y="50" width="24" height="80" rx="4" fill="#2563eb"/>
+       <rect x="188" y="90" width="24" height="40" rx="4" fill="#dbeafe"/>
+       <rect x="233" y="110" width="24" height="20" rx="4" fill="#e2e8f0"/>
+       <text x="20" y="95" fill="#2563eb" font-size="10" text-anchor="middle">4</text>
+       <text x="65" y="75" fill="#2563eb" font-size="10" text-anchor="middle">8</text>
+       <text x="110" y="55" fill="#2563eb" font-size="10" text-anchor="middle">12</text>
+       <text x="155" y="45" fill="#fff" font-size="10" text-anchor="middle" font-weight="700">16</text>
+       <text x="200" y="85" fill="#2563eb" font-size="10" text-anchor="middle">6</text>
+       <text x="245" y="105" fill="#94a3b8" font-size="10" text-anchor="middle">2</text>
+      </svg>
+      <div style="display:flex;gap:12px;margin-top:8px">
+       <div style="flex:1;background:var(--gdim);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--gb)"><div style="font-size:18px;font-weight:800;color:#065f46">42</div><div style="font-size:11px;color:var(--t3)">通过</div></div>
+       <div style="flex:1;background:var(--rdim);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--rb)"><div style="font-size:18px;font-weight:800;color:#991b1b">6</div><div style="font-size:11px;color:var(--t3)">拒绝</div></div>
+       <div style="flex:1;background:var(--ydim);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--yb)"><div style="font-size:18px;font-weight:800;color:#92400e">3</div><div style="font-size:11px;color:var(--t3)">误判</div></div>
+      </div>
+     </div>
+
+     <div class="card" style="margin-top:0">
+      <div class="card-t" style="margin-bottom:14px">⚙️ 快捷配置</div>
+      <div style="margin-bottom:12px">
+       <div style="font-size:12px;color:var(--t3);margin-bottom:6px">敏感词紧急添加</div>
+       <div style="display:flex;gap:8px"><input class="fi" style="flex:1" placeholder="输入敏感词"><button class="btn btn-p btn-sm">立即生效</button></div>
+      </div>
+      <div>
+       <div style="font-size:12px;color:var(--t3);margin-bottom:8px">处置规则快速配置</div>
+       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:var(--t2)">高危自动拦截</span>
+        <div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div>
+       </div>
+       <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;color:var(--t2)">疑似先发后审</span>
+        <div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ========== GATEWAY ========== -->
+  <div class="page" id="p-gateway">
+   <div class="bc">管理后台 › <span>AI 网关管理</span></div>
+
+   <div class="notice info">ℹ️ 今日 AI 调用成本已达日预算 78%（¥156.4/¥200），建议关注用量趋势，如超阈值将自动切换低成本模型。</div>
+
+   <div class="grid-3" style="margin-bottom:20px">
+    <div class="mcard"><div class="mc-label">今日调用量</div><div class="mc-val">48,392</div><div class="mc-sub"><span class="up">▲</span>较昨日 +12%</div></div>
+    <div class="mcard"><div class="mc-label">今日 Token 消耗</div><div class="mc-val">182M</div><div class="mc-sub">≈ ¥156.4 成本</div></div>
+    <div class="mcard"><div class="mc-label">平均调用延迟</div><div class="mc-val">820ms</div><div class="mc-sub"><span class="up">▲</span>成功率 99.2%</div></div>
+   </div>
+
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">模型供应商状态</div><button class="btn btn-p btn-sm">+ 添加供应商</button></div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+     <div class="model-card" style="background:var(--gdim);border-color:var(--gb)">
+      <div class="model-icon" style="background:linear-gradient(135deg,#10b981,#059669)">🤖</div>
+      <div style="flex:1">
+       <div class="model-name">DeepSeek Chat V3 <span class="badge g">主路由</span></div>
+       <div class="model-meta">文本对话 · Input ¥0.2/M · Output ¥0.8/M · 延迟 680ms</div>
+       <div class="prog-bar" style="margin-top:8px;width:200px"><div class="prog-fill" style="width:72%;background:var(--g)"></div></div>
+       <div style="font-size:11px;color:var(--t3);margin-top:3px">今日用量 72% · 调用量 31,847次</div>
+      </div>
+      <div class="model-stats"><div class="model-stat-v" style="color:var(--g)">99.5%</div><div class="model-stat-l">可用率</div></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">配置</button></div>
+     </div>
+     <div class="model-card">
+      <div class="model-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🧠</div>
+      <div style="flex:1">
+       <div class="model-name">通义千问 Turbo <span class="badge b">备用</span></div>
+       <div class="model-meta">文本对话 · Input ¥0.3/M · Output ¥0.6/M · 延迟 920ms</div>
+       <div class="prog-bar" style="margin-top:8px;width:200px"><div class="prog-fill" style="width:18%;background:var(--p)"></div></div>
+       <div style="font-size:11px;color:var(--t3);margin-top:3px">今日用量 18% · 调用量 8,291次</div>
+      </div>
+      <div class="model-stats"><div class="model-stat-v" style="color:var(--g)">98.8%</div><div class="model-stat-l">可用率</div></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">配置</button></div>
+     </div>
+     <div class="model-card">
+      <div class="model-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🎨</div>
+      <div style="flex:1">
+       <div class="model-name">通义万相 Plus <span class="badge b">图片生成</span></div>
+       <div class="model-meta">图像生成 · ¥0.14/张(1024²) · 延迟 18s</div>
+       <div class="prog-bar" style="margin-top:8px;width:200px"><div class="prog-fill" style="width:55%;background:var(--y)"></div></div>
+       <div style="font-size:11px;color:var(--t3);margin-top:3px">今日用量 55% · 生成 2,847 张</div>
+      </div>
+      <div class="model-stats"><div class="model-stat-v" style="color:var(--g)">99.1%</div><div class="model-stat-l">可用率</div></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">配置</button></div>
+     </div>
+    </div>
+   </div>
+
+   <div class="grid-2">
+    <div class="card">
+     <div class="card-t" style="margin-bottom:14px">💰 预算管理</div>
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:13px;color:var(--t2)">日预算上限</span>
+      <div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:80px;text-align:right" value="200"><span style="font-size:13px;color:var(--t2)">元</span><button class="btn btn-p btn-sm">保存</button></div>
+     </div>
+     <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--t2)">已使用</span><span style="font-weight:700;color:var(--y)">¥156.4 (78%)</span></div>
+     <div class="prog-bar" style="height:10px"><div class="prog-fill" style="width:78%;background:linear-gradient(90deg,var(--p),var(--y))"></div></div>
+     <div style="margin-top:14px;padding:12px;background:var(--ydim);border:1px solid var(--yb);border-radius:8px;font-size:13px;color:#92400e">
+      ⚠️ 超过 80% 将自动降级到低成本模型，超过 100% 将暂停高成本功能。
+     </div>
+    </div>
+    <div class="card">
+     <div class="card-t" style="margin-bottom:14px">🔀 路由策略</div>
+     <table class="tbl">
+      <thead><tr><th>场景</th><th>主路由</th><th>降级备选</th></tr></thead>
+      <tbody>
+       <tr><td>文本对话</td><td><span class="chip">DeepSeek V3</span></td><td>通义 Turbo</td></tr>
+       <tr><td>图片生成</td><td><span class="chip">通义万相</span></td><td>暂停服务</td></tr>
+       <tr><td>监听评估</td><td><span class="chip">DeepSeek V3</span></td><td>Qwen-Long</td></tr>
+      </tbody>
+     </table>
+     <button class="btn btn-ghost btn-sm" style="margin-top:12px">✏️ 编辑路由策略</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- ========== ANALYTICS ========== -->
+  <div class="page" id="p-analytics">
+   <div class="bc">管理后台 › <span>数据看板</span></div>
+
+   <div class="grid-4" style="margin-bottom:20px">
+    <div class="mcard"><div class="mc-label">DAU (今日)</div><div class="mc-val">3,842</div><div class="mc-sub"><span class="up">▲</span>+8.3% vs 昨日</div></div>
+    <div class="mcard"><div class="mc-label">MAU (本月)</div><div class="mc-val">12,847</div><div class="mc-sub">月活渗透 69.7%</div></div>
+    <div class="mcard"><div class="mc-label">ARPU (本月)</div><div class="mc-val">¥14.8</div><div class="mc-sub"><span class="up">▲</span>较上月 +12%</div></div>
+    <div class="mcard"><div class="mc-label">付费转化率</div><div class="mc-val">6.5%</div><div class="mc-sub">注册→首充</div></div>
+   </div>
+
+   <div class="grid-2">
+    <!-- 留存漏斗 -->
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">用户留存分析（近30天队列）</div></div>
+     <div style="display:flex;align-items:flex-end;gap:12px;height:140px;padding:8px 0">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--p)">100%</div>
+       <div style="flex:1;width:100%;background:linear-gradient(180deg,#2563eb,#60a5fa);border-radius:6px;min-height:120px"></div>
+       <div style="font-size:11px;color:var(--t3)">注册</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--p)">22.4%</div>
+       <div style="flex:1;width:100%;background:linear-gradient(180deg,#2563eb,#60a5fa);border-radius:6px;min-height:27px;align-self:flex-end"></div>
+       <div style="font-size:11px;color:var(--t3)">D1</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--g)">8.7%</div>
+       <div style="flex:1;width:100%;background:linear-gradient(180deg,var(--g),#6ee7b7);border-radius:6px;min-height:10px;align-self:flex-end"></div>
+       <div style="font-size:11px;color:var(--t3)">D7</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--y)">5.2%</div>
+       <div style="flex:1;width:100%;background:linear-gradient(180deg,var(--y),#fde68a);border-radius:6px;min-height:6px;align-self:flex-end"></div>
+       <div style="font-size:11px;color:var(--t3)">D14</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--t3)">3.1%</div>
+       <div style="flex:1;width:100%;background:#e2e8f0;border-radius:6px;min-height:4px;align-self:flex-end"></div>
+       <div style="font-size:11px;color:var(--t3)">D30</div>
+      </div>
+     </div>
+     <div style="padding:10px 12px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#065f46;margin-top:8px">
+      ✅ D1/D7 均已超过 Go-No-Go 底线，留存质量良好
+     </div>
+    </div>
+
+    <!-- 积分消耗分布 -->
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">积分消耗分布（今日）</div></div>
+     <div style="display:flex;align-items:center;gap:24px">
+      <svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+       <!-- donut chart: AI发言55%, 图片25%, 创建20% -->
+       <circle cx="70" cy="70" r="50" fill="none" stroke="#e2e8f0" stroke-width="22"/>
+       <circle cx="70" cy="70" r="50" fill="none" stroke="#2563eb" stroke-width="22" stroke-dasharray="173 141" stroke-dashoffset="0" transform="rotate(-90 70 70)"/>
+       <circle cx="70" cy="70" r="50" fill="none" stroke="#10b981" stroke-width="22" stroke-dasharray="79 235" stroke-dashoffset="-173" transform="rotate(-90 70 70)"/>
+       <circle cx="70" cy="70" r="50" fill="none" stroke="#f59e0b" stroke-width="22" stroke-dasharray="63 251" stroke-dashoffset="-252" transform="rotate(-90 70 70)"/>
+       <text x="70" y="68" text-anchor="middle" fill="#1e293b" font-size="14" font-weight="800">积分</text>
+       <text x="70" y="84" text-anchor="middle" fill="#94a3b8" font-size="11">消耗</text>
+      </svg>
+      <div style="flex:1">
+       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="width:12px;height:12px;border-radius:3px;background:#2563eb;flex-shrink:0"></div>
+        <div style="flex:1;font-size:13px;color:var(--t2)">AI 发言（55%）</div>
+        <div style="font-weight:700;color:var(--t)">82,500</div>
+       </div>
+       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="width:12px;height:12px;border-radius:3px;background:#10b981;flex-shrink:0"></div>
+        <div style="flex:1;font-size:13px;color:var(--t2)">图片生成（25%）</div>
+        <div style="font-weight:700;color:var(--t)">37,500</div>
+       </div>
+       <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:12px;height:12px;border-radius:3px;background:#f59e0b;flex-shrink:0"></div>
+        <div style="flex:1;font-size:13px;color:var(--t2)">创建智能体（20%）</div>
+        <div style="font-weight:700;color:var(--t)">30,000</div>
+       </div>
+       <div style="margin-top:14px;padding:10px;background:var(--pdim);border-radius:8px;font-size:12px;color:var(--p)">
+        总计消耗 <strong>150,000</strong> 积分<br>对应收入 ≈ <strong>¥1,250</strong>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <!-- 房间活跃度 -->
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">🏠 房间活跃度排行（今日）</div><button class="btn btn-ghost btn-sm">查看全部</button></div>
+    <table class="tbl">
+     <thead><tr><th>排名</th><th>房间名称</th><th>类型</th><th>在线人数</th><th>今日消息数</th><th>AI 发言占比</th><th>趋势</th></tr></thead>
+     <tbody>
+      <tr><td>🥇 1</td><td><strong>🌌 宇宙漫游者</strong></td><td><span class="badge b">讨论</span></td><td>147</td><td>2,847</td><td>34%</td><td><span style="color:var(--g)">▲ +12%</span></td></tr>
+      <tr><td>🥈 2</td><td><strong>📚 知识交换站</strong></td><td><span class="badge b">学习</span></td><td>203</td><td>2,391</td><td>28%</td><td><span style="color:var(--g)">▲ +5%</span></td></tr>
+      <tr><td>🥉 3</td><td><strong>🎨 像素艺术坊</strong></td><td><span class="badge b">创作</span></td><td>89</td><td>1,842</td><td>52%</td><td><span style="color:var(--g)">▲ +18%</span></td></tr>
+      <tr><td>4</td><td>🎮 游戏研究所</td><td><span class="badge b">游戏</span></td><td>64</td><td>1,203</td><td>22%</td><td><span style="color:var(--r)">▼ -3%</span></td></tr>
+      <tr><td>5</td><td>🎵 音乐无国界</td><td><span class="badge b">音乐</span></td><td>41</td><td>892</td><td>41%</td><td><span style="color:var(--g)">▲ +7%</span></td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+  <!-- ========== AGENTS ========== -->
+  <div class="page" id="p-agents">
+   <div class="bc">管理后台 › <span>智能体管理</span></div>
+   <div class="tabs"><div class="tab-btn on">系统智能体</div><div class="tab-btn">用户智能体审核</div><div class="tab-btn">人格模板库</div></div>
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">系统智能体列表</div><button class="btn btn-p btn-sm">+ 创建系统智能体</button></div>
+    <table class="tbl">
+     <thead><tr><th>智能体</th><th>人格风格</th><th>分配房间</th><th>今日发言</th><th>状态</th><th>操作</th></tr></thead>
+     <tbody>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🤖</div><div><div style="font-weight:600">引导者·苏格拉底</div><div style="font-size:12px;color:var(--t3)">系统智能体</div></div></div></td>
+       <td>理性、引导式、苏格拉底提问法</td>
+       <td>宇宙漫游者 / 知识交换站</td><td>384</td>
+       <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
+       <td><button class="btn btn-ghost btn-sm">编辑</button></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">📚</div><div><div style="font-weight:600">学习助手小Q</div><div style="font-size:12px;color:var(--t3)">系统智能体</div></div></div></td>
+       <td>友好、专业、善于解释知识点</td>
+       <td>知识交换站</td><td>612</td>
+       <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
+       <td><button class="btn btn-ghost btn-sm">编辑</button></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🎨</div><div><div style="font-weight:600">创意灵感家</div><div style="font-size:12px;color:var(--t3)">系统智能体</div></div></div></td>
+       <td>富有想象力、热情、分享创意</td>
+       <td>像素艺术坊</td><td>201</td>
+       <td><span class="badge y"><span class="sdot y"></span>暂停</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-p btn-sm">恢复</button></div></td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+  <!-- ========== ROOMS ========== -->
+  <div class="page" id="p-rooms">
+   <div class="bc">管理后台 › <span>房间管理</span></div>
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">房间列表</div><button class="btn btn-p btn-sm">+ 创建房间</button></div>
+    <table class="tbl">
+     <thead><tr><th>房间名称</th><th>分类</th><th>在线人数</th><th>今日消息</th><th>AI 分配</th><th>状态</th><th>操作</th></tr></thead>
+     <tbody>
+      <tr><td><strong>🌌 宇宙漫游者</strong></td><td>讨论</td><td>147/200</td><td>2,847</td><td>3</td><td><span class="badge g">活跃</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm">归档</button></div></td></tr>
+      <tr><td><strong>📚 知识交换站</strong></td><td>学习</td><td>203/200</td><td>2,391</td><td>2</td><td><span class="badge y">满员</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm">归档</button></div></td></tr>
+      <tr><td><strong>🎨 像素艺术坊</strong></td><td>创作</td><td>89/200</td><td>1,842</td><td>5</td><td><span class="badge g">活跃</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm">归档</button></div></td></tr>
+      <tr><td><strong>🌙 月光诗社</strong></td><td>文学</td><td>0/200</td><td>0</td><td>2</td><td><span class="badge gray">归档</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">恢复</button></div></td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+  <!-- ========== TOPICS ========== -->
+  <div class="page" id="p-topics">
+   <div class="bc">管理后台 › <span>话题管理</span></div>
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">话题列表</div><button class="btn btn-p btn-sm">+ 创建话题</button></div>
+    <table class="tbl">
+     <thead><tr><th>话题名称</th><th>截止时间</th><th>参与人数</th><th>作品数</th><th>状态</th><th>操作</th></tr></thead>
+     <tbody>
+      <tr><td><strong>「2050年的未来城市」</strong></td><td>2026-03-15 23:59</td><td>56</td><td>28</td><td><span class="badge g">🔴 进行中</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-danger btn-sm">结束</button><button class="btn btn-ghost btn-sm">作品(28)</button></div></td></tr>
+      <tr><td><strong>「数字花园」</strong></td><td>2026-03-15 12:00</td><td>78</td><td>42</td><td><span class="badge g">🔴 进行中</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-danger btn-sm">结束</button><button class="btn btn-ghost btn-sm">作品(42)</button></div></td></tr>
+      <tr><td><strong>「深海秘境」</strong></td><td>2026-03-14 23:59</td><td>124</td><td>95</td><td><span class="badge gray">已结束</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">作品(95)</button></div></td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+  <!-- ========== SAFETY ========== -->
+  <div class="page" id="p-safety">
+   <div class="bc">管理后台 › <span>安全规则配置</span></div>
+   <div class="tabs"><div class="tab-btn on">敏感词库</div><div class="tab-btn">风控规则</div><div class="tab-btn">智能体行为规则</div><div class="tab-btn">处置记录</div></div>
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">敏感词库管理</div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm">📤 批量导入</button><button class="btn btn-p btn-sm">+ 添加词条</button></div></div>
+    <div class="grid-3" style="margin-bottom:16px">
+     <div class="mcard"><div class="mc-label">总词条数</div><div class="mc-val">12,847</div></div>
+     <div class="mcard"><div class="mc-label">高危（直接拦截）</div><div class="mc-val" style="color:var(--r)">3,241</div></div>
+     <div class="mcard"><div class="mc-label">疑似（人审）</div><div class="mc-val" style="color:var(--y)">6,892</div></div>
+    </div>
+    <div class="sbar" style="margin-bottom:12px"><span>🔍</span><input placeholder="搜索敏感词…"><select class="fi" style="border:none;background:transparent;color:var(--t2)"><option>全部等级</option><option>高危</option><option>疑似</option><option>观察</option></select></div>
+    <table class="tbl">
+     <thead><tr><th>词条</th><th>分级</th><th>命中次数（今日）</th><th>添加时间</th><th>操作</th></tr></thead>
+     <tbody>
+      <tr><td><strong>[已脱敏]</strong></td><td><span class="badge r">高危</span></td><td>3</td><td>2026-02-01</td><td><button class="btn btn-ghost btn-sm">删除</button></td></tr>
+      <tr><td><strong>加我微信</strong></td><td><span class="badge y">疑似</span></td><td>12</td><td>2026-02-15</td><td><button class="btn btn-ghost btn-sm">删除</button></td></tr>
+      <tr><td><strong>告诉我你的宿舍</strong></td><td><span class="badge r">高危</span></td><td>1</td><td>2026-03-10</td><td><button class="btn btn-ghost btn-sm">删除</button></td></tr>
+      <tr><td><strong>我是真人</strong></td><td><span class="badge y">疑似</span></td><td>7</td><td>2026-03-12</td><td><button class="btn btn-ghost btn-sm">删除</button></td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+  <!-- ========== SYSLOG ========== -->
+  <div class="page" id="p-syslog">
+   <div class="bc">管理后台 › <span>操作日志</span></div>
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">操作日志查询</div></div>
+    <div class="sbar"><span>🔍</span><input placeholder="搜索操作人、操作类型、目标…"></div>
+    <table class="tbl">
+     <thead><tr><th>操作时间</th><th>操作人</th><th>角色</th><th>操作类型</th><th>目标</th><th>详情</th></tr></thead>
+     <tbody>
+      <tr><td>14:28:32</td><td>admin_root</td><td><span class="badge b">超管</span></td><td>用户封禁</td><td>user: 星际旅行者</td><td>原因：多次违规，永久封禁</td></tr>
+      <tr><td>13:52:10</td><td>reviewer_01</td><td><span class="badge gray">审核员</span></td><td>内容拒绝</td><td>msg_id: M-28391</td><td>命中：广告欺诈</td></tr>
+      <tr><td>12:30:00</td><td>admin_root</td><td><span class="badge b">超管</span></td><td>路由策略变更</td><td>文本对话路由</td><td>DeepSeek V3 → 通义 Turbo（预算告警触发）</td></tr>
+      <tr><td>10:00:00</td><td>op_001</td><td><span class="badge gray">运营</span></td><td>话题创建</td><td>topic: 数字花园</td><td>截止 2026-03-15 12:00</td></tr>
+      <tr><td>09:15:00</td><td>op_001</td><td><span class="badge gray">运营</span></td><td>房间智能体分配</td><td>room: 宇宙漫游者</td><td>添加 引导者·苏格拉底</td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+ </div><!-- content -->
+</div><!-- main -->
+
+<script>
+const titles = {dashboard:'仪表盘',users:'用户管理',agents:'智能体管理',rooms:'房间管理',topics:'话题管理',review:'审核台',safety:'安全规则配置',gateway:'AI 网关管理',analytics:'数据看板',syslog:'操作日志 / 系统设置'};
+function nav(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  const pg = document.getElementById('p-'+id);
+  if(pg) pg.classList.add('on');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('on'));
+  if(el) el.classList.add('on');
+  document.getElementById('page-title').textContent = titles[id]||id;
+}
+</script>
+</body>
+</html>
