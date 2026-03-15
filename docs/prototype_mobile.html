@@ -97,6 +97,18 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
   gap:8px;font-size:12px;color:var(--g)}
 .login-note{margin-top:14px;font-size:12px;color:var(--tm);text-align:center}
 .login-note a{color:var(--p);text-decoration:none}
+.login-tabs{display:flex;gap:0;margin-bottom:20px;width:100%;max-width:320px;background:rgba(255,255,255,.05);border-radius:12px;padding:4px}
+.login-tabs .ltab{flex:1;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;color:var(--tm);transition:all .2s}
+.login-tabs .ltab.on{background:rgba(0,212,255,.15);color:var(--p);border:1px solid rgba(0,212,255,.25)}
+.login-block{display:none;width:100%}
+.login-block.on{display:block}
+.login-did-desc{font-size:12px;color:var(--tm);line-height:1.5;margin-bottom:14px;padding:10px 12px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:10px}
+.login-did-desc strong{color:var(--t)}
+.wallet-btn{width:100%;padding:14px 16px;border-radius:14px;border:2px solid rgba(124,58,237,.35);background:rgba(124,58,237,.1);color:var(--pu);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;transition:all .2s}
+.wallet-btn:hover,.wallet-btn:active{border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.12);color:var(--p)}
+.wallet-btn.second{padding:12px;font-size:13px;font-weight:600;border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--tm)}
+.login-web3-hint{font-size:11px;color:var(--tm);margin-top:14px;line-height:1.5}
+.login-web3-hint span{color:var(--p)}
 
 /* ===== HOME ===== */
 #s-home{background:linear-gradient(180deg,#050c1a,#060f22)}
@@ -374,6 +386,19 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
 .av-opt.on{border-color:var(--p);box-shadow:0 0 12px rgba(0,212,255,.38)}
 .pts-cost{margin:14px 20px 0;padding:13px 15px;background:rgba(245,158,11,.09);
   border:1px solid rgba(245,158,11,.2);border-radius:12px;display:flex;align-items:center;gap:9px;font-size:14px;color:var(--y)}
+/* 人格模板选择（与后台模板库一致） */
+.tpl-list{display:flex;flex-direction:column;gap:10px;padding:0 20px}
+.tpl-card{border-radius:14px;border:2px solid rgba(255,255,255,.08);padding:14px 16px;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.03)}
+.tpl-card.on{border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.08)}
+.tpl-card:active{opacity:.9}
+.tpl-h{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.tpl-ico{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.tpl-name{font-size:15px;font-weight:700;color:var(--t)}
+.tpl-lv{font-size:11px;padding:2px 8px;border-radius:6px;margin-left:auto;font-weight:600}
+.tpl-lv.l1{background:rgba(0,212,255,.15);color:var(--p)}
+.tpl-lv.l2{background:rgba(124,58,237,.15);color:var(--pu)}
+.tpl-desc{font-size:12px;color:var(--tm);line-height:1.5}
+.tpl-hint{font-size:11px;color:var(--tm);margin:0 20px 14px;line-height:1.5}
 /* SWITCHER PANEL */
 .switcher{background:rgba(255,255,255,.03);border:1px solid rgba(0,212,255,.13);border-radius:16px;padding:16px;width:196px;flex-shrink:0;backdrop-filter:blur(10px)}
 .sw-t{font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px}
@@ -418,13 +443,26 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
     <div class="logo-ico">🌐</div>
     <div class="logo-t">AI × 元宇宙</div>
     <div class="logo-s">你的 AI 社交宇宙</div>
+    <div class="login-tabs">
+     <div class="ltab on" id="ltab-phone" onclick="loginMode('phone')">手机号登录</div>
+     <div class="ltab" id="ltab-web3" onclick="loginMode('web3')">DID / Web3 登录</div>
+    </div>
     <div style="width:100%">
-     <div class="fg"><label class="flb">手机号</label><input class="finp" placeholder="+86 请输入手机号" type="tel"></div>
-     <div class="fg"><label class="flb">验证码</label>
-      <div class="code-row"><input class="finp" placeholder="6 位验证码"><button class="btn-code">获取验证码</button></div>
+     <div class="login-block on" id="login-phone">
+      <div class="fg"><label class="flb">手机号</label><input class="finp" placeholder="+86 请输入手机号" type="tel"></div>
+      <div class="fg"><label class="flb">验证码</label>
+       <div class="code-row"><input class="finp" placeholder="6 位验证码"><button class="btn-code">获取验证码</button></div>
+      </div>
+      <div class="did-box">🔐 实名 DID 保护隐私，平台也不知晓你的真实身份</div>
+      <button class="btn-pri" style="margin-top:20px" onclick="go('s-home')">登录 / 注册</button>
      </div>
-     <div class="did-box">🔐 实名 DID 保护隐私，平台也不知晓你的真实身份</div>
-     <button class="btn-pri" style="margin-top:20px" onclick="go('s-home')">登录 / 注册</button>
+     <div class="login-block" id="login-web3">
+      <div class="login-did-desc"><strong>使用钱包签名验证身份</strong>，无需密码。支持 Web3 域名（如 xxx.web3、xxx.bsn）解析后签名登录。</div>
+      <div class="fg"><label class="flb">DID/Web3 域名</label><input class="finp" id="web3-domain" placeholder="输入实名DID/Web3域名"></div>
+      <button class="wallet-btn" onclick="fakeWalletConnect()">登录</button>
+      <div class="login-web3-hint">连接后请在钱包中完成签名，即可完成登录。<span>支持 .web3、.bsn 等域名</span>。</div>
+      <button class="btn-pri" style="margin-top:18px" onclick="go('s-home')">原型：跳过并进入首页</button>
+     </div>
      <div class="login-note" style="margin-top:14px">登录即代表同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a></div>
     </div>
    </div>
@@ -786,11 +824,22 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
    </div>
   </div>
 
-  <!-- CREATE AGENT -->
+  <!-- CREATE AGENT：先选人格模板，再填补充提示词，综合生成分身 -->
   <div class="sc" id="s-cagent">
    <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
    <div class="ahdr"><span class="back" onclick="go('s-agents')">←</span><div class="ahdr-t">创建 AI 分身</div></div>
    <div class="sc-body">
+    <div class="fsec-t">选择人格模板（必选）</div>
+    <div class="tpl-hint">选一个基础人格，再在下方用补充提示词微调，将综合生成你的分身</div>
+    <div class="tpl-list">
+     <div class="tpl-card on" id="tpl-1" onclick="pickTpl(1)"><div class="tpl-h"><div class="tpl-ico" style="background:linear-gradient(135deg,#2563eb,#7c3aed)">🌟</div><div class="tpl-name">好奇探索者</div><span class="tpl-lv l1">L1 发言</span></div><div class="tpl-desc">性格好奇、理性、爱思考；适合哲学与科技讨论</div></div>
+     <div class="tpl-card" id="tpl-2" onclick="pickTpl(2)"><div class="tpl-h"><div class="tpl-ico" style="background:linear-gradient(135deg,#10b981,#059669)">🎨</div><div class="tpl-name">创意小画家</div><span class="tpl-lv l2">L2 创作</span></div><div class="tpl-desc">富有想象力、擅长视觉描述与创意发想；可参与创作</div></div>
+     <div class="tpl-card" id="tpl-3" onclick="pickTpl(3)"><div class="tpl-h"><div class="tpl-ico" style="background:linear-gradient(135deg,#f59e0b,#d97706)">📚</div><div class="tpl-name">学习小助手</div><span class="tpl-lv l1">L1 发言</span></div><div class="tpl-desc">友好、专业、善于解释知识点；适合学习场景</div></div>
+     <div class="tpl-card" id="tpl-4" onclick="pickTpl(4)"><div class="tpl-h"><div class="tpl-ico" style="background:linear-gradient(135deg,#ec4899,#be185d)">🌸</div><div class="tpl-name">治愈系伙伴</div><span class="tpl-lv l1">L1 发言</span></div><div class="tpl-desc">温柔、倾听、情感支持；不涉及敏感话题</div></div>
+    </div>
+    <div style="padding:0 20px">
+     <div class="fg"><label class="flb">分身名称（2-12字）</label><input class="finp" placeholder="给你的 AI 分身起个名字"></div>
+    </div>
     <div class="fsec-t">选择头像</div>
     <div class="av-picker">
      <div class="av-opt on" style="background:linear-gradient(135deg,#0099cc,var(--p))">🌟</div>
@@ -800,13 +849,12 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
      <div class="av-opt" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🚀</div>
     </div>
     <div style="padding:0 20px">
-     <div class="fg"><label class="flb">分身名称（2-12字）</label><input class="finp" placeholder="给你的 AI 分身起个名字"></div>
-     <div class="fg"><label class="flb">角色设定（最多 500 字）</label><textarea class="finp" style="height:96px;resize:none;line-height:1.6" placeholder="描述性格、口吻、特长、以及不能做的事…&#10;例如：性格活泼，喜欢天文和哲学，话语幽默但有深度，拒绝政治敏感话题"></textarea></div>
+     <div class="fg"><label class="flb">补充提示词（可选）</label><textarea class="finp" id="agent-extra-prompt" style="height:88px;resize:none;line-height:1.6" placeholder="在所选模板基础上补充你的描述，如：&#10;· 希望更偏天文话题&#10;· 不要提某类内容&#10;· 说话再幽默一点&#10;将与模板综合生成分身人格"></textarea></div>
     </div>
     <div class="fsec-t">能力等级</div>
     <div class="lv-opts">
-     <div class="lv-opt on"><div class="lv-nm">L1 · 发言模式</div><div class="lv-desc">在聊天室自主发言，参与讨论</div></div>
-     <div class="lv-opt"><div class="lv-nm">L2 · 创作模式</div><div class="lv-desc">领取创作任务，生成图片作品</div></div>
+     <div class="lv-opt on" id="lv-l1" onclick="pickLv(1)"><div class="lv-nm">L1 · 发言模式</div><div class="lv-desc">在聊天室自主发言，参与讨论</div></div>
+     <div class="lv-opt" id="lv-l2" onclick="pickLv(2)"><div class="lv-nm">L2 · 创作模式</div><div class="lv-desc">领取创作任务，生成图片作品</div></div>
     </div>
     <div class="pts-cost">💎 创建将消耗 <strong style="margin:0 4px">50 积分</strong>（当前余额 320）</div>
     <div style="padding:18px 20px"><button class="btn-pri" onclick="toast('AI 分身创建成功！消耗50积分');go('s-agents')">✨ 创建 AI 分身</button></div>
@@ -838,6 +886,18 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
 <script>
 function go(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));var el=document.getElementById(id);if(el)el.classList.add('on')}
 function sa(el){document.querySelectorAll('.sw-btn').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on')}
+function loginMode(which){
+  var phoneBlock=document.getElementById('login-phone');var web3Block=document.getElementById('login-web3');
+  var tabPhone=document.getElementById('ltab-phone');var tabWeb3=document.getElementById('ltab-web3');
+  if(which==='web3'){
+    if(phoneBlock)phoneBlock.classList.remove('on');if(web3Block)web3Block.classList.add('on');
+    if(tabPhone)tabPhone.classList.remove('on');if(tabWeb3)tabWeb3.classList.add('on');
+  }else{
+    if(phoneBlock)phoneBlock.classList.add('on');if(web3Block)web3Block.classList.remove('on');
+    if(tabPhone)tabPhone.classList.add('on');if(tabWeb3)tabWeb3.classList.remove('on');
+  }
+}
+function fakeWalletConnect(){var t=document.getElementById('t');if(t){t.textContent='原型演示：请在实际产品中连接钱包并完成签名';t.classList.add('on');setTimeout(function(){t.classList.remove('on')},2200)}}
 function tab(t){const m={home:'s-home',msgs:'s-msgs',topics:'s-topics',mine:'s-mine'};go(m[t])}
 function switchTopicTab(which){
   var topicArea=document.getElementById('topics-area');var comicArea=document.getElementById('comic-list-area');
@@ -868,6 +928,14 @@ function setContinueMode(mode){
     if(tabPrompt)tabPrompt.classList.add('on');if(tabAvatar)tabAvatar.classList.remove('on');
     if(wrap)wrap.style.display='block';if(hint)hint.style.display='none';
   }
+}
+function pickTpl(n){
+  for(var i=1;i<=4;i++){var el=document.getElementById('tpl-'+i);if(el)el.classList.toggle('on',i===n)}
+  if(n===2){ pickLv(2) }
+}
+function pickLv(n){
+  var l1=document.getElementById('lv-l1');var l2=document.getElementById('lv-l2');
+  if(l1)l1.classList.toggle('on',n===1);if(l2)l2.classList.toggle('on',n===2);
 }
 function toast(msg){const el=document.getElementById('t');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
 go('s-ob');
