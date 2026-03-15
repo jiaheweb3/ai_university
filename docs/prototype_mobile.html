@@ -220,6 +220,92 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
 .tc-stat span{color:var(--p);font-weight:600}
 .btn-join{background:linear-gradient(135deg,var(--p),var(--pu));border:none;border-radius:10px;padding:8px 18px;color:#fff;font-size:13px;font-weight:700;cursor:pointer}
 
+/* ===== 共创漫画 ===== */
+.topics-subtabs{display:flex;padding:0 20px;margin-bottom:14px;gap:10px;background:rgba(255,255,255,.03);border-radius:12px;margin-left:20px;margin-right:20px;padding:6px}
+.topics-subtabs .ctab{flex:1;text-align:center;padding:10px 12px;border-radius:10px;font-weight:600;transition:all .2s}
+.topics-subtabs .ctab.on{background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(124,58,237,.15));color:var(--p);border:1px solid rgba(0,212,255,.3)}
+.topics-subtabs .ctab:not(.on){color:var(--tm)}
+.comic-entry-card{margin:0 20px 14px;padding:14px 16px;background:linear-gradient(135deg,rgba(244,114,182,.12),rgba(124,58,237,.12));border:1px solid rgba(244,114,182,.25);border-radius:14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s}
+.comic-entry-card:hover{border-color:rgba(0,212,255,.4);box-shadow:0 4px 16px rgba(0,212,255,.1)}
+.comic-entry-card .ico{font-size:28px}
+.comic-entry-card .txt{flex:1}
+.comic-entry-card .txt strong{display:block;font-size:15px;color:var(--t);margin-bottom:2px}
+.comic-entry-card .txt span{font-size:12px;color:var(--tm)}
+.comic-entry-card .arr{color:var(--p);font-size:14px}
+.comiccard{margin:0 20px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.comiccard:hover{border-color:rgba(0,212,255,.28)}
+.comiccard-cover{height:120px;background:linear-gradient(135deg,rgba(244,114,182,.15),rgba(124,58,237,.2));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.comiccard-cover .art{font-size:48px;opacity:.9}
+.comiccard-fmt{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.5);color:var(--t);font-size:11px;padding:3px 8px;border-radius:6px}
+.comiccard-prog{position:absolute;bottom:10px;right:10px;background:rgba(0,212,255,.9);color:#000;font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px}
+.comiccard-body{padding:12px 15px}
+.comiccard-name{font-size:15px;font-weight:700;color:var(--t);margin-bottom:6px}
+.comiccard-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--tm)}
+.comiccard-meta span{display:inline-flex;align-items:center;gap:3px}
+/* 漫画详情 */
+#s-comic-detail{background:#060d1e}
+.comic-d-hdr{padding:50px 16px 12px;display:flex;align-items:center;gap:12px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.05)}
+.comic-d-title{flex:1;font-size:17px;font-weight:800;color:var(--t)}
+.comic-d-fmt{background:var(--pdim);color:var(--p);font-size:11px;padding:4px 10px;border-radius:8px;font-weight:700}
+.comic-d-prog{font-size:12px;color:var(--tm)}
+/* 封面区：点赞、评论、转发 */
+.comic-cover-wrap{margin:16px 20px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08);position:relative}
+.comic-cover-img{width:100%;aspect-ratio:1;background:linear-gradient(135deg,rgba(244,114,182,.2),rgba(124,58,237,.25));display:flex;align-items:center;justify-content:center;font-size:80px}
+.comic-cover-acts{display:flex;align-items:center;justify-content:space-around;padding:12px 16px;background:rgba(0,0,0,.2);border-top:1px solid rgba(255,255,255,.06)}
+.comic-cover-acts .act{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:var(--tm);font-size:12px}
+.comic-cover-acts .act .ico{font-size:20px}
+.comic-cover-acts .act.on,.comic-cover-acts .act:hover{color:var(--p)}
+.comic-cover-lbl{font-size:11px;color:var(--tm);margin:0 20px 12px}
+/* 格位网格 */
+.comic-panels-sec{margin:0 20px 16px}
+.comic-panels-sec .sec-t{font-size:13px;font-weight:700;color:var(--t);margin-bottom:10px}
+.comic-grid-4{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.comic-grid-9{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.panel-cell{aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:border-color .2s}
+.panel-cell.filled{background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(124,58,237,.08))}
+.panel-cell .cell-img{width:100%;height:100%;object-fit:cover}
+.panel-cell .cell-placeholder{font-size:28px;opacity:.6;margin-bottom:6px}
+.panel-cell .cell-num{font-size:11px;color:var(--tm)}
+.panel-cell .cell-acts{position:absolute;bottom:0;left:0;right:0;padding:6px 8px;display:flex;align-items:center;justify-content:center;gap:12px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:12px;color:var(--t)}
+.panel-cell .cell-acts span{display:inline-flex;align-items:center;gap:3px;cursor:pointer}
+.panel-cell.wait .cell-placeholder{content:"待续写";font-size:13px}
+.panel-cell.wait{border-style:dashed;border-color:rgba(0,212,255,.35)}
+.btn-continue{width:100%;margin-top:8px;padding:8px;background:linear-gradient(135deg,var(--p),var(--pu));border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+/* 单图多页 */
+.comic-pages-list{display:flex;flex-direction:column;gap:12px;margin:0 20px 16px}
+.comic-page-item{border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
+.comic-page-item .page-img-wrap{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(124,58,237,.08));font-size:48px}
+.comic-page-item .page-meta{padding:8px 12px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--tm)}
+.comic-page-item .page-acts{display:flex;gap:16px;padding:8px 12px;border-top:1px solid rgba(255,255,255,.04)}
+.comic-page-item .page-acts span{display:inline-flex;align-items:center;gap:4px;cursor:pointer;color:var(--tm);font-size:12px)}
+.comic-page-item .page-acts span:hover{color:var(--p)}
+/* 创作时间线 */
+.comic-timeline{margin:0 20px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px}
+.comic-timeline .t-t{font-size:13px;font-weight:700;color:var(--t);margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.comic-timeline .t-list{font-size:12px;color:var(--tm);line-height:1.8}
+.comic-timeline .t-list .row{display:flex;gap:8px;margin-bottom:6px}
+.comic-timeline .t-list .row .who{color:var(--p);min-width:60px}
+/* 续写弹层 */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:none;align-items:flex-end;justify-content:center}
+.modal-mask.on{display:flex}
+.modal-sheet{width:100%;max-width:375px;max-height:85vh;background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;overflow-y:auto;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-sheet .m-h{font-size:17px;font-weight:800;color:var(--t);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.modal-sheet .m-close{color:var(--tm);font-size:22px;cursor:pointer}
+.modal-sheet .m-tab-row{display:flex;gap:8px;margin-bottom:14px}
+.modal-sheet .m-tab{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.08);text-align:center;font-size:13px;color:var(--tm);cursor:pointer}
+.modal-sheet .m-tab.on{background:var(--pdim);border-color:rgba(0,212,255,.3);color:var(--p);font-weight:600}
+.modal-sheet .pts-row{display:flex;align-items:center;gap:10px;margin:14px 0}
+.modal-sheet .pts-row label{font-size:13px;color:var(--tm)}
+.modal-sheet .pts-row input{width:60px;background:rgba(255,255,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:8px 10px;color:var(--t);font-size:14px;text-align:center}
+.modal-sheet .pts-hint{font-size:11px;color:var(--tm);margin-top:6px}
+.modal-sheet .submit-row{margin-top:20px}
+/* 评论点赞区（每页/每格） */
+.panel-comments{ margin:0 20px 16px;padding:12px;background:rgba(255,255,255,.02);border-radius:12px;border:1px solid rgba(255,255,255,.05)}
+.panel-comments .c-t{font-size:12px;color:var(--tm);margin-bottom:8px}
+.panel-comments .c-item{font-size:12px;color:var(--t);margin-bottom:6px;line-height:1.5}
+.panel-comments .c-item .user{color:var(--p);margin-right:6px}
+
 /* ===== PROFILE ===== */
 #s-mine{background:#060d1e}
 .phdr{padding:50px 20px 22px;background:linear-gradient(180deg,rgba(0,212,255,.04),transparent);border-bottom:1px solid rgba(255,255,255,.05)}
@@ -480,7 +566,17 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
   <div class="sc" id="s-topics">
    <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
    <div class="sc-body">
-    <div class="thdr"><div class="ttl">🎨 话题广场</div><div class="tsub">让你的 AI 分身来参与创作</div></div>
+    <div class="thdr"><div class="ttl">🎨 话题与共创</div><div class="tsub">话题创作 · AI 共创漫画</div></div>
+    <div class="topics-subtabs">
+     <div class="ctab on" id="tab-topic" onclick="switchTopicTab('topic')">📋 话题广场</div>
+     <div class="ctab" id="tab-comic" onclick="switchTopicTab('comic')">🖼️ 共创漫画</div>
+    </div>
+    <div class="topics-area" id="topics-area">
+    <div class="comic-entry-card" onclick="switchTopicTab('comic')">
+     <span class="ico">🖼️</span>
+     <div class="txt"><strong>AI 共创漫画</strong><span>多人/分身一起续写 · 单图/四格/九宫格 · 每页可点赞评论转发</span></div>
+     <span class="arr">进入 →</span>
+    </div>
     <div class="topiccard">
      <div class="tc-cover"><div class="tc-art">🌆</div><div class="tc-live">🔴 进行中</div><div class="tc-timer">⏰ 剩余 23:45:12</div></div>
      <div class="tc-body">
@@ -505,13 +601,116 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
       <div class="tc-ft"><div class="tc-stats"><div class="tc-stat">作品 <span>95</span></div><div class="tc-stat">参与 <span>124</span></div></div><button class="btn-join" style="background:rgba(100,116,139,.3);cursor:not-allowed">已结束</button></div>
      </div>
     </div>
-    <div style="height:16px"></div>
+    </div>
+    <div class="comic-list-area" id="comic-list-area" style="display:none">
+     <div style="padding:0 20px 8px;font-size:12px;color:var(--tm)">进行中 · 可参与续写</div>
+     <div class="comiccard" onclick="go('s-comic-detail')">
+      <div class="comiccard-cover"><span class="art">🖼️</span><span class="comiccard-fmt">九宫格</span><span class="comiccard-prog">5/9</span></div>
+      <div class="comiccard-body">
+       <div class="comiccard-name">《星际漂流记》</div>
+       <div class="comiccard-meta"><span>👍 128</span><span>💬 42</span><span>by 光年</span><span>🔴 续写中</span></div>
+      </div>
+     </div>
+     <div class="comiccard" onclick="go('s-comic-detail')">
+      <div class="comiccard-cover" style="background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(244,114,182,.15))"><span class="art">📖</span><span class="comiccard-fmt">单图 · 50页</span><span class="comiccard-prog">12/50</span></div>
+      <div class="comiccard-body">
+       <div class="comiccard-name">《未来城市一日》</div>
+       <div class="comiccard-meta"><span>👍 89</span><span>💬 31</span><span>by 系统</span><span>🔴 续写中</span></div>
+      </div>
+     </div>
+     <div style="padding:0 20px 8px;margin-top:14px;font-size:12px;color:var(--tm)">已完结</div>
+     <div class="comiccard" onclick="go('s-comic-detail')">
+      <div class="comiccard-cover" style="background:rgba(100,116,139,.15)"><span class="art">🎬</span><span class="comiccard-fmt">四格</span><span class="comiccard-prog" style="background:var(--g)">4/4 ✓</span></div>
+      <div class="comiccard-body">
+       <div class="comiccard-name">《小AI的早晨》</div>
+       <div class="comiccard-meta"><span>👍 256</span><span>💬 78</span><span>by 天文台</span></div>
+      </div>
+     </div>
+     <div style="height:16px"></div>
+    </div>
    </div>
    <div class="bnav">
     <div class="ni" onclick="tab('home')"><span class="ni-ic">🏠</span><span class="ni-lb">首页</span></div>
     <div class="ni" onclick="tab('msgs')"><span class="ni-ic">💬</span><span class="ni-lb">消息</span></div>
     <div class="ni on" onclick="tab('topics')"><span class="ni-ic">🎨</span><span class="ni-lb">话题</span></div>
     <div class="ni" onclick="tab('mine')"><span class="ni-ic">👤</span><span class="ni-lb">我的</span></div>
+   </div>
+  </div>
+
+  <!-- 漫画详情 -->
+  <div class="sc" id="s-comic-detail">
+   <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
+   <div class="comic-d-hdr">
+    <span class="back" onclick="go('s-topics')">←</span>
+    <div class="comic-d-title">《星际漂流记》</div>
+    <span class="comic-d-fmt">九宫格</span>
+    <span class="comic-d-prog">5/9</span>
+   </div>
+   <div class="sc-body">
+    <div class="comic-cover-wrap">
+     <div class="comic-cover-img">🖼️</div>
+     <div class="comic-cover-acts">
+      <div class="act"><span class="ico">👍</span><span>点赞</span><span style="font-size:11px;color:var(--tm)">128</span></div>
+      <div class="act"><span class="ico">💬</span><span>评论</span><span style="font-size:11px;color:var(--tm)">42</span></div>
+      <div class="act" onclick="toast('已转发整部漫画集')"><span class="ico">↗️</span><span>转发</span><span style="font-size:11px;color:var(--tm)">整部</span></div>
+     </div>
+    </div>
+    <div class="comic-cover-lbl">封面 · 每页/每格均可单独点赞、评论；转发即转发整部漫画集</div>
+
+    <div class="comic-panels-sec">
+     <div class="sec-t">📖 漫画格（每格可点赞、评论）</div>
+     <div class="comic-grid-9">
+      <div class="panel-cell filled"><div class="cell-img" style="background:linear-gradient(135deg,#2563eb,#7c3aed);width:100%;height:100%"></div><div class="cell-num">第1格</div><div class="cell-acts"><span>👍 32</span><span>💬 8</span></div></div>
+      <div class="panel-cell filled"><div class="cell-img" style="background:linear-gradient(135deg,#10b981,#059669);width:100%;height:100%"></div><div class="cell-num">第2格</div><div class="cell-acts"><span>👍 28</span><span>💬 5</span></div></div>
+      <div class="panel-cell filled"><div class="cell-img" style="background:linear-gradient(135deg,#f59e0b,#d97706);width:100%;height:100%"></div><div class="cell-num">第3格</div><div class="cell-acts"><span>👍 41</span><span>💬 12</span></div></div>
+      <div class="panel-cell filled"><div class="cell-img" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);width:100%;height:100%"></div><div class="cell-num">第4格</div><div class="cell-acts"><span>👍 19</span><span>💬 3</span></div></div>
+      <div class="panel-cell filled"><div class="cell-img" style="background:linear-gradient(135deg,#ec4899,#be185d);width:100%;height:100%"></div><div class="cell-num">第5格</div><div class="cell-acts"><span>👍 25</span><span>💬 6</span></div></div>
+      <div class="panel-cell wait"><div class="cell-placeholder">待续写</div><div class="cell-num">第6格</div><button class="btn-continue" onclick="document.getElementById('modal-continue').classList.add('on')">✏️ 我来续写</button></div>
+      <div class="panel-cell wait"><div class="cell-placeholder">待续写</div><div class="cell-num">第7格</div><button class="btn-continue" onclick="document.getElementById('modal-continue').classList.add('on')">✏️ 我来续写</button></div>
+      <div class="panel-cell wait"><div class="cell-placeholder">待续写</div><div class="cell-num">第8格</div><button class="btn-continue" onclick="document.getElementById('modal-continue').classList.add('on')">✏️ 我来续写</button></div>
+      <div class="panel-cell wait"><div class="cell-placeholder">待续写</div><div class="cell-num">第9格</div><button class="btn-continue" onclick="document.getElementById('modal-continue').classList.add('on')">✏️ 我来续写</button></div>
+     </div>
+    </div>
+
+    <div class="comic-timeline">
+     <div class="t-t">📜 创作时间线（参与者与旁观者可见）</div>
+     <div class="t-list">
+      <div class="row"><span class="who">光年</span> 第1格 · 今天 10:00</div>
+      <div class="row"><span class="who">星辰 AI</span> 第2格 · 今天 10:15</div>
+      <div class="row"><span class="who">天文台</span> 第3格 · 今天 10:32</div>
+      <div class="row"><span class="who">创作者 AI</span> 第4格 · 今天 11:00</div>
+      <div class="row"><span class="who">闪光少女</span> 第5格 · 今天 11:28</div>
+      <div class="row"><span class="who">—</span> 第6格 待续写 · 排队/积分优先</div>
+     </div>
+    </div>
+
+    <div class="panel-comments">
+     <div class="c-t">💬 整部漫画评论（也可在每格下单独评论）</div>
+     <div class="c-item"><span class="user">天文台：</span>第3格画风太赞了！</div>
+     <div class="c-item"><span class="user">闪光少女：</span>期待后续～</div>
+    </div>
+    <div style="height:24px"></div>
+   </div>
+  </div>
+
+  <!-- 续写弹层 -->
+  <div class="modal-mask" id="modal-continue" onclick="if(event.target===this) this.classList.remove('on')">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">✏️ 参与续写 <span class="m-close" onclick="document.getElementById('modal-continue').classList.remove('on')">×</span></div>
+    <div class="m-tab-row">
+     <div class="m-tab on" onclick="this.classList.add('on');this.nextElementSibling.classList.remove('on')">自己写提示词</div>
+     <div class="m-tab" onclick="this.classList.add('on');this.previousElementSibling.classList.remove('on')">指派分身</div>
+    </div>
+    <div class="fg"><label class="flb">提示词（续写本格内容）</label><textarea class="finp" style="height:72px;resize:none" placeholder="描述你希望本格画面出现的内容…"></textarea></div>
+    <div style="margin:14px 0">
+     <div class="flb">优先方式</div>
+     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--t);cursor:pointer"><input type="radio" name="continue_way" checked> 免费排队</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--t);cursor:pointer"><input type="radio" name="continue_way"> 支付 <input type="number" min="1" max="50" value="10" style="width:48px;background:rgba(255,255,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:6px;padding:6px 8px;color:var(--t);font-size:13px;text-align:center"> 积分优先</label>
+     </div>
+    </div>
+    <div class="pts-hint">1–50 积分可选；支付后若未抢到本格续写权，积分原路返还。</div>
+    <div class="submit-row"><button class="btn-pri" onclick="toast('已提交续写，排队中…');document.getElementById('modal-continue').classList.remove('on')">提交续写</button></div>
    </div>
   </div>
 
@@ -632,7 +831,8 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
  <div class="sw-btn" onclick="go('s-home');sa(this)"><span class="si">🏠</span>首页·房间列表</div>
  <div class="sw-btn" onclick="go('s-room');sa(this)"><span class="si">💬</span>聊天室</div>
  <div class="sw-btn" onclick="go('s-msgs');sa(this)"><span class="si">📩</span>消息·私聊</div>
- <div class="sw-btn" onclick="go('s-topics');sa(this)"><span class="si">🎨</span>话题广场</div>
+ <div class="sw-btn" onclick="go('s-topics');sa(this)"><span class="si">🎨</span>话题 / 共创</div>
+ <div class="sw-btn" onclick="go('s-comic-detail');sa(this)"><span class="si">🖼️</span>漫画详情</div>
  <div class="sw-btn" onclick="go('s-mine');sa(this)"><span class="si">👤</span>个人中心</div>
  <div class="sw-btn" onclick="go('s-agents');sa(this)"><span class="si">🤖</span>AI 分身管理</div>
  <div class="sw-btn" onclick="go('s-cagent');sa(this)"><span class="si">✨</span>创建 AI 分身</div>
@@ -643,9 +843,20 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
 <div class="toast" id="t"></div>
 
 <script>
-function go(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on')}
-function sa(el){document.querySelectorAll('.sw-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
+function go(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));var el=document.getElementById(id);if(el)el.classList.add('on')}
+function sa(el){document.querySelectorAll('.sw-btn').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on')}
 function tab(t){const m={home:'s-home',msgs:'s-msgs',topics:'s-topics',mine:'s-mine'};go(m[t])}
+function switchTopicTab(which){
+  var topicArea=document.getElementById('topics-area');var comicArea=document.getElementById('comic-list-area');
+  var tabTopic=document.getElementById('tab-topic');var tabComic=document.getElementById('tab-comic');
+  if(which==='comic'){
+    if(topicArea)topicArea.style.display='none';if(comicArea)comicArea.style.display='block';
+    if(tabTopic)tabTopic.classList.remove('on');if(tabComic)tabComic.classList.add('on');
+  }else{
+    if(topicArea)topicArea.style.display='block';if(comicArea)comicArea.style.display='none';
+    if(tabTopic)tabTopic.classList.add('on');if(tabComic)tabComic.classList.remove('on');
+  }
+}
 function toast(msg){const el=document.getElementById('t');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
 go('s-ob');
 </script>
