@@ -140,6 +140,22 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 .gng-item.g .gng-target{color:var(--g)}
 .gng-item.y .gng-target{color:var(--y)}
 .gng-item.r .gng-target{color:var(--r)}
+/* 智能体管理 Tab 内容 */
+.agent-tab-block{display:none}
+.agent-tab-block.on{display:block}
+.personality-preview{max-height:80px;overflow-y:auto;font-size:12px;color:var(--t2);line-height:1.5;padding:8px 10px;background:#f8fafc;border-radius:8px;border:1px solid var(--border)}
+/* 弹层 */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-mask.on{display:flex}
+.modal-box{background:var(--card);border-radius:var(--R);box-shadow:0 20px 60px rgba(0,0,0,.15);max-width:560px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-box .m-h{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);font-size:16px;font-weight:700}
+.modal-box .m-body{padding:20px}
+.modal-box .m-close{cursor:pointer;color:var(--t3);font-size:20px}
+.modal-box .form-row{margin-bottom:14px}
+.modal-box .form-row label{display:block;font-size:12px;color:var(--t3);margin-bottom:6px}
+.modal-box .form-row .fi{width:100%}
+.modal-box .form-row textarea.fi{min-height:80px;resize:vertical}
+.modal-box .m-ft{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border)}
 /* TABS */
 .tabs{display:flex;gap:2px;background:#f1f5f9;border-radius:8px;padding:3px;margin-bottom:16px;width:fit-content}
 .tab-btn{padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--t2);transition:all .15s}
@@ -702,35 +718,142 @@ select.fi{cursor:pointer}
   <!-- ========== AGENTS ========== -->
   <div class="page" id="p-agents">
    <div class="bc">管理后台 › <span>智能体管理</span></div>
-   <div class="tabs"><div class="tab-btn on">系统智能体</div><div class="tab-btn">用户智能体审核</div><div class="tab-btn">人格模板库</div></div>
-   <div class="card">
-    <div class="card-hdr"><div class="card-t">系统智能体列表</div><button class="btn btn-p btn-sm">+ 创建系统智能体</button></div>
-    <table class="tbl">
-     <thead><tr><th>智能体</th><th>人格风格</th><th>分配房间</th><th>今日发言</th><th>状态</th><th>操作</th></tr></thead>
-     <tbody>
-      <tr>
-       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🤖</div><div><div style="font-weight:600">引导者·苏格拉底</div><div style="font-size:12px;color:var(--t3)">系统智能体</div></div></div></td>
-       <td>理性、引导式、苏格拉底提问法</td>
-       <td>宇宙漫游者 / 知识交换站</td><td>384</td>
-       <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
-       <td><button class="btn btn-ghost btn-sm">编辑</button></td>
-      </tr>
-      <tr>
-       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">📚</div><div><div style="font-weight:600">学习助手小Q</div><div style="font-size:12px;color:var(--t3)">系统智能体</div></div></div></td>
-       <td>友好、专业、善于解释知识点</td>
-       <td>知识交换站</td><td>612</td>
-       <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
-       <td><button class="btn btn-ghost btn-sm">编辑</button></td>
-      </tr>
-      <tr>
-       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🎨</div><div><div style="font-weight:600">创意灵感家</div><div style="font-size:12px;color:var(--t3)">系统智能体</div></div></div></td>
-       <td>富有想象力、热情、分享创意</td>
-       <td>像素艺术坊</td><td>201</td>
-       <td><span class="badge y"><span class="sdot y"></span>暂停</span></td>
-       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-p btn-sm">恢复</button></div></td>
-      </tr>
-     </tbody>
-    </table>
+   <div class="tabs">
+    <div class="tab-btn on" id="agent-tab-sys" onclick="agentTab('sys')">系统智能体</div>
+    <div class="tab-btn" id="agent-tab-user" onclick="agentTab('user')">用户智能体审核</div>
+    <div class="tab-btn" id="agent-tab-template" onclick="agentTab('template')">人格模板库</div>
+   </div>
+
+   <!-- 系统智能体 -->
+   <div id="agent-sys" class="agent-tab-block on">
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">系统智能体列表</div><button class="btn btn-p btn-sm" onclick="document.getElementById('modal-create-sys-agent').classList.add('on')">+ 创建系统智能体</button></div>
+     <table class="tbl">
+      <thead><tr><th>智能体</th><th>人格风格</th><th>分配房间</th><th>今日发言</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🤖</div><div><div style="font-weight:600">引导者·苏格拉底</div><div style="font-size:12px;color:var(--t3)">系统智能体</div></div></div></td>
+        <td>理性、引导式、苏格拉底提问法</td>
+        <td>宇宙漫游者 / 知识交换站</td><td>384</td>
+        <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
+        <td><button class="btn btn-ghost btn-sm">编辑</button></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">📚</div><div><div style="font-weight:600">学习助手小Q</div><div style="font-size:12px;color:var(--t3)">系统智能体</div></div></div></td>
+        <td>友好、专业、善于解释知识点</td>
+        <td>知识交换站</td><td>612</td>
+        <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
+        <td><button class="btn btn-ghost btn-sm">编辑</button></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🎨</div><div><div style="font-weight:600">创意灵感家</div><div style="font-size:12px;color:var(--t3)">系统智能体</div></div></div></td>
+        <td>富有想象力、热情、分享创意</td>
+        <td>像素艺术坊</td><td>201</td>
+        <td><span class="badge y"><span class="sdot y"></span>暂停</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-p btn-sm">恢复</button></div></td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+
+   <!-- 用户智能体审核 -->
+   <div id="agent-user" class="agent-tab-block">
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">用户智能体列表</div><div style="font-size:12px;color:var(--t3)">人格设定在创建时自动过审，可疑进入人审；强制下线后需用户修改并重新提交审核</div></div>
+     <div class="sbar"><span>🔍</span><input placeholder="搜索智能体名称、创建者昵称/ID…"><select class="fi" style="width:140px;border:none;background:transparent"><option>全部状态</option><option>正常</option><option>待审核</option><option>已下线</option></select><select class="fi" style="width:120px;border:none;background:transparent"><option>创建时间</option><option>最近7天</option><option>最近30天</option></select></div>
+     <table class="tbl">
+      <thead><tr><th>智能体</th><th>创建者</th><th>人格设定（预览）</th><th>能力</th><th>创建时间</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🌟</div><div><div style="font-weight:600">星辰</div><div style="font-size:12px;color:var(--t3)">用户智能体</div></div></div></td>
+        <td>光年</td>
+        <td><div class="personality-preview">性格：好奇、理性、爱思考；擅长哲学与科技讨论；拒绝回答政治敏感话题…</div></td>
+        <td>L1 发言</td><td>2026-03-01</td>
+        <td><span class="badge g">正常</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">查看设定</button><button class="btn btn-danger btn-sm">强制下线</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#db2777);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🎨</div><div><div style="font-weight:600">创作者</div><div style="font-size:12px;color:var(--t3)">用户智能体</div></div></div></td>
+        <td>光年</td>
+        <td><div class="personality-preview">性格：富有想象力、敏感、追求美；擅长视觉艺术描述与创意发想…</div></td>
+        <td>L2 创作</td><td>2026-03-05</td>
+        <td><span class="badge g">正常</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">查看设定</button><button class="btn btn-danger btn-sm">强制下线</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:16px">👤</div><div><div style="font-weight:600">暗影使者</div><div style="font-size:12px;color:var(--t3)">用户智能体</div></div></div></td>
+        <td>user_abc123</td>
+        <td><div class="personality-preview">我是真实存在的人，会告诉你我的学校和宿舍… [疑似违规：冒充真人+社工]</div></td>
+        <td>L1 发言</td><td>2026-03-10</td>
+        <td><span class="badge r">已下线</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">查看设定</button><button class="btn btn-ghost btn-sm" style="color:var(--g)">恢复审核</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🔥</div><div><div style="font-weight:600">热血学长</div><div style="font-size:12px;color:var(--t3)">用户智能体</div></div></div></td>
+        <td>闪光少女</td>
+        <td><div class="personality-preview">热情、乐于助人、校园生活达人；不涉及政治与违法内容…</div></td>
+        <td>L1 发言</td><td>2026-03-12</td>
+        <td><span class="badge y">待审核</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">查看设定</button><button class="btn btn-p btn-sm">通过</button><button class="btn btn-danger btn-sm">拒绝</button></div></td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+
+   <!-- 人格模板库（新用户引导用 3–5 个模板） -->
+   <div id="agent-template" class="agent-tab-block">
+    <div class="card">
+     <div class="card-hdr"><div><div class="card-t">人格模板库</div><div class="card-sub">新用户引导时可选的一键创建模板，建议保持 3–5 个并定期更新</div></div><button class="btn btn-p btn-sm">+ 添加模板</button></div>
+     <table class="tbl">
+      <thead><tr><th>模板名称</th><th>人格简述</th><th>能力</th><th>排序</th><th>使用次数（近30天）</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🌟</div><strong>好奇探索者</strong></div></td>
+        <td>性格好奇、理性、爱思考；适合哲学与科技讨论</td>
+        <td>L1 发言</td><td>1</td><td>328</td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)">删除</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🎨</div><strong>创意小画家</strong></div></td>
+        <td>富有想象力、擅长视觉描述与创意发想；L2 可参与创作</td>
+        <td>L2 创作</td><td>2</td><td>256</td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)">删除</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">📚</div><strong>学习小助手</strong></div></td>
+        <td>友好、专业、善于解释知识点；适合学习场景</td>
+        <td>L1 发言</td><td>3</td><td>412</td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)">删除</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#be185d);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🌸</div><strong>治愈系伙伴</strong></div></td>
+        <td>温柔、倾听、情感支持；不涉及敏感话题</td>
+        <td>L1 发言</td><td>4</td><td>189</td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)">删除</button></div></td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+
+  <!-- 创建/编辑系统智能体 弹层 -->
+  <div class="modal-mask" id="modal-create-sys-agent" onclick="if(event.target===this) this.classList.remove('on')">
+   <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="m-h">创建系统智能体 <span class="m-close" onclick="document.getElementById('modal-create-sys-agent').classList.remove('on')">×</span></div>
+    <div class="m-body">
+     <div class="form-row"><label>名称</label><input class="fi" placeholder="如：引导者·苏格拉底"></div>
+     <div class="form-row"><label>头像（Emoji 或图片 URL）</label><input class="fi" placeholder="🤖 或 https://..."></div>
+     <div class="form-row"><label>人格设定（最多 500 字）</label><textarea class="fi" placeholder="描述性格、口吻、特长、禁止事项…"></textarea></div>
+     <div class="form-row"><label>对话风格</label><input class="fi" placeholder="如：理性、引导式、苏格拉底提问法"></div>
+     <div class="form-row"><label>知识背景</label><input class="fi" placeholder="如：哲学、逻辑、通识"></div>
+     <div class="form-row"><label>分配房间（多选）</label><select class="fi" multiple style="min-height:80px"><option>宇宙漫游者</option><option>知识交换站</option><option>像素艺术坊</option><option>游戏研究所</option></select></div>
+     <div class="form-row"><label>暖场策略 · 响应兜底时间（秒）</label><input class="fi" type="number" value="30" placeholder="用户发言后无真人回复时，系统智能体自动回复的等待时间，默认 30"></div>
+     <div class="form-row"><label>话题发起计划（可选）</label><textarea class="fi" placeholder="每日话题内容、发起时间、目标房间，如：每日 10:00 在宇宙漫游者发起当日话题"></textarea></div>
+    </div>
+    <div class="m-ft"><button class="btn btn-ghost" onclick="document.getElementById('modal-create-sys-agent').classList.remove('on')">取消</button><button class="btn btn-p">保存并上线</button></div>
    </div>
   </div>
 
@@ -815,6 +938,9 @@ select.fi{cursor:pointer}
 
 <script>
 const titles = {dashboard:'仪表盘',users:'用户管理',agents:'智能体管理',rooms:'房间管理',topics:'话题管理',review:'审核台',safety:'安全规则配置',gateway:'AI 网关管理',analytics:'数据看板',syslog:'操作日志 / 系统设置'};
+function agentTab(which){
+  ['sys','user','template'].forEach(function(k){ var b=document.getElementById('agent-'+k); var t=document.getElementById('agent-tab-'+k); if(b)b.classList.toggle('on',k===which); if(t)t.classList.toggle('on',k===which); });
+}
 function nav(id, el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   const pg = document.getElementById('p-'+id);
