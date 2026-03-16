@@ -177,6 +177,16 @@ select.fi{cursor:pointer}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* Safety tab content */
+.safety-tab-block{display:none}
+.safety-tab-block.on{display:block}
+
+.safety-tab-block{display:none}
+.safety-tab-block.on{display:block}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.notice.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:#fffbeb;border:1px solid #fcd34d;color:#92400e;padding:12px 16px;border-radius:8px;font-size:13px}
 </style>
 </head>
 <body>
@@ -232,10 +242,10 @@ select.fi{cursor:pointer}
  <!-- HEADER -->
  <header class="hdr">
   <div class="hdr-title" id="page-title">仪表盘</div>
-  <div class="hdr-search"><span>🔍</span><input placeholder="搜索用户、房间、内容…"></div>
-  <button class="hdr-btn notif-dot" title="通知">🔔</button>
-  <button class="hdr-btn" title="帮助">❓</button>
-  <button class="hdr-btn" title="设置">⚙️</button>
+  <div class="hdr-search"><span>🔍</span><input placeholder="搜索用户、房间、内容…" onkeydown="if(event.key==='Enter')adminSearch(this)"></div>
+  <button class="hdr-btn notif-dot" title="通知" onclick="headerNotif()">🔔</button>
+  <button class="hdr-btn" title="帮助" onclick="headerHelp()">❓</button>
+  <button class="hdr-btn" title="设置" onclick="headerSettings()">⚙️</button>
  </header>
 
  <!-- CONTENT -->
@@ -269,7 +279,7 @@ select.fi{cursor:pointer}
     <!-- DAU 趋势 -->
     <div class="card">
      <div class="card-hdr"><div><div class="card-t">DAU 趋势（近7天）</div><div class="card-sub">日活跃用户数</div></div>
-      <div class="tabs" style="margin-bottom:0"><div class="tab-btn on">7天</div><div class="tab-btn">30天</div></div>
+      <div class="tabs" style="margin-bottom:0"><div class="tab-btn on" onclick="chartTab(this)">7天</div><div class="tab-btn" onclick="chartTab(this)">30天</div></div>
      </div>
      <svg width="100%" height="140" viewBox="0 0 420 140" xmlns="http://www.w3.org/2000/svg">
       <defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb" stop-opacity=".2"/><stop offset="100%" stop-color="#2563eb" stop-opacity="0"/></linearGradient></defs>
@@ -357,7 +367,7 @@ select.fi{cursor:pointer}
       <select class="fi">
        <option>全部状态</option><option>正常</option><option>封禁</option>
       </select>
-      <button class="btn btn-p btn-sm">+ 导出</button>
+      <button class="btn btn-p btn-sm" onclick="toast('用户数据导出中，请稍后在通知中下载')">+ 导出</button>
      </div>
     </div>
     <div class="sbar"><span>🔍</span><input placeholder="搜索昵称 / 手机号 / DID…"></div>
@@ -371,45 +381,45 @@ select.fi{cursor:pointer}
        <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x8f3c…</span></td>
        <td>2026-03-01</td><td>3 分钟前</td><td><span style="color:var(--p);font-weight:700">320</span></td><td>2</td>
        <td><span class="badge g">● 正常</span></td>
-       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm">封禁</button></div></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('用户')">详情</button><button class="btn btn-ghost btn-sm" onclick="banUser('用户')">封禁</button></div></td>
       </tr>
       <tr>
        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">T</div><div><div style="font-weight:600">天文台</div><div style="font-size:12px;color:var(--t3)">手机：139****5678</div></div></div></td>
        <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x2a4d…</span></td>
        <td>2026-03-03</td><td>1 小时前</td><td><span style="color:var(--p);font-weight:700">880</span></td><td>1</td>
        <td><span class="badge g">● 正常</span></td>
-       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm">封禁</button></div></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('用户')">详情</button><button class="btn btn-ghost btn-sm" onclick="banUser('用户')">封禁</button></div></td>
       </tr>
       <tr>
        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px;font-weight:700">X</div><div><div style="font-weight:600">星际旅行者</div><div style="font-size:12px;color:var(--t3)">手机：137****9012</div></div></div></td>
        <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x9c1e…</span></td>
        <td>2026-03-08</td><td>2 天前</td><td><span style="color:var(--t3)">0</span></td><td>0</td>
        <td><span class="badge r">● 封禁</span></td>
-       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm" style="color:var(--g);border-color:var(--gb)">解封</button></div></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('星际旅行者')">详情</button><button class="btn btn-ghost btn-sm" style="color:var(--g);border-color:var(--gb)" onclick="unbanUser('星际旅行者')">解封</button></div></td>
       </tr>
       <tr>
        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">M</div><div><div style="font-weight:600">迷途的鱼</div><div style="font-size:12px;color:var(--t3)">手机：136****3456</div></div></div></td>
        <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x5b7f…</span></td>
        <td>2026-03-10</td><td>20 分钟前</td><td><span style="color:var(--p);font-weight:700">1,200</span></td><td>3</td>
        <td><span class="badge g">● 正常</span></td>
-       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm">封禁</button></div></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('用户')">详情</button><button class="btn btn-ghost btn-sm" onclick="banUser('用户')">封禁</button></div></td>
       </tr>
       <tr>
        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">S</div><div><div style="font-weight:600">闪光少女</div><div style="font-size:12px;color:var(--t3)">手机：135****7890</div></div></div></td>
        <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x3d9a…</span></td>
        <td>2026-03-12</td><td>刚刚</td><td><span style="color:var(--p);font-weight:700">550</span></td><td>2</td>
        <td><span class="badge g">● 正常</span></td>
-       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">详情</button><button class="btn btn-ghost btn-sm">封禁</button></div></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('用户')">详情</button><button class="btn btn-ghost btn-sm" onclick="banUser('用户')">封禁</button></div></td>
       </tr>
      </tbody>
     </table>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
      <span style="font-size:13px;color:var(--t3)">共 18,432 条记录</span>
      <div style="display:flex;gap:6px">
-      <button class="btn btn-ghost btn-sm">◀ 上一页</button>
+      <button class="btn btn-ghost btn-sm" onclick="toast('已是第一页')">◀ 上一页</button>
       <button class="btn btn-p btn-sm">1</button>
       <button class="btn btn-ghost btn-sm">2</button><button class="btn btn-ghost btn-sm">3</button>
-      <button class="btn btn-ghost btn-sm">下一页 ▶</button>
+      <button class="btn btn-ghost btn-sm" onclick="gotoPage(2)">下一页 ▶</button>
      </div>
     </div>
    </div>
@@ -518,7 +528,7 @@ select.fi{cursor:pointer}
       <div class="card-t" style="margin-bottom:14px">⚙️ 快捷配置</div>
       <div style="margin-bottom:12px">
        <div style="font-size:12px;color:var(--t3);margin-bottom:6px">敏感词紧急添加</div>
-       <div style="display:flex;gap:8px"><input class="fi" style="flex:1" placeholder="输入敏感词"><button class="btn btn-p btn-sm">立即生效</button></div>
+       <div style="display:flex;gap:8px"><input class="fi" style="flex:1" placeholder="输入敏感词"><button class="btn btn-p btn-sm" onclick="toast('敏感词已立即生效')">立即生效</button></div>
       </div>
       <div>
        <div style="font-size:12px;color:var(--t3);margin-bottom:8px">处置规则快速配置</div>
@@ -549,7 +559,7 @@ select.fi{cursor:pointer}
    </div>
 
    <div class="card">
-    <div class="card-hdr"><div class="card-t">模型供应商状态</div><button class="btn btn-p btn-sm">+ 添加供应商</button></div>
+    <div class="card-hdr"><div class="card-t">模型供应商状态</div><button class="btn btn-p btn-sm" onclick="openModal('modal-add-vendor')">+ 添加供应商</button></div>
     <div style="display:flex;flex-direction:column;gap:12px">
      <div class="model-card" style="background:var(--gdim);border-color:var(--gb)">
       <div class="model-icon" style="background:linear-gradient(135deg,#10b981,#059669)">🤖</div>
@@ -592,7 +602,7 @@ select.fi{cursor:pointer}
      <div class="card-t" style="margin-bottom:14px">💰 预算管理</div>
      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <span style="font-size:13px;color:var(--t2)">日预算上限</span>
-      <div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:80px;text-align:right" value="200"><span style="font-size:13px;color:var(--t2)">元</span><button class="btn btn-p btn-sm">保存</button></div>
+      <div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:80px;text-align:right" value="200"><span style="font-size:13px;color:var(--t2)">元</span><button class="btn btn-p btn-sm" onclick="toast('预算设置已保存')">保存</button></div>
      </div>
      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--t2)">已使用</span><span style="font-weight:700;color:var(--y)">¥156.4 (78%)</span></div>
      <div class="prog-bar" style="height:10px"><div class="prog-fill" style="width:78%;background:linear-gradient(90deg,var(--p),var(--y))"></div></div>
@@ -610,7 +620,7 @@ select.fi{cursor:pointer}
        <tr><td>监听评估</td><td><span class="chip">DeepSeek V3</span></td><td>Qwen-Long</td></tr>
       </tbody>
      </table>
-     <button class="btn btn-ghost btn-sm" style="margin-top:12px">✏️ 编辑路由策略</button>
+     <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="openModal('modal-route-strategy')">✏️ 编辑路由策略</button>
     </div>
    </div>
   </div>
@@ -701,7 +711,7 @@ select.fi{cursor:pointer}
 
    <!-- 房间活跃度 -->
    <div class="card">
-    <div class="card-hdr"><div class="card-t">🏠 房间活跃度排行（今日）</div><button class="btn btn-ghost btn-sm">查看全部</button></div>
+    <div class="card-hdr"><div class="card-t">🏠 房间活跃度排行（今日）</div><button class="btn btn-ghost btn-sm" onclick="toast('完整排行榜加载中…')">查看全部</button></div>
     <table class="tbl">
      <thead><tr><th>排名</th><th>房间名称</th><th>类型</th><th>在线人数</th><th>今日消息数</th><th>AI 发言占比</th><th>趋势</th></tr></thead>
      <tbody>
@@ -750,7 +760,7 @@ select.fi{cursor:pointer}
         <td>富有想象力、热情、分享创意</td>
         <td>像素艺术坊</td><td>201</td>
         <td><span class="badge y"><span class="sdot y"></span>暂停</span></td>
-        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-p btn-sm">恢复</button></div></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-sys-agent')">编辑</button><button class="btn btn-p btn-sm" onclick="toast('创意灵感家 已恢复上线')">恢复</button></div></td>
        </tr>
       </tbody>
      </table>
@@ -787,7 +797,7 @@ select.fi{cursor:pointer}
         <td><div class="personality-preview">我是真实存在的人，会告诉你我的学校和宿舍… [疑似违规：冒充真人+社工]</div></td>
         <td>L1 发言</td><td>2026-03-10</td>
         <td><span class="badge r">已下线</span></td>
-        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">查看设定</button><button class="btn btn-ghost btn-sm" style="color:var(--g)">恢复审核</button></div></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-agent-settings')">查看设定</button><button class="btn btn-ghost btn-sm" style="color:var(--g)" onclick="toast('已提交恢复审核')">恢复审核</button></div></td>
        </tr>
        <tr>
         <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🔥</div><div><div style="font-weight:600">热血学长</div><div style="font-size:12px;color:var(--t3)">用户智能体</div></div></div></td>
@@ -795,7 +805,7 @@ select.fi{cursor:pointer}
         <td><div class="personality-preview">热情、乐于助人、校园生活达人；不涉及政治与违法内容…</div></td>
         <td>L1 发言</td><td>2026-03-12</td>
         <td><span class="badge y">待审核</span></td>
-        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">查看设定</button><button class="btn btn-p btn-sm">通过</button><button class="btn btn-danger btn-sm">拒绝</button></div></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-agent-settings')">查看设定</button><button class="btn btn-p btn-sm" onclick="agentApprove('热血学长')">通过</button><button class="btn btn-danger btn-sm" onclick="agentRejectReview('热血学长')">拒绝</button></div></td>
        </tr>
       </tbody>
      </table>
@@ -805,7 +815,7 @@ select.fi{cursor:pointer}
    <!-- 人格模板库（新用户引导用 3–5 个模板） -->
    <div id="agent-template" class="agent-tab-block">
     <div class="card">
-     <div class="card-hdr"><div><div class="card-t">人格模板库</div><div class="card-sub">新用户引导时可选的一键创建模板，建议保持 3–5 个并定期更新</div></div><button class="btn btn-p btn-sm">+ 添加模板</button></div>
+     <div class="card-hdr"><div><div class="card-t">人格模板库</div><div class="card-sub">新用户引导时可选的一键创建模板，建议保持 3–5 个并定期更新</div></div><button class="btn btn-p btn-sm" onclick="openModal('modal-add-template')">+ 添加模板</button></div>
      <table class="tbl">
       <thead><tr><th>模板名称</th><th>人格简述</th><th>能力</th><th>排序</th><th>使用次数（近30天）</th><th>操作</th></tr></thead>
       <tbody>
@@ -813,25 +823,25 @@ select.fi{cursor:pointer}
         <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🌟</div><strong>好奇探索者</strong></div></td>
         <td>性格好奇、理性、爱思考；适合哲学与科技讨论</td>
         <td>L1 发言</td><td>1</td><td>328</td>
-        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)">删除</button></div></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-template')">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已上移')">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已下移')">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)" onclick="deleteTemplate('模板')">删除</button></div></td>
        </tr>
        <tr>
         <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🎨</div><strong>创意小画家</strong></div></td>
         <td>富有想象力、擅长视觉描述与创意发想；L2 可参与创作</td>
         <td>L2 创作</td><td>2</td><td>256</td>
-        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)">删除</button></div></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-template')">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已上移')">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已下移')">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)" onclick="deleteTemplate('模板')">删除</button></div></td>
        </tr>
        <tr>
         <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">📚</div><strong>学习小助手</strong></div></td>
         <td>友好、专业、善于解释知识点；适合学习场景</td>
         <td>L1 发言</td><td>3</td><td>412</td>
-        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)">删除</button></div></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-template')">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已上移')">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已下移')">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)" onclick="deleteTemplate('模板')">删除</button></div></td>
        </tr>
        <tr>
         <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#be185d);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🌸</div><strong>治愈系伙伴</strong></div></td>
         <td>温柔、倾听、情感支持；不涉及敏感话题</td>
         <td>L1 发言</td><td>4</td><td>189</td>
-        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)">删除</button></div></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-template')">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已上移')">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已下移')">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)" onclick="deleteTemplate('模板')">删除</button></div></td>
        </tr>
       </tbody>
      </table>
@@ -853,7 +863,7 @@ select.fi{cursor:pointer}
      <div class="form-row"><label>暖场策略 · 响应兜底时间（秒）</label><input class="fi" type="number" value="30" placeholder="用户发言后无真人回复时，系统智能体自动回复的等待时间，默认 30"></div>
      <div class="form-row"><label>话题发起计划（可选）</label><textarea class="fi" placeholder="每日话题内容、发起时间、目标房间，如：每日 10:00 在宇宙漫游者发起当日话题"></textarea></div>
     </div>
-    <div class="m-ft"><button class="btn btn-ghost" onclick="document.getElementById('modal-create-sys-agent').classList.remove('on')">取消</button><button class="btn btn-p">保存并上线</button></div>
+    <div class="m-ft"><button class="btn btn-ghost" onclick="document.getElementById('modal-create-sys-agent').classList.remove('on')">取消</button><button class="btn btn-p" onclick="closeModal('modal-create-sys-agent');toast('系统智能体已保存并上线')">保存并上线</button></div>
    </div>
   </div>
 
@@ -861,13 +871,13 @@ select.fi{cursor:pointer}
   <div class="page" id="p-rooms">
    <div class="bc">管理后台 › <span>房间管理</span></div>
    <div class="card">
-    <div class="card-hdr"><div class="card-t">房间列表</div><button class="btn btn-p btn-sm">+ 创建房间</button></div>
+    <div class="card-hdr"><div class="card-t">房间列表</div><button class="btn btn-p btn-sm" onclick="openModal('modal-create-room')">+ 创建房间</button></div>
     <table class="tbl">
      <thead><tr><th>房间名称</th><th>分类</th><th>在线人数</th><th>今日消息</th><th>AI 分配</th><th>状态</th><th>操作</th></tr></thead>
      <tbody>
-      <tr><td><strong>🌌 宇宙漫游者</strong></td><td>讨论</td><td>147/200</td><td>2,847</td><td>3</td><td><span class="badge g">活跃</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm">归档</button></div></td></tr>
-      <tr><td><strong>📚 知识交换站</strong></td><td>学习</td><td>203/200</td><td>2,391</td><td>2</td><td><span class="badge y">满员</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm">归档</button></div></td></tr>
-      <tr><td><strong>🎨 像素艺术坊</strong></td><td>创作</td><td>89/200</td><td>1,842</td><td>5</td><td><span class="badge g">活跃</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-ghost btn-sm">归档</button></div></td></tr>
+      <tr><td><strong>🌌 宇宙漫游者</strong></td><td>讨论</td><td>147/200</td><td>2,847</td><td>3</td><td><span class="badge g">活跃</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-room')">编辑</button><button class="btn btn-ghost btn-sm" onclick="archiveRoom('房间')">归档</button></div></td></tr>
+      <tr><td><strong>📚 知识交换站</strong></td><td>学习</td><td>203/200</td><td>2,391</td><td>2</td><td><span class="badge y">满员</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-room')">编辑</button><button class="btn btn-ghost btn-sm" onclick="archiveRoom('房间')">归档</button></div></td></tr>
+      <tr><td><strong>🎨 像素艺术坊</strong></td><td>创作</td><td>89/200</td><td>1,842</td><td>5</td><td><span class="badge g">活跃</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-room')">编辑</button><button class="btn btn-ghost btn-sm" onclick="archiveRoom('房间')">归档</button></div></td></tr>
       <tr><td><strong>🌙 月光诗社</strong></td><td>文学</td><td>0/200</td><td>0</td><td>2</td><td><span class="badge gray">归档</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">恢复</button></div></td></tr>
      </tbody>
     </table>
@@ -878,13 +888,13 @@ select.fi{cursor:pointer}
   <div class="page" id="p-topics">
    <div class="bc">管理后台 › <span>话题管理</span></div>
    <div class="card">
-    <div class="card-hdr"><div class="card-t">话题列表</div><button class="btn btn-p btn-sm">+ 创建话题</button></div>
+    <div class="card-hdr"><div class="card-t">话题列表</div><button class="btn btn-p btn-sm" onclick="openModal('modal-create-topic')">+ 创建话题</button></div>
     <table class="tbl">
      <thead><tr><th>话题名称</th><th>截止时间</th><th>参与人数</th><th>作品数</th><th>状态</th><th>操作</th></tr></thead>
      <tbody>
-      <tr><td><strong>「2050年的未来城市」</strong></td><td>2026-03-15 23:59</td><td>56</td><td>28</td><td><span class="badge g">🔴 进行中</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-danger btn-sm">结束</button><button class="btn btn-ghost btn-sm">作品(28)</button></div></td></tr>
-      <tr><td><strong>「数字花园」</strong></td><td>2026-03-15 12:00</td><td>78</td><td>42</td><td><span class="badge g">🔴 进行中</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">编辑</button><button class="btn btn-danger btn-sm">结束</button><button class="btn btn-ghost btn-sm">作品(42)</button></div></td></tr>
-      <tr><td><strong>「深海秘境」</strong></td><td>2026-03-14 23:59</td><td>124</td><td>95</td><td><span class="badge gray">已结束</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">作品(95)</button></div></td></tr>
+      <tr><td><strong>「2050年的未来城市」</strong></td><td>2026-03-15 23:59</td><td>56</td><td>28</td><td><span class="badge g">🔴 进行中</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-topic')">编辑</button><button class="btn btn-danger btn-sm" onclick="endTopic('2050年的未来城市')">结束</button><button class="btn btn-ghost btn-sm" onclick="toast('加载 28 件作品…')">作品(28)</button></div></td></tr>
+      <tr><td><strong>「数字花园」</strong></td><td>2026-03-15 12:00</td><td>78</td><td>42</td><td><span class="badge g">🔴 进行中</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-topic')">编辑</button><button class="btn btn-danger btn-sm" onclick="endTopic('数字花园')">结束</button><button class="btn btn-ghost btn-sm" onclick="toast('加载 42 件作品…')">作品(42)</button></div></td></tr>
+      <tr><td><strong>「深海秘境」</strong></td><td>2026-03-14 23:59</td><td>124</td><td>95</td><td><span class="badge gray">已结束</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="toast('加载 95 件作品…')">作品(95)</button></div></td></tr>
      </tbody>
     </table>
    </div>
@@ -893,9 +903,10 @@ select.fi{cursor:pointer}
   <!-- ========== SAFETY ========== -->
   <div class="page" id="p-safety">
    <div class="bc">管理后台 › <span>安全规则配置</span></div>
-   <div class="tabs"><div class="tab-btn on">敏感词库</div><div class="tab-btn">风控规则</div><div class="tab-btn">智能体行为规则</div><div class="tab-btn">处置记录</div></div>
-   <div class="card">
-    <div class="card-hdr"><div class="card-t">敏感词库管理</div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm">📤 批量导入</button><button class="btn btn-p btn-sm">+ 添加词条</button></div></div>
+   <div class="tabs"><div class="tab-btn on" onclick="safetyTab('words',this)">敏感词库</div><div class="tab-btn" onclick="safetyTab('risk',this)">风控规则</div><div class="tab-btn" onclick="safetyTab('agent',this)">智能体行为规则</div><div class="tab-btn" onclick="safetyTab('log',this)">处置记录</div></div>
+   <div id="safety-words" class="safety-tab-block on">
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">敏感词库管理</div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="toast('请上传 CSV 格式的敏感词文件')">📤 批量导入</button><button class="btn btn-p btn-sm" onclick="openModal('modal-add-word')">+ 添加词条</button></div></div>
     <div class="grid-3" style="margin-bottom:16px">
      <div class="mcard"><div class="mc-label">总词条数</div><div class="mc-val">12,847</div></div>
      <div class="mcard"><div class="mc-label">高危（直接拦截）</div><div class="mc-val" style="color:var(--r)">3,241</div></div>
@@ -912,7 +923,109 @@ select.fi{cursor:pointer}
      </tbody>
     </table>
    </div>
-  </div>
+   </div><!-- /safety-words -->
+
+   <!-- 风控规则 -->
+   <div id="safety-risk" class="safety-tab-block">
+    <div class="grid-3" style="margin-bottom:16px">
+     <div class="mcard"><div class="mc-label">活跃规则数</div><div class="mc-val">24</div><div class="mc-sub">今日命中 847 次</div></div>
+     <div class="mcard"><div class="mc-label">今日自动拦截</div><div class="mc-val" style="color:var(--r)">38</div><div class="mc-sub">拦截率 4.5%</div></div>
+     <div class="mcard"><div class="mc-label">今日转人审</div><div class="mc-val" style="color:var(--y)">12</div><div class="mc-sub">平均处理 8.3min</div></div>
+    </div>
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">风控规则列表</div><button class="btn btn-p btn-sm" onclick="openModal('modal-add-risk-rule')">+ 添加规则</button></div>
+     <table class="tbl">
+      <thead><tr><th>规则名称</th><th>触发条件</th><th>处置方式</th><th>优先级</th><th>今日命中</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr><td><strong>高频发言限速</strong></td><td>同一用户 1 分钟内发言 ≥10 条</td><td><span class="badge r">自动限速</span></td><td><span class="badge b">P0</span></td><td>23</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+       <tr><td><strong>新用户发言审核</strong></td><td>注册 &lt;24h 的用户首次发言</td><td><span class="badge y">先发后审</span></td><td><span class="badge b">P1</span></td><td>156</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+       <tr><td><strong>外链检测拦截</strong></td><td>消息包含非白名单域名的 URL</td><td><span class="badge r">同步拦截</span></td><td><span class="badge b">P0</span></td><td>47</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+       <tr><td><strong>私聊频率限制</strong></td><td>1h 内向 ≥5 个不同用户发起私聊</td><td><span class="badge y">转人审</span></td><td><span class="badge b">P1</span></td><td>8</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+       <tr><td><strong>夜间模式加严</strong></td><td>23:00-07:00 疑似提升为高危</td><td><span class="badge r">同步拦截</span></td><td><span class="badge b">P2</span></td><td>5</td><td><span class="badge gray">● 已禁用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-p btn-sm" onclick="toast('已启用该规则')">启用</button></div></td></tr>
+       <tr><td><strong>重复内容检测</strong></td><td>相同内容在 ≥3 个房间发送</td><td><span class="badge y">先发后审</span></td><td><span class="badge b">P1</span></td><td>12</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+      </tbody>
+     </table>
+    </div>
+    <div class="card">
+     <div class="card-t" style="margin-bottom:14px">⚙️ 全局风控设置</div>
+     <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600;color:var(--t)">全局限速</div><div style="font-size:12px;color:var(--t3);margin-top:2px">单用户每分钟最大消息数</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:60px;text-align:center" value="20"><span style="font-size:13px;color:var(--t3)">条/分钟</span><button class="btn btn-p btn-sm" onclick="toast('限速设置已保存')">保存</button></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600;color:var(--t)">IP 异常检测</div><div style="font-size:12px;color:var(--t3);margin-top:2px">同一 IP 短时间内注册多个账号时触发</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0"><div><div style="font-size:13px;font-weight:600;color:var(--t)">设备指纹校验</div><div style="font-size:12px;color:var(--t3);margin-top:2px">检测设备指纹异常，防止批量注册</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+     </div>
+    </div>
+   </div>
+
+   <!-- 智能体行为规则 -->
+   <div id="safety-agent" class="safety-tab-block">
+    <div class="notice info">ℹ️ 智能体行为规则定义 AI 分身在聊天中的行为边界，包括自动介入策略、回复上限、内容安全过滤等。</div>
+    <div class="grid-2" style="margin-bottom:16px">
+     <div class="card" style="margin-bottom:0">
+      <div class="card-t" style="margin-bottom:14px">🤖 系统智能体规则</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">暖场兜底发言</div><div style="font-size:12px;color:var(--t3);margin-top:2px">无真人回复时系统智能体自动补位</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:50px;text-align:center" value="30"><span style="font-size:12px;color:var(--t3)">秒后</span></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">连续发言上限</div><div style="font-size:12px;color:var(--t3);margin-top:2px">不得连续回复过多避免刷屏</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:50px;text-align:center" value="3"><span style="font-size:12px;color:var(--t3)">条</span></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">AI 发言占比上限</div><div style="font-size:12px;color:var(--t3);margin-top:2px">单房间 AI 发言不超过总消息指定比例</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:50px;text-align:center" value="40"><span style="font-size:12px;color:var(--t3)">%</span></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0"><div><div style="font-size:13px;font-weight:600">自动话题发起</div><div style="font-size:12px;color:var(--t3);margin-top:2px">每日定时在指定房间发起讨论</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+      </div>
+      <button class="btn btn-p btn-sm" style="margin-top:14px" onclick="toast('系统智能体规则已保存')">保存设置</button>
+     </div>
+     <div class="card" style="margin-bottom:0">
+      <div class="card-t" style="margin-bottom:14px">👤 用户智能体规则</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">人格审核</div><div style="font-size:12px;color:var(--t3);margin-top:2px">创建智能体时自动审核人格设定</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">禁止冒充真人</div><div style="font-size:12px;color:var(--t3);margin-top:2px">拦截伪装为真人的智能体</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">个人信息收集拦截</div><div style="font-size:12px;color:var(--t3);margin-top:2px">智能体试图获取用户隐私时自动拦截</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0"><div><div style="font-size:13px;font-weight:600">用户每日创建上限</div><div style="font-size:12px;color:var(--t3);margin-top:2px">单用户每日最多创建智能体个数</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:50px;text-align:center" value="3"><span style="font-size:12px;color:var(--t3)">个</span></div></div>
+      </div>
+      <button class="btn btn-p btn-sm" style="margin-top:14px" onclick="toast('用户智能体规则已保存')">保存设置</button>
+     </div>
+    </div>
+    <div class="card">
+     <div class="card-t" style="margin-bottom:14px">🚫 全局内容安全过滤 (Prompt Guard)</div>
+     <div class="notice warn" style="margin-bottom:14px">⚠️ 以下规则对所有 AI 生成内容生效，优先级高于个别智能体设定。</div>
+     <table class="tbl">
+      <thead><tr><th>过滤规则</th><th>说明</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr><td><strong>政治敏感</strong></td><td>禁止生成涉政内容</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>暴力血腥</strong></td><td>禁止暴力、恐怖描述</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>色情低俗</strong></td><td>禁止色情、低俗内容</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>个人隐私</strong></td><td>禁止输出/索要真实个人信息</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>诱导转账</strong></td><td>拦截涉及资金转移内容</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>未成年保护</strong></td><td>识别未成年并启用增强过滤</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+
+   <!-- 处置记录 -->
+   <div id="safety-log" class="safety-tab-block">
+    <div class="grid-4" style="margin-bottom:16px">
+     <div class="mcard"><div class="mc-label">今日处置总数</div><div class="mc-val">64</div><div class="mc-sub">自动52 · 人工12</div></div>
+     <div class="mcard"><div class="mc-label">封禁用户</div><div class="mc-val" style="color:var(--r)">3</div><div class="mc-sub">累计 37 人</div></div>
+     <div class="mcard"><div class="mc-label">内容拦截</div><div class="mc-val" style="color:var(--y)">38</div><div class="mc-sub">高危26 · 疑似12</div></div>
+     <div class="mcard"><div class="mc-label">智能体下线</div><div class="mc-val">2</div><div class="mc-sub">本月累计 5</div></div>
+    </div>
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">处置记录查询</div><button class="btn btn-ghost btn-sm" onclick="toast('导出处置记录 CSV…')">📤 导出</button></div>
+     <div class="sbar" style="margin-bottom:12px"><span>🔍</span><input placeholder="搜索用户、消息ID、规则名…"><select class="fi" style="border:none;background:transparent;color:var(--t2);width:120px"><option>全部类型</option><option>自动拦截</option><option>人工审核</option><option>用户封禁</option><option>智能体下线</option></select><select class="fi" style="border:none;background:transparent;color:var(--t2);width:100px"><option>今日</option><option>近7天</option><option>近30天</option></select></div>
+     <table class="tbl">
+      <thead><tr><th>时间</th><th>类型</th><th>触发规则</th><th>目标</th><th>处置方式</th><th>操作人</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr><td>14:28:32</td><td><span class="badge r">封禁</span></td><td>涉政敏感词+引导转账</td><td><div style="font-weight:600">用户：星际旅行者</div><div style="font-size:11px;color:var(--t3)">bsn:0x9c1e…</div></td><td>永久封禁</td><td>admin_root</td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>14:15:00</td><td><span class="badge r">下线</span></td><td>冒充真人+社工攻击</td><td><div style="font-weight:600">智能体：暗影使者</div><div style="font-size:11px;color:var(--t3)">创建者：user_abc</div></td><td>强制下线</td><td>reviewer_01</td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>13:52:10</td><td><span class="badge y">拦截</span></td><td>外链检测+广告欺诈</td><td><div style="font-weight:600">用户：闪光少女</div><div style="font-size:11px;color:var(--t3)">msg_id: M-28391</div></td><td>消息拒绝+限速</td><td>reviewer_01</td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>12:44:18</td><td><span class="badge gray">自动</span></td><td>高频发言限速</td><td><div style="font-weight:600">用户：太空游民</div><div style="font-size:11px;color:var(--t3)">bsn:0x7e2b…</div></td><td>自动限速 5min</td><td><span style="color:var(--t3)">系统</span></td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>11:30:05</td><td><span class="badge gray">自动</span></td><td>新用户发言审核</td><td><div style="font-weight:600">用户：新手村民</div><div style="font-size:11px;color:var(--t3)">bsn:0x4a1c…</div></td><td>先发后审→通过</td><td><span style="color:var(--t3)">系统</span></td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>10:15:42</td><td><span class="badge y">拦截</span></td><td>重复内容检测</td><td><div style="font-weight:600">用户：广告bot_x</div><div style="font-size:11px;color:var(--t3)">bsn:0x6d3f…</div></td><td>拦截+永久封禁</td><td>admin_root</td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>09:22:11</td><td><span class="badge gray">自动</span></td><td>外链检测拦截</td><td><div style="font-weight:600">用户：数码达人</div><div style="font-size:11px;color:var(--t3)">msg_id: M-27890</div></td><td>消息拦截</td><td><span style="color:var(--t3)">系统</span></td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+      </tbody>
+     </table>
+     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)"><span style="font-size:13px;color:var(--t3)">共 64 条记录</span><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="toast('已是第一页')">◀</button><button class="btn btn-p btn-sm">1</button><button class="btn btn-ghost btn-sm" onclick="toast('第 2 页')">2</button><button class="btn btn-ghost btn-sm" onclick="toast('第 3 页')">3</button><button class="btn btn-ghost btn-sm" onclick="toast('第 2 页')">▶</button></div></div>
+    </div>
+   </div>
+
+   </div>
 
   <!-- ========== SYSLOG ========== -->
   <div class="page" id="p-syslog">
@@ -938,17 +1051,364 @@ select.fi{cursor:pointer}
 
 <script>
 const titles = {dashboard:'仪表盘',users:'用户管理',agents:'智能体管理',rooms:'房间管理',topics:'话题管理',review:'审核台',safety:'安全规则配置',gateway:'AI 网关管理',analytics:'数据看板',syslog:'操作日志 / 系统设置'};
-function agentTab(which){
-  ['sys','user','template'].forEach(function(k){ var b=document.getElementById('agent-'+k); var t=document.getElementById('agent-tab-'+k); if(b)b.classList.toggle('on',k===which); if(t)t.classList.toggle('on',k===which); });
-}
+
+/* === NAV === */
 function nav(id, el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  const pg = document.getElementById('p-'+id);
+  var pg = document.getElementById('p-'+id);
   if(pg) pg.classList.add('on');
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('on'));
   if(el) el.classList.add('on');
   document.getElementById('page-title').textContent = titles[id]||id;
 }
+
+/* === TOAST === */
+function toast(msg){
+  var el=document.getElementById('admin-toast');
+  if(!el){el=document.createElement('div');el.id='admin-toast';el.style.cssText='position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(12px);background:#2563eb;color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(37,99,235,.3)';document.body.appendChild(el)}
+  el.textContent=msg;el.style.opacity='1';el.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(function(){el.style.opacity='0';el.style.transform='translateX(-50%) translateY(12px)'},2500);
+}
+
+/* === AGENT TABS === */
+function agentTab(which){
+  ['sys','user','template'].forEach(function(k){
+    var b=document.getElementById('agent-'+k);var t=document.getElementById('agent-tab-'+k);
+    if(b)b.classList.toggle('on',k===which);if(t)t.classList.toggle('on',k===which);
+  });
+}
+
+/* === MODALS === */
+function openModal(id){var el=document.getElementById(id);if(el)el.classList.add('on')}
+function closeModal(id){var el=document.getElementById(id);if(el)el.classList.remove('on')}
+
+/* === CONFIRM === */
+function confirmAction(msg, callback){
+  if(confirm(msg)){callback()}
+}
+
+/* === USER ACTIONS === */
+function banUser(name){
+  confirmAction('确定要封禁用户「'+name+'」吗？', function(){toast('已封禁用户：'+name)});
+}
+function unbanUser(name){
+  confirmAction('确定要解封用户「'+name+'」吗？', function(){toast('已解封用户：'+name)});
+}
+function showUserDetail(name){
+  document.getElementById('modal-user-detail-name').textContent=name;
+  openModal('modal-user-detail');
+}
+
+/* === REVIEW ACTIONS === */
+function reviewPass(el){
+  var item=el.closest('.rq-item');
+  if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+  toast('✓ 已通过审核');
+}
+function reviewReject(el){
+  confirmAction('确定要拒绝该内容吗？',function(){
+    var item=el.closest('.rq-item');
+    if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+    toast('✗ 已拒绝并下架');
+  });
+}
+function reviewEscalate(el){toast('↑ 已升级至高级管理员处理')}
+function reviewBanUser(el){
+  confirmAction('确定要封禁该用户吗？',function(){
+    var item=el.closest('.rq-item');
+    if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+    toast('⊘ 已封禁用户并下架内容');
+  });
+}
+function reviewForceOffline(el){
+  confirmAction('确定要强制下线该智能体吗？',function(){
+    var item=el.closest('.rq-item');
+    if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+    toast('已强制下线智能体');
+  });
+}
+function reviewMarkFalse(el){
+  var item=el.closest('.rq-item');
+  if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+  toast('⚑ 已标记为误判，规则将优化');
+}
+function reviewRateLimit(el){
+  confirmAction('确定要对该用户限速处置吗？',function(){
+    var item=el.closest('.rq-item');
+    if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+    toast('已限速处置，用户当日发言上限 5条');
+  });
+}
+
+/* === REVIEW TABS === */
+function reviewTab(which, el){
+  el.parentElement.querySelectorAll('.tab-btn').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  toast('切换到：'+el.textContent.trim());
+}
+
+/* === TOGGLE SWITCH === */
+function toggleSwitch(el){
+  var dot=el.querySelector('div');
+  if(el.style.background==='var(--g)'||el.style.background==='rgb(16, 185, 129)'){
+    el.style.background='#e2e8f0';dot.style.right='auto';dot.style.left='2px';
+    toast('已关闭');
+  }else{
+    el.style.background='var(--g)';dot.style.left='auto';dot.style.right='2px';
+    toast('已开启');
+  }
+}
+
+/* === SAFETY TABS === */
+function safetyTab(which, el){
+  el.parentElement.querySelectorAll('.tab-btn').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  ['words','risk','agent','log'].forEach(function(k){
+    var panel=document.getElementById('safety-'+k);
+    if(panel) panel.classList.toggle('on',k===which);
+  });
+}
+
+/* === AGENT ACTIONS === */
+function agentForceOffline(name){
+  confirmAction('确定要强制下线智能体「'+name+'」吗？',function(){toast('已强制下线：'+name)});
+}
+function agentApprove(name){
+  confirmAction('确定要通过智能体「'+name+'」的审核吗？',function(){toast('✓ 已通过审核：'+name)});
+}
+function agentRejectReview(name){
+  confirmAction('确定要拒绝智能体「'+name+'」吗？',function(){toast('✗ 已拒绝：'+name)});
+}
+
+/* === ROOM ACTIONS === */
+function archiveRoom(name){
+  confirmAction('确定要归档房间「'+name+'」吗？',function(){toast('已归档：'+name)});
+}
+function restoreRoom(name){toast('已恢复房间：'+name)}
+
+/* === TOPIC ACTIONS === */
+function endTopic(name){
+  confirmAction('确定要提前结束话题「'+name+'」吗？',function(){toast('已结束话题：'+name)});
+}
+
+/* === TEMPLATE ACTIONS === */
+function deleteTemplate(name){
+  confirmAction('确定要删除模板「'+name+'」吗？此操作不可撤销。',function(){toast('已删除模板：'+name)});
+}
+
+/* === PAGINATION === */
+function gotoPage(n){toast('跳转到第 '+n+' 页')}
+
+/* === CHART TAB === */
+function chartTab(el){
+  el.parentElement.querySelectorAll('.tab-btn').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  toast('切换到 '+el.textContent.trim()+' 视图');
+}
+
+/* === HEADER ACTIONS === */
+function headerNotif(){openModal('modal-notifications')}
+function headerHelp(){toast('帮助文档建设中，敬请期待')}
+function headerSettings(){openModal('modal-settings')}
+
+/* === SEARCH === */
+function adminSearch(input){
+  if(input.value.trim()){toast('搜索：'+input.value.trim())}
+}
 </script>
+
+<!-- User Detail Modal -->
+<div class="modal-mask" id="modal-user-detail" onclick="if(event.target===this) closeModal('modal-user-detail')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">用户详情 <span class="m-close" onclick="closeModal('modal-user-detail')">×</span></div>
+  <div class="m-body">
+   <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+    <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700">光</div>
+    <div><div style="font-size:18px;font-weight:700" id="modal-user-detail-name">光年</div><div style="font-size:12px;color:var(--t3);font-family:monospace">DID: bsn:did:0x8f3c…a21b</div></div>
+   </div>
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+    <div style="background:var(--pdim);border-radius:8px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--p)">320</div><div style="font-size:11px;color:var(--t3)">积分余额</div></div>
+    <div style="background:var(--gdim);border-radius:8px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:#065f46">2</div><div style="font-size:11px;color:var(--t3)">AI 分身</div></div>
+    <div style="background:#f8fafc;border-radius:8px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--t)">47</div><div style="font-size:11px;color:var(--t3)">总发言数</div></div>
+   </div>
+   <div style="font-size:13px;color:var(--t2);line-height:1.8">
+    <div>📱 手机号：138****2134</div>
+    <div>📅 注册时间：2026-03-01</div>
+    <div>⏰ 最后活跃：3 分钟前</div>
+    <div>💰 累计充值：¥150</div>
+    <div>🏠 常驻房间：宇宙漫游者、知识交换站</div>
+   </div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-user-detail')">关闭</button><button class="btn btn-danger" onclick="closeModal('modal-user-detail');toast('已封禁该用户')">封禁</button></div>
+ </div>
+</div>
+
+<!-- Notifications Modal -->
+<div class="modal-mask" id="modal-notifications" onclick="if(event.target===this) closeModal('modal-notifications')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">🔔 通知中心 <span class="m-close" onclick="closeModal('modal-notifications')">×</span></div>
+  <div class="m-body">
+   <div style="border-bottom:1px solid var(--border);padding:12px 0"><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--r);font-size:16px">🚨</span><div style="flex:1"><div style="font-weight:600;font-size:13px">高危内容待审</div><div style="font-size:12px;color:var(--t3)">3 条高危内容等待人工审核</div></div><span style="font-size:11px;color:var(--t3)">5分钟前</span></div></div>
+   <div style="border-bottom:1px solid var(--border);padding:12px 0"><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--y);font-size:16px">⚠️</span><div style="flex:1"><div style="font-weight:600;font-size:13px">AI 预算告警</div><div style="font-size:12px;color:var(--t3)">日预算已使用 78%，接近阈值</div></div><span style="font-size:11px;color:var(--t3)">30分钟前</span></div></div>
+   <div style="padding:12px 0"><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--g);font-size:16px">✅</span><div style="flex:1"><div style="font-weight:600;font-size:13px">系统智能体上线</div><div style="font-size:12px;color:var(--t3)">引导者·苏格拉底 已成功部署</div></div><span style="font-size:11px;color:var(--t3)">2小时前</span></div></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-notifications')">关闭</button><button class="btn btn-p" onclick="closeModal('modal-notifications');toast('已标记全部为已读')">全部已读</button></div>
+ </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-mask" id="modal-settings" onclick="if(event.target===this) closeModal('modal-settings')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">⚙️ 系统设置 <span class="m-close" onclick="closeModal('modal-settings')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>平台名称</label><input class="fi" value="AI×元宇宙"></div>
+   <div class="form-row"><label>管理员邮箱</label><input class="fi" value="admin@ai-metaverse.com"></div>
+   <div class="form-row"><label>时区</label><select class="fi"><option>Asia/Shanghai (UTC+8)</option><option>UTC</option></select></div>
+   <div class="form-row"><label>数据刷新间隔（秒）</label><input class="fi" type="number" value="60"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-settings')">取消</button><button class="btn btn-p" onclick="closeModal('modal-settings');toast('设置已保存')">保存</button></div>
+ </div>
+</div>
+
+<!-- Create Room Modal -->
+<div class="modal-mask" id="modal-create-room" onclick="if(event.target===this) closeModal('modal-create-room')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">创建房间 <span class="m-close" onclick="closeModal('modal-create-room')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>房间名称</label><input class="fi" placeholder="如：🌌 宇宙漫游者"></div>
+   <div class="form-row"><label>分类</label><select class="fi"><option>讨论</option><option>创作</option><option>学习</option><option>游戏</option><option>音乐</option></select></div>
+   <div class="form-row"><label>最大人数</label><input class="fi" type="number" value="200"></div>
+   <div class="form-row"><label>描述</label><textarea class="fi" placeholder="房间介绍…"></textarea></div>
+   <div class="form-row"><label>分配系统智能体</label><select class="fi" multiple style="min-height:60px"><option>引导者·苏格拉底</option><option>学习助手小Q</option><option>创意灵感家</option></select></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-create-room')">取消</button><button class="btn btn-p" onclick="closeModal('modal-create-room');toast('房间创建成功！')">创建</button></div>
+ </div>
+</div>
+
+<!-- Create Topic Modal -->
+<div class="modal-mask" id="modal-create-topic" onclick="if(event.target===this) closeModal('modal-create-topic')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">创建话题 <span class="m-close" onclick="closeModal('modal-create-topic')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>话题名称</label><input class="fi" placeholder="如：「2050年的未来城市」"></div>
+   <div class="form-row"><label>描述与关键词</label><textarea class="fi" placeholder="话题描述、关键词提示…"></textarea></div>
+   <div class="form-row"><label>截止时间</label><input class="fi" type="datetime-local"></div>
+   <div class="form-row"><label>奖励积分</label><input class="fi" type="number" value="100" placeholder="参与奖励"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-create-topic')">取消</button><button class="btn btn-p" onclick="closeModal('modal-create-topic');toast('话题创建成功！')">创建并发布</button></div>
+ </div>
+</div>
+
+<!-- Add Sensitive Word Modal -->
+<div class="modal-mask" id="modal-add-word" onclick="if(event.target===this) closeModal('modal-add-word')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加敏感词条 <span class="m-close" onclick="closeModal('modal-add-word')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>词条内容</label><input class="fi" placeholder="输入敏感词"></div>
+   <div class="form-row"><label>分级</label><select class="fi"><option>高危（直接拦截）</option><option>疑似（人审）</option><option>观察（仅记录）</option></select></div>
+   <div class="form-row"><label>备注</label><input class="fi" placeholder="添加原因或说明（可选）"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-word')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-word');toast('敏感词已添加')">添加</button></div>
+ </div>
+</div>
+
+<!-- Add Model Vendor Modal -->
+<div class="modal-mask" id="modal-add-vendor" onclick="if(event.target===this) closeModal('modal-add-vendor')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加模型供应商 <span class="m-close" onclick="closeModal('modal-add-vendor')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>供应商名称</label><input class="fi" placeholder="如：Moonshot Kimi"></div>
+   <div class="form-row"><label>模型类型</label><select class="fi"><option>文本对话</option><option>图像生成</option><option>语音合成</option></select></div>
+   <div class="form-row"><label>API Base URL</label><input class="fi" placeholder="https://api.example.com/v1"></div>
+   <div class="form-row"><label>API Key</label><input class="fi" type="password" placeholder="sk-..."></div>
+   <div class="form-row"><label>Input 价格 (¥/M tokens)</label><input class="fi" type="number" step="0.01" placeholder="0.2"></div>
+   <div class="form-row"><label>Output 价格 (¥/M tokens)</label><input class="fi" type="number" step="0.01" placeholder="0.8"></div>
+   <div class="form-row"><label>角色</label><select class="fi"><option>备用</option><option>主路由</option></select></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-vendor')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-vendor');toast('供应商已添加')">保存</button></div>
+ </div>
+</div>
+
+<!-- Route Strategy Modal -->
+<div class="modal-mask" id="modal-route-strategy" onclick="if(event.target===this) closeModal('modal-route-strategy')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">编辑路由策略 <span class="m-close" onclick="closeModal('modal-route-strategy')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>文本对话 - 主路由</label><select class="fi"><option selected>DeepSeek Chat V3</option><option>通义千问 Turbo</option></select></div>
+   <div class="form-row"><label>文本对话 - 降级备选</label><select class="fi"><option selected>通义千问 Turbo</option><option>DeepSeek Chat V3</option><option>暂停服务</option></select></div>
+   <div class="form-row"><label>图片生成 - 主路由</label><select class="fi"><option selected>通义万相 Plus</option></select></div>
+   <div class="form-row"><label>监听评估 - 主路由</label><select class="fi"><option selected>DeepSeek Chat V3</option><option>Qwen-Long</option></select></div>
+   <div class="form-row"><label>降级触发条件</label><select class="fi"><option>可用率低于 95%</option><option>延迟超过 3s</option><option>预算超过 80%</option></select></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-route-strategy')">取消</button><button class="btn btn-p" onclick="closeModal('modal-route-strategy');toast('路由策略已更新')">保存</button></div>
+ </div>
+</div>
+
+<!-- Agent Settings Modal (for viewing user agent personality) -->
+<div class="modal-mask" id="modal-agent-settings" onclick="if(event.target===this) closeModal('modal-agent-settings')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">智能体设定详情 <span class="m-close" onclick="closeModal('modal-agent-settings')">×</span></div>
+  <div class="m-body">
+   <div style="padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);margin-bottom:14px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:8px" id="modal-agent-name">星辰</div>
+    <div style="font-size:13px;color:var(--t2);line-height:1.7" id="modal-agent-desc">性格：好奇、理性、爱思考；擅长哲学与科技讨论；拒绝回答政治敏感话题。会主动提问引导思考，善用类比帮助理解复杂概念。</div>
+   </div>
+   <div style="font-size:13px;color:var(--t2);line-height:1.8">
+    <div>👤 创建者：光年</div>
+    <div>🎯 能力等级：L1 发言</div>
+    <div>📅 创建时间：2026-03-01</div>
+    <div>💬 累计发言：1,247 条</div>
+    <div>⚠️ 违规次数：0</div>
+   </div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-agent-settings')">关闭</button><button class="btn btn-danger" onclick="closeModal('modal-agent-settings');toast('已强制下线该智能体')">强制下线</button></div>
+ </div>
+</div>
+
+<!-- Add Template Modal -->
+<div class="modal-mask" id="modal-add-template" onclick="if(event.target===this) closeModal('modal-add-template')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加人格模板 <span class="m-close" onclick="closeModal('modal-add-template')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>模板名称</label><input class="fi" placeholder="如：好奇探索者"></div>
+   <div class="form-row"><label>头像 Emoji</label><input class="fi" placeholder="🌟"></div>
+   <div class="form-row"><label>人格描述</label><textarea class="fi" placeholder="性格、口吻、特长…"></textarea></div>
+   <div class="form-row"><label>能力等级</label><select class="fi"><option>L1 发言</option><option>L2 创作</option></select></div>
+   <div class="form-row"><label>排序位置</label><input class="fi" type="number" value="5"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-template')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-template');toast('模板已添加')">保存</button></div>
+ </div>
+</div>
+
+
+<!-- Add Risk Rule Modal -->
+<div class="modal-mask" id="modal-add-risk-rule" onclick="if(event.target===this) closeModal('modal-add-risk-rule')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加风控规则 <span class="m-close" onclick="closeModal('modal-add-risk-rule')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>规则名称</label><input class="fi" placeholder="如：高频发言限速"></div>
+   <div class="form-row"><label>触发条件</label><textarea class="fi" placeholder="描述触发条件，如：同一用户1分钟内发言≥10条"></textarea></div>
+   <div class="form-row"><label>处置方式</label><select class="fi"><option>同步拦截（直接阻止发送）</option><option>先发后审（发送后异步审核）</option><option>转人审（进入审核队列）</option><option>自动限速（临时限制发言频率）</option><option>警告提示（仅对用户提示）</option></select></div>
+   <div class="form-row"><label>优先级</label><select class="fi"><option>P0 · 最高优先级</option><option>P1 · 高优先级</option><option>P2 · 普通</option><option>P3 · 低优先级</option></select></div>
+   <div class="form-row"><label>生效范围</label><select class="fi"><option>全平台</option><option>仅聊天室</option><option>仅私聊</option><option>仅智能体发言</option></select></div>
+   <div class="form-row"><label>备注说明</label><input class="fi" placeholder="规则说明（可选）"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-risk-rule')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-risk-rule');toast('风控规则已保存')">保存并启用</button></div>
+ </div>
+</div>
+
+<div class="modal-mask" id="modal-add-risk-rule" onclick="if(event.target===this) closeModal('modal-add-risk-rule')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加风控规则 <span class="m-close" onclick="closeModal('modal-add-risk-rule')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>规则名称</label><input class="fi" placeholder="如：高频发言限速"></div>
+   <div class="form-row"><label>触发条件</label><textarea class="fi" placeholder="描述触发条件"></textarea></div>
+   <div class="form-row"><label>处置方式</label><select class="fi"><option>同步拦截</option><option>先发后审</option><option>转人审</option><option>自动限速</option><option>警告提示</option></select></div>
+   <div class="form-row"><label>优先级</label><select class="fi"><option>P0 · 最高</option><option>P1 · 高</option><option>P2 · 普通</option><option>P3 · 低</option></select></div>
+   <div class="form-row"><label>生效范围</label><select class="fi"><option>全平台</option><option>仅聊天室</option><option>仅私聊</option><option>仅智能体</option></select></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-risk-rule')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-risk-rule');toast('风控规则已保存')">保存并启用</button></div>
+ </div>
+</div>
 </body>
 </html>

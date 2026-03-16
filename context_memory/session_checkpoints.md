@@ -22,6 +22,25 @@
 - `docs/Phase1_MVP_需求文档_H5.html` — 未同步 v1.1/v1.2 内容
 - `docs/Phase1_MVP_审阅意见.md` — 12 条审阅意见（已全部采纳修正）
 
+## 2026-03-17 会话
+
+### 完成事项
+- ✅ 移动端原型 `prototype_mobile.html` 交互全面增强
+  - 新增 33 行 CSS（开关、套餐、成员列表等组件）
+  - 新增 11 个模态弹层（充值、编辑资料、通知/隐私设置、消费记录、成员列表、房间设置、@提及、用户协议、隐私政策、评论）
+  - 新增私聊界面屏幕
+  - 新增 20+ JavaScript 函数（验证码倒计时、搜索、分类切换、消息发送、事件委托点赞/评论、弹层管理、AI 分身暂停/恢复等）
+  - 消息页支持私聊/系统通知 Tab 切换
+  - 修复所有非功能性按钮和链接
+
+- ✅ NotebookLM 深度调研：功能全景、API/MCP 接口、与 Antigravity 集成方案
+  - 输出 `docs/NotebookLM_调研与集成方案.md`
+  - 发现社区开源 `notebooklm-mcp-server` 可直连 NotebookLM
+  - 设计三层记忆架构（本地 LongMemory + 公域 Gemini API + 策展 NotebookLM）
+
 ### 下一步
-- 同步 H5 版本（MD 确认后）
-- 可进一步输出：数据库 ER 设计、API 接口文档、埋点规范
+- 安装配置 `notebooklm-mcp-server`，测试集成
+- 同步 H5 展示页到 v1.2
+- 数据库 ER 设计
+- API 接口文档
+- 关联 GitHub 仓库

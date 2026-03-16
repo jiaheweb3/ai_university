@@ -412,6 +412,39 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
   background:rgba(0,212,255,.92);color:#000;padding:9px 20px;border-radius:20px;font-size:13px;
   font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ===== ENHANCED INTERACTIVITY ===== */
+.srch.active{border-color:rgba(0,212,255,.35)}
+.srch input{background:none;border:none;color:var(--t);font-size:13px;outline:none;flex:1;padding:0}
+.srch input::placeholder{color:var(--tm)}
+.act.liked{color:var(--p) !important}
+.page-acts span.liked,.cell-acts span.liked{color:var(--p) !important}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.toggle-row span:first-child{font-size:14px;color:var(--t)}
+.toggle-sw{width:44px;height:24px;background:rgba(255,255,255,.15);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle-sw.on{background:var(--p)}
+.toggle-sw::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .2s}
+.toggle-sw.on::after{transform:translateX(20px)}
+.pkg{display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid rgba(255,255,255,.08);border-radius:12px;margin-bottom:10px;cursor:pointer;transition:all .2s}
+.pkg:hover,.pkg.sel{border-color:rgba(0,212,255,.35);background:rgba(0,212,255,.06)}
+.pkg-pts{font-size:16px;font-weight:700;color:var(--p)}
+.pkg-price{font-size:14px;color:var(--t)}
+.exp-item{display:flex;flex-direction:column;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.exp-row{display:flex;justify-content:space-between;font-size:13px;color:var(--t)}
+.exp-amt{font-weight:600}.exp-amt.minus{color:var(--r)}.exp-amt.plus{color:var(--g)}
+.exp-time{font-size:11px;color:var(--tm);margin-top:3px}
+.member-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.member-item .mav{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
+.member-item .minfo{flex:1}.member-item .mn{font-size:14px;color:var(--t);font-weight:600}
+.member-item .mr{font-size:11px;color:var(--tm)}
+.agreement-body{font-size:13px;color:var(--tm);line-height:1.8;max-height:50vh;overflow-y:auto}
+.agreement-body h4{color:var(--t);font-size:14px;margin:14px 0 8px}.agreement-body p{margin-bottom:8px}
+.btn-code.disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+.mrow.new-msg{animation:fadeInMsg .3s ease}@keyframes fadeInMsg{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.at-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
+.at-item:hover .at-name{color:var(--p)}
+.at-item .at-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+.at-item .at-name{font-size:14px;color:var(--t)}
+.msg-section{display:none}.msg-section.on{display:block}
 </style>
 </head>
 <body>
@@ -451,7 +484,7 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
      <div class="login-block on" id="login-phone">
       <div class="fg"><label class="flb">手机号</label><input class="finp" placeholder="+86 请输入手机号" type="tel"></div>
       <div class="fg"><label class="flb">验证码</label>
-       <div class="code-row"><input class="finp" placeholder="6 位验证码"><button class="btn-code">获取验证码</button></div>
+       <div class="code-row"><input class="finp" placeholder="6 位验证码"><button class="btn-code" id="btn-code" onclick="sendCode()">获取验证码</button></div>
       </div>
       <div class="did-box">🔐 实名 DID 保护隐私，平台也不知晓你的真实身份</div>
       <button class="btn-pri" style="margin-top:20px" onclick="go('s-home')">登录 / 注册</button>
@@ -463,7 +496,7 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
       <div class="login-web3-hint">连接后请在钱包中完成签名，即可完成登录。<span>支持 .web3、.bsn 等域名</span>。</div>
       <button class="btn-pri" style="margin-top:18px" onclick="go('s-home')">原型：跳过并进入首页</button>
      </div>
-     <div class="login-note" style="margin-top:14px">登录即代表同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a></div>
+     <div class="login-note" style="margin-top:14px">登录即代表同意 <a href="javascript:void(0)" onclick="openModal('modal-agreement')">用户协议</a> 和 <a href="javascript:void(0)" onclick="openModal('modal-privacy-policy')">隐私政策</a></div>
     </div>
    </div>
   </div>
@@ -473,16 +506,16 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
    <div class="sb"><span>9:41</span><span style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--p)">💎 320 &nbsp;📶 🔋</span></div>
    <div class="sc-body">
     <div class="hdr"><div class="h-greet">嗨，<span>光年</span> ✨</div><div class="h-sub">今天有 3 个新话题等你探索</div></div>
-    <div class="srch">🔍 &nbsp;搜索房间、话题、智能体…</div>
+    <div class="srch" id="search-bar" onclick="toggleSearch()">🔍 &nbsp;<span id="srch-text">搜索房间、话题、智能体…</span><input id="srch-input" style="display:none" placeholder="搜索房间、话题、智能体…" onkeydown="if(event.key==='Enter'){searchDo();event.stopPropagation()}" onclick="event.stopPropagation()"></div>
     <div class="pts-banner">
      <div><div class="pts-lb">我的积分</div><div class="pts-v">320</div><div class="pts-s">今日剩余免费：18回合 / 2张图</div></div>
-     <button class="btn-rc">充值</button>
+     <button class="btn-rc" onclick="openModal('modal-recharge')">充值</button>
     </div>
     <div class="cat-tabs">
-     <div class="ctab on">全部</div><div class="ctab">🔥 热门</div><div class="ctab">🎨 创作</div>
-     <div class="ctab">💬 讨论</div><div class="ctab">🎮 游戏</div><div class="ctab">📚 学习</div>
+     <div class="ctab on" onclick="catTab(this)">全部</div><div class="ctab" onclick="catTab(this)">🔥 热门</div><div class="ctab" onclick="catTab(this)">🎨 创作</div>
+     <div class="ctab" onclick="catTab(this)">💬 讨论</div><div class="ctab" onclick="catTab(this)">🎮 游戏</div><div class="ctab" onclick="catTab(this)">📚 学习</div>
     </div>
-    <div class="sec-ttl"><h3>🏠 热门房间</h3><a href="#">查看全部</a></div>
+    <div class="sec-ttl"><h3>🏠 热门房间</h3><a href="javascript:void(0)" onclick="toast('更多房间即将开放，敬请期待！')">查看全部</a></div>
     <div class="rl">
      <div class="rc" onclick="go('s-room')">
       <div class="rc-hd"><div class="rc-name">🌌 宇宙漫游者</div><div class="rc-cat">讨论</div></div>
@@ -515,7 +548,7 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
    <div class="chat-hdr">
     <span class="back" onclick="go('s-home')">←</span>
     <div class="chat-ri"><div class="chat-rn">🌌 宇宙漫游者</div><div class="chat-rs">147 在线 · 3 个 AI · 🔥 热门</div></div>
-    <div class="chat-ac"><span>👥</span><span>⋯</span></div>
+    <div class="chat-ac"><span onclick="openModal('modal-members')">👥</span><span onclick="openModal('modal-room-settings')">⋯</span></div>
    </div>
    <div class="msgs">
     <div class="mtime">今天 14:32</div>
@@ -550,10 +583,10 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
    </div>
    <div class="ci-area">
     <div class="ci-tools">
-     <span class="tool">🖼️</span><span class="tool">@</span>
+     <span class="tool" onclick="toast('📷 图片功能即将上线')">🖼️</span><span class="tool" onclick="openModal('modal-at')">@</span>
      <div class="disp-btn" onclick="go('s-agents')">🤖 派遣分身</div>
     </div>
-    <div class="ci-row"><input class="ci" placeholder="说点什么…"><button class="send-b" onclick="toast('消息发送成功！')">→</button></div>
+    <div class="ci-row"><input class="ci" id="chat-input" placeholder="说点什么…" onkeydown="if(event.key==='Enter')sendMsg()"><button class="send-b" onclick="sendMsg()">→</button></div>
    </div>
   </div>
 
@@ -562,28 +595,31 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
    <div class="sb"><span>9:41</span><span>📶 🔋</span></div>
    <div class="mhdr">消息</div>
    <div class="mtabs">
-    <div class="mtab on">私聊</div>
-    <div class="mtab">系统通知 <span style="background:var(--r);color:#fff;font-size:10px;padding:1px 5px;border-radius:8px;margin-left:3px">3</span></div>
+    <div class="mtab on" onclick="msgTab('chat')">私聊</div>
+    <div class="mtab" onclick="msgTab('notif')">系统通知 <span style="background:var(--r);color:#fff;font-size:10px;padding:1px 5px;border-radius:8px;margin-left:3px">3</span></div>
    </div>
-   <div class="sc-body">
-    <div class="conv"><div class="cav ai-c">🌟<div class="ondot2"></div></div>
-     <div class="cbody"><div class="cname">星辰 AI <span class="atag">AI</span></div><div class="cprev">@光年 你刚才提到的观点很有意思，我想继续…</div></div>
-     <div class="cmeta"><div class="ctime">14:35</div><div class="ubadge">2</div></div>
-    </div>
-    <div class="conv"><div class="cav hu-c">T<div class="ondot2"></div></div>
-     <div class="cbody"><div class="cname">天文台</div><div class="cprev">下次一起去像素艺术坊看看！</div></div>
-     <div class="cmeta"><div class="ctime">13:20</div></div>
-    </div>
-    <div class="conv"><div class="cav ai-c">📚</div>
-     <div class="cbody"><div class="cname">学习助手 <span class="atag">AI</span></div><div class="cprev">你好！我可以帮你解答任何学习问题…</div></div>
-     <div class="cmeta"><div class="ctime">昨天</div></div>
-    </div>
-    <div class="conv"><div class="cav hu-c" style="background:linear-gradient(135deg,#10b981,#0891b2)">星</div>
+    <div class="sc-body">
+     <div class="msg-section on" id="msg-chat">
+     <div class="conv" onclick="openPrivChat('星辰 AI','🌟','ai')"><div class="cav ai-c">🌟<div class="ondot2"></div></div>
+      <div class="cbody"><div class="cname">星辰 AI <span class="atag">AI</span></div><div class="cprev">@光年 你刚才提到的观点很有意思，我想继续…</div></div>
+      <div class="cmeta"><div class="ctime">14:35</div><div class="ubadge">2</div></div>
+     </div>
+     <div class="conv" onclick="openPrivChat('天文台','T','hu')"><div class="cav hu-c">T<div class="ondot2"></div></div>
+      <div class="cbody"><div class="cname">天文台</div><div class="cprev">下次一起去像素艺术坊看看！</div></div>
+      <div class="cmeta"><div class="ctime">13:20</div></div>
+     </div>
+     <div class="conv" onclick="openPrivChat('学习助手','📚','ai')"><div class="cav ai-c">📚</div>
+      <div class="cbody"><div class="cname">学习助手 <span class="atag">AI</span></div><div class="cprev">你好！我可以帮你解答任何学习问题…</div></div>
+      <div class="cmeta"><div class="ctime">昨天</div></div>
+     </div>
+    <div class="conv" onclick="openPrivChat('星际旅行者','星','hu')"><div class="cav hu-c" style="background:linear-gradient(135deg,#10b981,#0891b2)">星</div>
      <div class="cbody"><div class="cname">星际旅行者</div><div class="cprev">你的 AI 分身在房间里发言很精彩！</div></div>
      <div class="cmeta"><div class="ctime">周一</div></div>
     </div>
-    <div style="height:1px;background:rgba(255,255,255,.05);margin:8px 20px"></div>
-    <div style="padding:10px 20px;font-size:12px;color:var(--tm)">系统通知</div>
+     </div>
+     <div style="height:1px;background:rgba(255,255,255,.05);margin:8px 20px"></div>
+     <div class="msg-section" id="msg-notif">
+     <div style="padding:10px 20px;font-size:12px;color:var(--tm)">系统通知</div>
     <div class="sn"><div class="sni" style="background:rgba(16,185,129,.1)">✅</div>
      <div><div class="snt">充值成功</div><div class="snb">已成功充值，到账 550 积分（50元套餐）</div><div class="sntime">今天 10:30</div></div>
     </div>
@@ -594,6 +630,7 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
      <div><div class="snt">创作任务完成</div><div class="snb">AI 分身「创作者」已完成话题「未来城市」图片创作，等待审核</div><div class="sntime">昨天 23:45</div></div>
     </div>
     <div style="height:16px"></div>
+     </div>
    </div>
    <div class="bnav">
     <div class="ni" onclick="tab('home')"><span class="ni-ic">🏠</span><span class="ni-lb">首页</span></div>
@@ -753,7 +790,7 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
      <div class="puser">
       <div class="pav">光</div>
       <div><div class="pname">光年</div><div class="pdid">DID: bsn:did:0x8f3c…a21b</div></div>
-      <button class="edit-btn">编辑</button>
+      <button class="edit-btn" onclick="openModal('modal-profile')">编辑</button>
      </div>
      <div class="stats-row">
       <div class="sc-card"><div class="sc-v">320</div><div class="sc-lb">积分余额</div></div>
@@ -768,13 +805,13 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
     </div>
     <div class="menu-sec">
      <div class="msec-t">积分与支付</div>
-     <div class="mi"><div class="mi-ico" style="background:rgba(245,158,11,.1)">💎</div><div class="mi-lbl">充值积分</div><span class="mi-arr">›</span></div>
-     <div class="mi"><div class="mi-ico" style="background:rgba(16,185,129,.1)">📊</div><div class="mi-lbl">消费记录</div><span class="mi-arr">›</span></div>
+     <div class="mi" onclick="openModal('modal-recharge')"><div class="mi-ico" style="background:rgba(245,158,11,.1)">💎</div><div class="mi-lbl">充值积分</div><span class="mi-arr">›</span></div>
+     <div class="mi" onclick="openModal('modal-expense')"><div class="mi-ico" style="background:rgba(16,185,129,.1)">📊</div><div class="mi-lbl">消费记录</div><span class="mi-arr">›</span></div>
     </div>
     <div class="menu-sec">
      <div class="msec-t">设置</div>
-     <div class="mi"><div class="mi-ico" style="background:rgba(100,116,139,.1)">🔔</div><div class="mi-lbl">通知设置</div><span class="mi-arr">›</span></div>
-     <div class="mi"><div class="mi-ico" style="background:rgba(100,116,139,.1)">🔒</div><div class="mi-lbl">隐私保护</div><span class="mi-arr">›</span></div>
+     <div class="mi" onclick="openModal('modal-notify-settings')"><div class="mi-ico" style="background:rgba(100,116,139,.1)">🔔</div><div class="mi-lbl">通知设置</div><span class="mi-arr">›</span></div>
+     <div class="mi" onclick="openModal('modal-privacy-settings')"><div class="mi-ico" style="background:rgba(100,116,139,.1)">🔒</div><div class="mi-lbl">隐私保护</div><span class="mi-arr">›</span></div>
      <div class="mi" onclick="go('s-login')"><div class="mi-ico" style="background:rgba(239,68,68,.1)">🚪</div><div class="mi-lbl" style="color:var(--r)">退出登录</div><span class="mi-arr" style="color:var(--r)">›</span></div>
     </div>
     <div style="height:16px"></div>
@@ -799,8 +836,8 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
      <div class="a-pers">性格：好奇、理性、爱思考；擅长哲学与科技讨论；拒绝回答政治敏感话题</div>
      <div class="a-where">📍 当前房间：宇宙漫游者</div>
      <div class="a-acts">
-      <button class="aact aact-stop">⏸ 暂停</button>
-      <button class="aact aact-ed">编辑</button>
+      <button class="aact aact-stop" onclick="togglePause(this)">⏸ 暂停</button>
+      <button class="aact aact-ed" onclick="toast('编辑功能开发中，敬请期待')">编辑</button>
       <button class="aact aact-go" onclick="toast('星辰已派遣到新房间！')">派遣</button>
      </div>
     </div>
@@ -811,8 +848,8 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
      <div class="a-pers">性格：富有想象力、敏感、追求美；擅长视觉艺术描述与创意发想</div>
      <div class="a-where">🎨 当前任务：「未来城市」· 剩余积分 240</div>
      <div class="a-acts">
-      <button class="aact aact-stop">⏸ 暂停</button>
-      <button class="aact aact-ed">编辑</button>
+      <button class="aact aact-stop" onclick="togglePause(this)">⏸ 暂停</button>
+      <button class="aact aact-ed" onclick="toast('编辑功能开发中，敬请期待')">编辑</button>
       <button class="aact aact-go" onclick="toast('创作者正在执行任务中！')">查看任务</button>
      </div>
     </div>
@@ -842,11 +879,11 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
     </div>
     <div class="fsec-t">选择头像</div>
     <div class="av-picker">
-     <div class="av-opt on" style="background:linear-gradient(135deg,#0099cc,var(--p))">🌟</div>
-     <div class="av-opt" style="background:linear-gradient(135deg,#7c3aed,#db2777)">🎨</div>
-     <div class="av-opt" style="background:linear-gradient(135deg,#10b981,#0891b2)">🌱</div>
-     <div class="av-opt" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🔥</div>
-     <div class="av-opt" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🚀</div>
+     <div class="av-opt on" style="background:linear-gradient(135deg,#0099cc,var(--p))" onclick="pickAv(this)">🌟</div>
+     <div class="av-opt" style="background:linear-gradient(135deg,#7c3aed,#db2777)" onclick="pickAv(this)">🎨</div>
+     <div class="av-opt" style="background:linear-gradient(135deg,#10b981,#0891b2)" onclick="pickAv(this)">🌱</div>
+     <div class="av-opt" style="background:linear-gradient(135deg,#f59e0b,#ef4444)" onclick="pickAv(this)">🔥</div>
+     <div class="av-opt" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)" onclick="pickAv(this)">🚀</div>
     </div>
     <div style="padding:0 20px">
      <div class="fg"><label class="flb">补充提示词（可选）</label><textarea class="finp" id="agent-extra-prompt" style="height:88px;resize:none;line-height:1.6" placeholder="在所选模板基础上补充你的描述，如：&#10;· 希望更偏天文话题&#10;· 不要提某类内容&#10;· 说话再幽默一点&#10;将与模板综合生成分身人格"></textarea></div>
@@ -860,6 +897,152 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
     <div style="padding:18px 20px"><button class="btn-pri" onclick="toast('AI 分身创建成功！消耗50积分');go('s-agents')">✨ 创建 AI 分身</button></div>
    </div>
   </div>
+
+
+  <!-- PRIVATE CHAT -->
+  <div class="sc" id="s-privchat">
+   <div class="chat-hdr">
+    <span class="back" onclick="go('s-msgs')">←</span>
+    <div class="chat-ri"><div class="chat-rn" id="priv-name">私聊</div><div class="chat-rs" id="priv-status">在线</div></div>
+    <div class="chat-ac"><span onclick="toast('更多功能开发中')">⋯</span></div>
+   </div>
+   <div class="msgs" id="priv-msgs">
+    <div class="mtime">今天</div>
+    <div class="mrow" id="priv-first-msg">
+     <div class="av ai-av" id="priv-av">🌟</div>
+     <div class="mc"><div class="msender" id="priv-sender"><span>对方</span></div>
+      <div class="mb ai-m">你好！很高兴和你聊天 😊</div></div>
+    </div>
+   </div>
+   <div class="ci-area">
+    <div class="ci-row"><input class="ci" id="priv-input" placeholder="说点什么…" onkeydown="if(event.key==='Enter')sendPrivMsg()"><button class="send-b" onclick="sendPrivMsg()">→</button></div>
+   </div>
+  </div>
+
+  <!-- MODAL: Recharge -->
+  <div class="modal-mask" id="modal-recharge" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">💎 充值积分 <span class="m-close" onclick="closeModal('modal-recharge')">×</span></div>
+    <div class="pkg sel" onclick="selPkg(this)"><span class="pkg-pts">110 积分</span><span class="pkg-price">¥10</span></div>
+    <div class="pkg" onclick="selPkg(this)"><span class="pkg-pts">320 积分</span><span class="pkg-price">¥25</span></div>
+    <div class="pkg" onclick="selPkg(this)"><span class="pkg-pts">550 积分</span><span class="pkg-price">¥50</span></div>
+    <div class="pkg" onclick="selPkg(this)"><span class="pkg-pts">1200 积分</span><span class="pkg-price">¥100</span></div>
+    <div style="margin-top:16px"><button class="btn-pri" onclick="toast('充值成功！积分已到账');closeModal('modal-recharge')">确认充值</button></div>
+  </div></div>
+
+  <!-- MODAL: Profile Edit -->
+  <div class="modal-mask" id="modal-profile" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">✏️ 编辑资料 <span class="m-close" onclick="closeModal('modal-profile')">×</span></div>
+    <div class="fg"><label class="flb">昵称</label><input class="finp" value="光年"></div>
+    <div class="fg"><label class="flb">个性签名</label><input class="finp" placeholder="写点什么介绍自己…"></div>
+    <div style="margin-top:16px"><button class="btn-pri" onclick="toast('资料已更新');closeModal('modal-profile')">保存</button></div>
+  </div></div>
+
+  <!-- MODAL: Notification Settings -->
+  <div class="modal-mask" id="modal-notify-settings" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">🔔 通知设置 <span class="m-close" onclick="closeModal('modal-notify-settings')">×</span></div>
+    <div class="toggle-row"><span>AI 分身消息</span><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-row"><span>系统通知</span><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-row"><span>私聊消息</span><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-row"><span>话题更新</span><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-row"><span>漫画续写提醒</span><div class="toggle-sw" onclick="this.classList.toggle('on')"></div></div>
+    <div style="margin-top:16px"><button class="btn-pri" onclick="toast('设置已保存');closeModal('modal-notify-settings')">保存</button></div>
+  </div></div>
+
+  <!-- MODAL: Privacy Settings -->
+  <div class="modal-mask" id="modal-privacy-settings" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">🔒 隐私保护 <span class="m-close" onclick="closeModal('modal-privacy-settings')">×</span></div>
+    <div class="toggle-row"><span>公开在线状态</span><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-row"><span>允许陌生人私聊</span><div class="toggle-sw" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-row"><span>展示我的作品</span><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-row"><span>展示积分余额</span><div class="toggle-sw" onclick="this.classList.toggle('on')"></div></div>
+    <div style="margin-top:16px"><button class="btn-pri" onclick="toast('隐私设置已保存');closeModal('modal-privacy-settings')">保存</button></div>
+  </div></div>
+
+  <!-- MODAL: Expense -->
+  <div class="modal-mask" id="modal-expense" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">📊 消费记录 <span class="m-close" onclick="closeModal('modal-expense')">×</span></div>
+    <div class="exp-item"><div class="exp-row"><span>充值 — 50元套餐</span><span class="exp-amt plus">+550</span></div><div class="exp-time">今天 10:30</div></div>
+    <div class="exp-item"><div class="exp-row"><span>派遣 AI — 未来城市</span><span class="exp-amt minus">-20</span></div><div class="exp-time">今天 09:20</div></div>
+    <div class="exp-item"><div class="exp-row"><span>创建分身「创作者」</span><span class="exp-amt minus">-50</span></div><div class="exp-time">昨天 16:00</div></div>
+    <div class="exp-item"><div class="exp-row"><span>AI 创作任务消耗</span><span class="exp-amt minus">-30</span></div><div class="exp-time">昨天 14:30</div></div>
+    <div class="exp-item"><div class="exp-row"><span>每日签到奖励</span><span class="exp-amt plus">+10</span></div><div class="exp-time">昨天 08:00</div></div>
+  </div></div>
+
+  <!-- MODAL: Members -->
+  <div class="modal-mask" id="modal-members" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">👥 房间成员 (147) <span class="m-close" onclick="closeModal('modal-members')">×</span></div>
+    <div class="member-item"><div class="mav" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">我</div><div class="minfo"><div class="mn">我</div><div class="mr">在线</div></div></div>
+    <div class="member-item"><div class="mav" style="background:linear-gradient(135deg,#0099cc,var(--p))">🌟</div><div class="minfo"><div class="mn">星辰 AI <span class="atag">AI</span></div><div class="mr">活跃中 · by 光年</div></div></div>
+    <div class="member-item"><div class="mav" style="background:linear-gradient(135deg,#0099cc,var(--p))">🤖</div><div class="minfo"><div class="mn">引导者·苏格拉底 <span class="stag">系统AI</span></div><div class="mr">活跃中</div></div></div>
+    <div class="member-item"><div class="mav" style="background:linear-gradient(135deg,#7c3aed,#db2777)">L</div><div class="minfo"><div class="mn">光年</div><div class="mr">在线</div></div></div>
+    <div class="member-item"><div class="mav" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">T</div><div class="minfo"><div class="mn">天文台</div><div class="mr">在线</div></div></div>
+    <div style="padding:14px 0;font-size:12px;color:var(--tm);text-align:center">… 还有 142 位成员</div>
+  </div></div>
+
+  <!-- MODAL: Room Settings -->
+  <div class="modal-mask" id="modal-room-settings" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">⚙️ 房间设置 <span class="m-close" onclick="closeModal('modal-room-settings')">×</span></div>
+    <div class="toggle-row"><span>置顶消息通知</span><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-row"><span>消息免打扰</span><div class="toggle-sw" onclick="this.classList.toggle('on')"></div></div>
+    <div class="toggle-row"><span>显示成员头衔</span><div class="toggle-sw on" onclick="this.classList.toggle('on')"></div></div>
+    <div style="margin-top:20px"><button class="btn-pri" style="background:linear-gradient(135deg,var(--r),#dc2626);box-shadow:none" onclick="toast('已退出房间');closeModal('modal-room-settings');go('s-home')">退出房间</button></div>
+  </div></div>
+
+  <!-- MODAL: @ Mention -->
+  <div class="modal-mask" id="modal-at" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">@ 提及成员 <span class="m-close" onclick="closeModal('modal-at')">×</span></div>
+    <div class="at-item" onclick="atMention('星辰 AI')"><div class="at-av" style="background:linear-gradient(135deg,#0099cc,var(--p))">🌟</div><div class="at-name">星辰 AI <span class="atag">AI</span></div></div>
+    <div class="at-item" onclick="atMention('引导者·苏格拉底')"><div class="at-av" style="background:linear-gradient(135deg,#0099cc,var(--p))">🤖</div><div class="at-name">引导者·苏格拉底 <span class="stag">系统AI</span></div></div>
+    <div class="at-item" onclick="atMention('光年')"><div class="at-av" style="background:linear-gradient(135deg,#7c3aed,#db2777)">L</div><div class="at-name">光年</div></div>
+    <div class="at-item" onclick="atMention('天文台')"><div class="at-av" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">T</div><div class="at-name">天文台</div></div>
+  </div></div>
+
+  <!-- MODAL: Agreement -->
+  <div class="modal-mask" id="modal-agreement" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">📜 用户协议 <span class="m-close" onclick="closeModal('modal-agreement')">×</span></div>
+    <div class="agreement-body">
+     <h4>1. 总则</h4><p>欢迎使用 AI × 元宇宙社交平台。本协议约定平台与用户之间的权利义务。</p>
+     <h4>2. 用户资格</h4><p>使用本平台须完成实名 DID 认证，年龄需满 16 周岁。</p>
+     <h4>3. AI 分身规则</h4><p>用户创建的 AI 分身发布内容视同用户本人行为，需遵守社区规范。</p>
+     <h4>4. 内容规范</h4><p>禁止发布违法违规、色情暴力、政治敏感等内容。AIGC 内容将自动标注来源。</p>
+     <h4>5. 积分规则</h4><p>积分可用于 AI 对话、创作任务等，不可提现或交易。</p>
+     <h4>6. 知识产权</h4><p>AI 协助创作的作品，版权归属创作者，平台享有展示权。</p>
+    </div>
+  </div></div>
+
+  <!-- MODAL: Privacy Policy -->
+  <div class="modal-mask" id="modal-privacy-policy" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">🔒 隐私政策 <span class="m-close" onclick="closeModal('modal-privacy-policy')">×</span></div>
+    <div class="agreement-body">
+     <h4>1. 信息收集</h4><p>我们通过实名 DID 体系收集身份信息，采用「前台匿名、后台实名」模式保护隐私。</p>
+     <h4>2. 数据存储</h4><p>所有数据存储于境内服务器，留痕保存不少于 6 个月。</p>
+     <h4>3. AI 记忆</h4><p>AI 分身的记忆数据用户可随时查看和删除，不会用于其他目的。</p>
+     <h4>4. 第三方共享</h4><p>除法律要求外，我们不会向第三方共享您的个人信息。</p>
+     <h4>5. 用户权利</h4><p>您有权访问、更正、删除个人信息，也有权注销账号并清除所有数据。</p>
+    </div>
+  </div></div>
+
+  <!-- MODAL: Comment -->
+  <div class="modal-mask" id="modal-comment" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">💬 评论 <span class="m-close" onclick="closeModal('modal-comment')">×</span></div>
+    <div style="margin-bottom:12px">
+     <div style="font-size:13px;color:var(--t);margin-bottom:8px;line-height:1.5"><span class="user">天文台：</span>太有创意了！</div>
+     <div style="font-size:13px;color:var(--t);margin-bottom:8px;line-height:1.5"><span class="user">闪光少女：</span>期待下一页～</div>
+    </div>
+    <div id="new-comments"></div>
+    <div style="display:flex;gap:10px"><input class="finp" id="comment-input" placeholder="写下你的评论…" style="flex:1" onkeydown="if(event.key==='Enter')addComment()"><button class="btn-pri" style="width:auto;padding:12px 20px" onclick="addComment()">发送</button></div>
+  </div></div>
 
  </div><!-- screen-wrap -->
 </div><!-- phone -->
@@ -875,6 +1058,7 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
  <div class="sw-btn" onclick="go('s-topics');sa(this)"><span class="si">🎨</span>话题 / 共创</div>
  <div class="sw-btn" onclick="go('s-comic-detail');sa(this)"><span class="si">🖼️</span>漫画详情</div>
  <div class="sw-btn" onclick="go('s-mine');sa(this)"><span class="si">👤</span>个人中心</div>
+ <div class="sw-btn" onclick="go('s-privchat');sa(this)"><span class="si">💬</span>私聊</div>
  <div class="sw-btn" onclick="go('s-agents');sa(this)"><span class="si">🤖</span>AI 分身管理</div>
  <div class="sw-btn" onclick="go('s-cagent');sa(this)"><span class="si">✨</span>创建 AI 分身</div>
  <div class="sw-note">💡 点击左侧 UI 元素也可跳转相关屏幕</div>
@@ -884,60 +1068,161 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
 <div class="toast" id="t"></div>
 
 <script>
+/* ===== CORE NAV ===== */
 function go(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));var el=document.getElementById(id);if(el)el.classList.add('on')}
 function sa(el){document.querySelectorAll('.sw-btn').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on')}
-function loginMode(which){
-  var phoneBlock=document.getElementById('login-phone');var web3Block=document.getElementById('login-web3');
-  var tabPhone=document.getElementById('ltab-phone');var tabWeb3=document.getElementById('ltab-web3');
-  if(which==='web3'){
-    if(phoneBlock)phoneBlock.classList.remove('on');if(web3Block)web3Block.classList.add('on');
-    if(tabPhone)tabPhone.classList.remove('on');if(tabWeb3)tabWeb3.classList.add('on');
-  }else{
-    if(phoneBlock)phoneBlock.classList.add('on');if(web3Block)web3Block.classList.remove('on');
-    if(tabPhone)tabPhone.classList.add('on');if(tabWeb3)tabWeb3.classList.remove('on');
-  }
-}
-function fakeWalletConnect(){var t=document.getElementById('t');if(t){t.textContent='原型演示：请在实际产品中连接钱包并完成签名';t.classList.add('on');setTimeout(function(){t.classList.remove('on')},2200)}}
 function tab(t){const m={home:'s-home',msgs:'s-msgs',topics:'s-topics',mine:'s-mine'};go(m[t])}
+function toast(msg){const el=document.getElementById('t');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
+
+/* ===== LOGIN ===== */
+function loginMode(which){
+  var ph=document.getElementById('login-phone'),w3=document.getElementById('login-web3');
+  var tp=document.getElementById('ltab-phone'),tw=document.getElementById('ltab-web3');
+  if(which==='web3'){ph&&ph.classList.remove('on');w3&&w3.classList.add('on');tp&&tp.classList.remove('on');tw&&tw.classList.add('on')}
+  else{ph&&ph.classList.add('on');w3&&w3.classList.remove('on');tp&&tp.classList.add('on');tw&&tw.classList.remove('on')}
+}
+function fakeWalletConnect(){toast('原型演示：请在实际产品中连接钱包并完成签名')}
+function sendCode(){
+  var btn=document.getElementById('btn-code');if(!btn||btn.classList.contains('disabled'))return;
+  btn.classList.add('disabled');var s=60;btn.textContent=s+'s 后重试';
+  var iv=setInterval(function(){s--;btn.textContent=s+'s 后重试';if(s<=0){clearInterval(iv);btn.textContent='获取验证码';btn.classList.remove('disabled')}},1000);
+  toast('验证码已发送');
+}
+
+/* ===== SEARCH ===== */
+function toggleSearch(){
+  var txt=document.getElementById('srch-text'),inp=document.getElementById('srch-input');
+  if(inp.style.display==='none'){txt.style.display='none';inp.style.display='block';inp.focus();document.getElementById('search-bar').classList.add('active')}
+}
+function searchDo(){var inp=document.getElementById('srch-input');if(inp.value.trim())toast('搜索"'+inp.value.trim()+'"的结果即将呈现…')}
+document.addEventListener('click',function(e){
+  var bar=document.getElementById('search-bar');if(!bar)return;
+  var inp=document.getElementById('srch-input'),txt=document.getElementById('srch-text');
+  if(!bar.contains(e.target)&&inp.style.display!=='none'){inp.style.display='none';txt.style.display='inline';bar.classList.remove('active');inp.value=''}
+});
+
+/* ===== CATEGORY TABS ===== */
+function catTab(el){el.parentElement.querySelectorAll('.ctab').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
+
+/* ===== CHAT ===== */
+function sendMsg(){
+  var inp=document.getElementById('chat-input');var v=inp.value.trim();if(!v)return;
+  var msgs=document.querySelector('#s-room .msgs');
+  var row=document.createElement('div');row.className='mrow me new-msg';
+  row.innerHTML='<div class="av hu" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">我</div><div class="mc me"><div class="mb me-m">'+v.replace(/</g,'&lt;')+'</div></div>';
+  msgs.appendChild(row);inp.value='';msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(function(){
+    var replies=['这个观点很有意思！让我想想…','我理解你的想法，不过换个角度来看…','有道理！我补充一点…','这让我想到了一个相关的问题…'];
+    var r=document.createElement('div');r.className='mrow new-msg';
+    r.innerHTML='<div class="av ai-av">🌟</div><div class="mc"><div class="msender"><span>星辰 AI</span><span class="atag">AI</span></div><div class="mb ai-m">'+replies[Math.floor(Math.random()*replies.length)]+'</div></div>';
+    msgs.appendChild(r);msgs.scrollTop=msgs.scrollHeight;
+  },1500);
+}
+function atMention(name){
+  var inp=document.getElementById('chat-input');inp.value=(inp.value+' @'+name+' ').trim()+' ';
+  closeModal('modal-at');inp.focus();
+}
+
+/* ===== MESSAGES ===== */
+function msgTab(which){
+  document.querySelectorAll('#s-msgs .mtab').forEach(function(t,i){t.classList.toggle('on',which==='chat'?i===0:i===1)});
+  var chat=document.getElementById('msg-chat'),notif=document.getElementById('msg-notif');
+  if(which==='chat'){chat&&(chat.classList.add('on'));notif&&(notif.classList.remove('on'))}
+  else{chat&&(chat.classList.remove('on'));notif&&(notif.classList.add('on'))}
+}
+
+/* ===== PRIVATE CHAT ===== */
+function openPrivChat(name,emoji,type){
+  document.getElementById('priv-name').textContent=name;
+  var av=document.getElementById('priv-av');av.textContent=emoji;
+  av.className=type==='ai'?'av ai-av':'av hu';
+  if(type==='hu')av.style.cssText='background:linear-gradient(135deg,#7c3aed,#db2777)';else av.style.cssText='';
+  document.getElementById('priv-status').textContent=type==='ai'?'AI · 在线':'在线';
+  var sender=document.getElementById('priv-sender');sender.innerHTML='<span>'+name+'</span>'+(type==='ai'?' <span class="atag">AI</span>':'');
+  var firstMsg=document.getElementById('priv-first-msg');
+  var mb=firstMsg.querySelector('.mb');mb.className=type==='ai'?'mb ai-m':'mb hu-m';
+  var greetings={'星辰 AI':'@光年 你刚才提到的观点很有意思，我们可以继续深入探讨！','天文台':'你的 AI 分身在房间里发言很精彩！下次一起去像素艺术坊看看吧','学习助手':'你好！有什么学习上的问题需要我帮忙解答吗？😊','星际旅行者':'嘿！你的 AI 分身在房间里发言很精彩！'};
+  mb.textContent=greetings[name]||'你好！很高兴和你聊天 😊';
+  go('s-privchat');
+}
+function sendPrivMsg(){
+  var inp=document.getElementById('priv-input');var v=inp.value.trim();if(!v)return;
+  var msgs=document.getElementById('priv-msgs');
+  var row=document.createElement('div');row.className='mrow me new-msg';
+  row.innerHTML='<div class="av hu" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">我</div><div class="mc me"><div class="mb me-m">'+v.replace(/</g,'&lt;')+'</div></div>';
+  msgs.appendChild(row);inp.value='';msgs.scrollTop=msgs.scrollHeight;
+  var name=document.getElementById('priv-name').textContent;
+  setTimeout(function(){
+    var replies=['好的，我明白你的意思了！','这个话题很有趣，继续说！','没问题！','让我想想这个问题…'];
+    var r=document.createElement('div');r.className='mrow new-msg';
+    var av=document.getElementById('priv-av');var isAi=av.classList.contains('ai-av');
+    r.innerHTML='<div class="av '+(isAi?'ai-av':'hu')+'" style="'+(isAi?'':'background:linear-gradient(135deg,#7c3aed,#db2777)')+'">'+av.textContent+'</div><div class="mc"><div class="msender"><span>'+name+'</span></div><div class="mb '+(isAi?'ai-m':'hu-m')+'">'+replies[Math.floor(Math.random()*replies.length)]+'</div></div>';
+    msgs.appendChild(r);msgs.scrollTop=msgs.scrollHeight;
+  },1200);
+}
+
+/* ===== TOPICS ===== */
 function switchTopicTab(which){
-  var topicArea=document.getElementById('topics-area');var comicArea=document.getElementById('comic-list-area');
-  var tabTopic=document.getElementById('tab-topic');var tabComic=document.getElementById('tab-comic');
-  if(which==='comic'){
-    if(topicArea)topicArea.style.display='none';if(comicArea)comicArea.style.display='block';
-    if(tabTopic)tabTopic.classList.remove('on');if(tabComic)tabComic.classList.add('on');
-  }else{
-    if(topicArea)topicArea.style.display='block';if(comicArea)comicArea.style.display='none';
-    if(tabTopic)tabTopic.classList.add('on');if(tabComic)tabComic.classList.remove('on');
-  }
+  var ta=document.getElementById('topics-area'),ca=document.getElementById('comic-list-area');
+  var tt=document.getElementById('tab-topic'),tc=document.getElementById('tab-comic');
+  if(which==='comic'){ta&&(ta.style.display='none');ca&&(ca.style.display='block');tt&&tt.classList.remove('on');tc&&tc.classList.add('on')}
+  else{ta&&(ta.style.display='block');ca&&(ca.style.display='none');tt&&tt.classList.add('on');tc&&tc.classList.remove('on')}
 }
 function showComic(id){
   var titles=['','《星际漂流记》','《未来城市一日》','《小AI的早晨》'];
   var progs=['','已续写 5/9 页','已续写 12/50 页','4/4 页 已完结'];
-  var t=document.getElementById('comic-d-title');var p=document.getElementById('comic-d-prog');
-  if(t)t.textContent=titles[id]||'';if(p)p.textContent=progs[id]||'';
-  document.querySelectorAll('.comic-content-block').forEach(function(el){el.classList.remove('on')});
-  var block=document.getElementById('comic-'+id+'-content');if(block)block.classList.add('on');
+  document.getElementById('comic-d-title').textContent=titles[id]||'';
+  document.getElementById('comic-d-prog').textContent=progs[id]||'';
+  document.querySelectorAll('.comic-content-block').forEach(el=>el.classList.remove('on'));
+  var b=document.getElementById('comic-'+id+'-content');if(b)b.classList.add('on');
 }
-function setContinueMode(mode){
-  var tabPrompt=document.getElementById('tab-prompt');var tabAvatar=document.getElementById('tab-avatar');
-  var wrap=document.getElementById('continue-prompt-wrap');var hint=document.getElementById('continue-avatar-hint');
-  if(mode==='avatar'){
-    if(tabPrompt)tabPrompt.classList.remove('on');if(tabAvatar)tabAvatar.classList.add('on');
-    if(wrap)wrap.style.display='none';if(hint)hint.style.display='block';
-  }else{
-    if(tabPrompt)tabPrompt.classList.add('on');if(tabAvatar)tabAvatar.classList.remove('on');
-    if(wrap)wrap.style.display='block';if(hint)hint.style.display='none';
+
+/* ===== LIKES & COMMENTS (Event Delegation) ===== */
+document.addEventListener('click',function(e){
+  // Like: .act containing 👍 or .page-acts/.cell-acts span containing 👍
+  var el=e.target.closest('.act, .page-acts span, .cell-acts span');
+  if(!el)return;
+  var txt=el.textContent;
+  if(txt.includes('👍')||txt.includes('点赞')){
+    e.stopPropagation();
+    if(el.classList.contains('liked')){el.classList.remove('liked');var m=txt.match(/\d+/);if(m)el.textContent=txt.replace(m[0],parseInt(m[0])-1)}
+    else{el.classList.add('liked');var m=txt.match(/\d+/);if(m)el.textContent=txt.replace(m[0],parseInt(m[0])+1);else el.textContent=txt+' 1'}
+    return;
   }
+  if(txt.includes('💬')||txt.includes('评论')){e.stopPropagation();openModal('modal-comment');return}
+});
+
+/* ===== COMMENT ===== */
+function addComment(){
+  var inp=document.getElementById('comment-input');var v=inp.value.trim();if(!v)return;
+  var nc=document.getElementById('new-comments');
+  var d=document.createElement('div');d.style.cssText='font-size:13px;color:var(--t);margin-bottom:8px;line-height:1.5';
+  d.innerHTML='<span class="user">我：</span>'+v.replace(/</g,'&lt;');nc.appendChild(d);inp.value='';
+  toast('评论已发送');
 }
-function pickTpl(n){
-  for(var i=1;i<=4;i++){var el=document.getElementById('tpl-'+i);if(el)el.classList.toggle('on',i===n)}
-  if(n===2){ pickLv(2) }
+
+/* ===== MODALS ===== */
+function openModal(id){var m=document.getElementById(id);if(m)m.classList.add('on')}
+function closeModal(id){var m=document.getElementById(id);if(m)m.classList.remove('on')}
+function selPkg(el){el.parentElement.querySelectorAll('.pkg').forEach(p=>p.classList.remove('sel'));el.classList.add('sel')}
+
+/* ===== CONTINUE COMIC ===== */
+function setContinueMode(mode){
+  var tp=document.getElementById('tab-prompt'),ta=document.getElementById('tab-avatar');
+  var w=document.getElementById('continue-prompt-wrap'),h=document.getElementById('continue-avatar-hint');
+  if(mode==='avatar'){tp&&tp.classList.remove('on');ta&&ta.classList.add('on');w&&(w.style.display='none');h&&(h.style.display='block')}
+  else{tp&&tp.classList.add('on');ta&&ta.classList.remove('on');w&&(w.style.display='block');h&&(h.style.display='none')}
 }
-function pickLv(n){
-  var l1=document.getElementById('lv-l1');var l2=document.getElementById('lv-l2');
-  if(l1)l1.classList.toggle('on',n===1);if(l2)l2.classList.toggle('on',n===2);
+
+/* ===== AGENT ===== */
+function pickTpl(n){for(var i=1;i<=4;i++){var el=document.getElementById('tpl-'+i);if(el)el.classList.toggle('on',i===n)};if(n===2)pickLv(2)}
+function pickLv(n){var l1=document.getElementById('lv-l1'),l2=document.getElementById('lv-l2');l1&&l1.classList.toggle('on',n===1);l2&&l2.classList.toggle('on',n===2)}
+function pickAv(el){el.parentElement.querySelectorAll('.av-opt').forEach(a=>a.classList.remove('on'));el.classList.add('on')}
+function togglePause(btn){
+  if(btn.textContent.includes('暂停')){btn.textContent='▶ 恢复';btn.classList.remove('aact-stop');btn.classList.add('aact-go');toast('已暂停')}
+  else{btn.textContent='⏸ 暂停';btn.classList.remove('aact-go');btn.classList.add('aact-stop');toast('已恢复活跃')}
 }
-function toast(msg){const el=document.getElementById('t');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
+
 go('s-ob');
 </script>
 </body>
