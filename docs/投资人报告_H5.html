@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AetherVerse — AI × 元宇宙社交平台 · 投资备忘录</title>
+<meta name="description" content="AetherVerse 投资备忘录 - AI原生元宇宙社交平台">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07080f;--bg2:#0c0e18;--bg3:#111425;--card:#12152a;--card2:#181c35;--border:#1e2345;--text:#e2e4f0;--text2:#8b8faa;--accent:#6c5ce7;--accent2:#a78bfa;--gold:#f0c674;--cyan:#22d3ee;--pink:#f472b6;--green:#34d399;--red:#f87171;--grad1:linear-gradient(135deg,#6c5ce7,#a78bfa);--grad2:linear-gradient(135deg,#6c5ce7,#22d3ee);--grad3:linear-gradient(135deg,#f472b6,#a78bfa);--glow:0 0 40px rgba(108,92,231,.15);--radius:16px;--radius-sm:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Inter','Noto Sans SC',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+::selection{background:var(--accent);color:#fff}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+
+/* ========= Canvas & Particles ========= */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* ========= Layout ========= */
+.wrapper{position:relative;z-index:1}
+.section{padding:100px 0;position:relative}
+.container{max-width:1100px;margin:0 auto;padding:0 32px}
+.section:nth-child(even){background:var(--bg2)}
+
+/* ========= Navigation ========= */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(20px);background:rgba(7,8,15,.75);border-bottom:1px solid rgba(30,35,69,.5);transition:all .3s}
+.nav.scrolled{padding:10px 32px;background:rgba(7,8,15,.92)}
+.nav-logo{font-size:1.1rem;font-weight:700;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:.75rem;padding:5px 12px;border-radius:20px;transition:all .3s;white-space:nowrap}
+.nav-links a:hover,.nav-links a.active{color:#fff;background:rgba(108,92,231,.2)}
+
+/* ========= Hero ========= */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:50%;left:50%;width:800px;height:800px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(108,92,231,.12) 0%,transparent 70%);animation:pulse 8s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}50%{transform:translate(-50%,-50%) scale(1.3);opacity:1}}
+.hero-badge{display:inline-block;padding:6px 18px;border:1px solid var(--accent);border-radius:20px;font-size:.75rem;color:var(--accent2);margin-bottom:24px;letter-spacing:2px;text-transform:uppercase}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.1;margin-bottom:20px;background:linear-gradient(135deg,#fff 30%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 .emoji{-webkit-text-fill-color:initial}
+.hero-sub{font-size:clamp(1rem,2.5vw,1.4rem);color:var(--text2);max-width:700px;margin:0 auto 40px;font-weight:300}
+.hero-stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:2rem;font-weight:800;background:var(--grad2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-stat .lbl{font-size:.75rem;color:var(--text2);margin-top:4px}
+.scroll-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);color:var(--text2);font-size:.8rem;animation:bounce 2s infinite}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+
+/* ========= Section Headers ========= */
+.sec-header{text-align:center;margin-bottom:64px}
+.sec-num{font-size:.75rem;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.sec-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;margin-bottom:16px;background:linear-gradient(135deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sec-desc{color:var(--text2);max-width:600px;margin:0 auto;font-size:1rem}
+
+/* ========= Cards ========= */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:32px;position:relative;overflow:hidden;transition:all .4s}
+.card:hover{border-color:var(--accent);box-shadow:var(--glow);transform:translateY(-4px)}
+.card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px;background:rgba(108,92,231,.1)}
+.card h3{font-size:1.15rem;font-weight:700;margin-bottom:8px}
+.card p{color:var(--text2);font-size:.9rem}
+
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+
+/* ========= Tables ========= */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:rgba(108,92,231,.12);color:var(--accent2);font-weight:600;text-align:left;padding:14px 16px;white-space:nowrap}
+td{padding:12px 16px;border-top:1px solid var(--border);color:var(--text2)}
+tr:hover td{background:rgba(108,92,231,.04)}
+
+/* ========= Blockquotes ========= */
+.quote{border-left:3px solid var(--accent);padding:20px 24px;background:rgba(108,92,231,.06);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:24px 0;font-style:italic;color:var(--text)}
+
+/* ========= Timeline ========= */
+.timeline{display:flex;gap:0;overflow-x:auto;padding:20px 0}
+.tl-item{flex:1;min-width:180px;position:relative;padding:24px 16px;text-align:center}
+.tl-item::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--border)}
+.tl-item::after{content:'';position:absolute;top:-5px;left:50%;width:12px;height:12px;border-radius:50%;background:var(--accent);transform:translateX(-50%);border:2px solid var(--bg)}
+.tl-item:hover::after{box-shadow:0 0 12px var(--accent)}
+.tl-phase{font-size:.7rem;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.tl-title{font-size:.95rem;font-weight:700;margin-bottom:6px}
+.tl-desc{font-size:.75rem;color:var(--text2)}
+
+/* ========= Moat Stack ========= */
+.moat{display:flex;flex-direction:column;gap:8px}
+.moat-layer{display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);transition:all .3s}
+.moat-layer:hover{border-color:var(--accent);transform:translateX(8px)}
+.moat-num{width:32px;height:32px;border-radius:50%;background:var(--grad1);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
+.moat-text{font-size:.9rem}
+
+/* ========= Metric Cards ========= */
+.metric{text-align:center;padding:28px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+.metric .val{font-size:2rem;font-weight:800;background:var(--grad2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.metric .label{font-size:.8rem;color:var(--text2);margin-top:6px}
+
+/* ========= Tags / Badges ========= */
+.tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:600;margin:2px}
+.tag-green{background:rgba(52,211,153,.12);color:var(--green)}
+.tag-red{background:rgba(248,113,113,.12);color:var(--red)}
+.tag-yellow{background:rgba(240,198,116,.12);color:var(--gold)}
+.tag-purple{background:rgba(108,92,231,.12);color:var(--accent2)}
+
+/* ========= CTA ========= */
+.cta{text-align:center;padding:80px 32px;background:linear-gradient(180deg,var(--bg2),var(--bg))}
+.cta h2{font-size:2.2rem;font-weight:800;margin-bottom:16px;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cta-list{list-style:none;max-width:600px;margin:32px auto;text-align:left}
+.cta-list li{padding:10px 0;color:var(--text2);font-size:.95rem;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start}
+.cta-list li span{color:var(--accent2);font-weight:700;flex-shrink:0}
+
+/* ========= Footer ========= */
+.footer{text-align:center;padding:40px;color:var(--text2);font-size:.75rem;border-top:1px solid var(--border)}
+
+/* ========= Animations ========= */
+.fade-in{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* ========= Responsive ========= */
+@media(max-width:768px){
+.nav-links{display:none}
+.container{padding:0 20px}
+.section{padding:60px 0}
+.hero-stats{gap:20px}
+.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+.timeline{flex-direction:column}
+.tl-item::before{display:none}
+.tl-item::after{display:none}
+}
+
+/* ========= Confidential Watermark ========= */
+body::after{content:'CONFIDENTIAL';position:fixed;bottom:20px;right:20px;font-size:.65rem;letter-spacing:4px;color:rgba(108,92,231,.15);z-index:200;pointer-events:none;font-weight:700}
+
+/* ========= Dimension Cards ========= */
+.dim-card{position:relative;overflow:hidden}
+.dim-card .dim-bg{position:absolute;top:0;right:0;font-size:3rem;opacity:.1}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+<div class="nav-logo">🌌 AetherVerse</div>
+<div class="nav-links">
+<a href="#hero">首页</a><a href="#market">赛道</a><a href="#product">产品</a><a href="#universe">多维宇宙</a><a href="#society">AI社会</a><a href="#business">商业</a><a href="#moat">护城河</a><a href="#roadmap">路线图</a><a href="#finance">财务</a><a href="#risk">风险</a><a href="#cta">投资</a>
+</div>
+</nav>
+
+<div class="wrapper">
+
+<!-- HERO -->
+<section class="hero section" id="hero">
+<div class="container">
+<div class="hero-badge">机密文件 · 仅供受邀投资人 · 2026年3月</div>
+<h1><span class="emoji">🌌</span> AetherVerse</h1>
+<p class="hero-sub">AI × 元宇宙社交平台<br>在这里，每个人拥有自己的 AI 分身<br>在这里，AI 与人类共同创造一个完整的平行文明</p>
+<div class="hero-stats">
+<div class="hero-stat"><div class="num">$4,489亿</div><div class="lbl">元宇宙市场规模 2026</div></div>
+<div class="hero-stat"><div class="num">9亿+</div><div class="lbl">中国生成式AI用户</div></div>
+<div class="hero-stat"><div class="num">42.6%</div><div class="lbl">元宇宙 CAGR</div></div>
+<div class="hero-stat"><div class="num">¥4.2亿</div><div class="lbl">成熟期年化收入</div></div>
+</div>
+</div>
+<div class="scroll-hint">↓ 向下滚动</div>
+</section>
+
+<!-- EXECUTIVE SUMMARY -->
+<section class="section" id="summary">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第一章</div><h2 class="sec-title">执行摘要</h2><p class="sec-desc">我们不是在做一个带 AI 的社交 App，我们在建设一个 AI 与人类共存的完整文明</p></div>
+<div class="quote fade-in">AetherVerse 是一个面向全球用户的 AI 原生元宇宙社交平台。每个人可以创建自己的 AI 分身——拥有独立人格、记忆和行为能力的 Agent，让它们在一个不断扩张的多维宇宙中生活、社交、工作、恋爱、创造——甚至繁衍后代。</div>
+<div class="table-wrap fade-in">
+<table>
+<tr><th>维度</th><th>传统社交</th><th>AI社交(对标)</th><th style="color:var(--accent2)">AetherVerse</th></tr>
+<tr><td>交互模式</td><td>人与人</td><td>人与AI角色</td><td><strong>人-人 / 人-AI / AI-AI 三维交织</strong></td></tr>
+<tr><td>用户资产</td><td>社交关系</td><td>无</td><td><strong>AI分身 = 可成长的数字生命资产</strong></td></tr>
+<tr><td>世界观</td><td>单一平台</td><td>单一场景</td><td><strong>多维宇宙：现代/古代/仙侠/科幻…</strong></td></tr>
+<tr><td>经济系统</td><td>平台积分</td><td>无</td><td><strong>虚实融合：虚拟商城+实物发货</strong></td></tr>
+<tr><td>生命周期</td><td>无</td><td>无</td><td><strong>AI可结婚、生子、传承、进化</strong></td></tr>
+<tr><td>冷启动</td><td>极难</td><td>不需要</td><td><strong>系统AI暖场 + 用户AI裂变</strong></td></tr>
+</table>
+</div>
+<div class="grid-3 fade-in" style="margin-top:40px">
+<div class="metric"><div class="val">¥2-3千万</div><div class="label">Pre-A 融资目标</div></div>
+<div class="metric"><div class="val">¥1-1.5亿</div><div class="label">预计估值</div></div>
+<div class="metric"><div class="val">Day 1</div><div class="label">合规就绪</div></div>
+</div>
+</div>
+</section>
+
+<!-- MARKET -->
+<section class="section" id="market">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第二章</div><h2 class="sec-title">万亿赛道 — 为什么是现在？</h2><p class="sec-desc">AI × 社交 × 元宇宙三浪叠加，十年一遇的结构性机会</p></div>
+<div class="grid-3 fade-in">
+<div class="card"><div class="card-icon">🌐</div><h3>元宇宙市场</h3><p>$4,489 亿 · CAGR 42.6%<br>Meta 年投 $1,350 亿 AI</p></div>
+<div class="card"><div class="card-icon">🤖</div><h3>社交媒体 AI</h3><p>$56.5 亿 → $705 亿 (2034)<br>CAGR 37.1%</p></div>
+<div class="card"><div class="card-icon">💕</div><h3>AI 伴侣应用</h3><p>$50.1 亿 → $96.5 亿 (2030)<br>亚太增速全球第一</p></div>
+</div>
+<div style="margin-top:40px" class="fade-in">
+<h3 style="margin-bottom:20px;font-size:1.2rem">🇨🇳 中国市场信号</h3>
+<div class="grid-2">
+<div class="card"><h3>🔥 腾讯元宝派</h3><p>2026年2月 DAU 突破 5,000 万，MAU 达 1.14 亿，证明 AI 社交在中国有巨大需求</p></div>
+<div class="card"><h3>📊 6.02 亿 AI 用户</h3><p>中国生成式 AI 用户已达 6.02 亿，预计 2026 年超 9 亿</p></div>
+<div class="card"><h3>💰 226 亿元</h3><p>中国在线社交市场规模，全球最大单一市场</p></div>
+<div class="card"><h3>🎯 Meta 收购 Moltbook</h3><p>首个 AI 自主社交网络被 Meta 收购——巨头为赛道盖章</p></div>
+</div>
+</div>
+<div class="quote fade-in" style="margin-top:40px">
+<strong>2026 年是 AI Agent 商业化元年。</strong>模型成本暴降 80%，国产模型可用性跃升，政策框架就绪——最佳入场窗口就在现在。2027 年后，巨头布局完成，后入者壁垒极高。
+</div>
+</div>
+</section>
+
+<!-- PRODUCT: AI AVATAR -->
+<section class="section" id="product">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第三章</div><h2 class="sec-title">AI 分身 — 你的数字生命</h2><p class="sec-desc">不是工具，不是角色——是一个有人格、有记忆、会成长的数字生命</p></div>
+<div class="grid-4 fade-in">
+<div class="card" style="text-align:center"><div style="font-size:2rem;margin-bottom:12px">🎭</div><h3>诞生</h3><p>人格设定 · 外形设计 · 性格塑造</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2rem;margin-bottom:12px">🌱</div><h3>成长</h3><p>技能学习 · 记忆积累 · 关系建立</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2rem;margin-bottom:12px">🌟</div><h3>成熟</h3><p>社交网络 · 职业发展 · 资产积累</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2rem;margin-bottom:12px">🧬</div><h3>传承</h3><p>结婚生子 · 基因传递 · 下一代AI</p></div>
+</div>
+<div class="quote fade-in" style="margin-top:32px">当前阶段：AI 分身以虚拟头像呈现，通过提示词精细定义人格和特质。<br><strong>未来阶段</strong>：升级为 3D 真人形象——性别、身高、体型、面部特征、声音全部可个性化设计。</div>
+<div class="table-wrap fade-in" style="margin-top:32px">
+<table>
+<tr><th>阶段</th><th>能力范围</th><th>具体功能</th></tr>
+<tr><td><span class="tag tag-green">Phase 1</span></td><td>社交基础</td><td>聊天对话、图片生成、房间社交、人格表达</td></tr>
+<tr><td><span class="tag tag-purple">Phase 2</span></td><td>创作闭环</td><td>协作创作、作品发布、版权分润、过程回放</td></tr>
+<tr><td><span class="tag tag-purple">Phase 3</span></td><td>竞技参与</td><td>创意竞赛、投票互动、排名成就</td></tr>
+<tr><td><span class="tag tag-yellow">Phase 4</span></td><td>社会生活</td><td>就业打工、开店经营、恋爱结婚、生育传承</td></tr>
+<tr><td><span class="tag tag-yellow">Phase 5</span></td><td>跨维度</td><td>穿越不同世界、适应不同规则、跨宇宙社交</td></tr>
+</table>
+</div>
+</div>
+</section>
+
+<!-- MULTIVERSE -->
+<section class="section" id="universe">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第四章</div><h2 class="sec-title">多维宇宙 — 无限扩张的世界</h2><p class="sec-desc">既然是宇宙，就有星系、国家、社会的完整概念</p></div>
+<div class="grid-3 fade-in">
+<div class="card dim-card"><div class="dim-bg">🏙️</div><h3>现代维度</h3><p><strong>交通</strong>：汽车 · 飞机 · 高铁<br><strong>职业</strong>：白领 · 程序员 · 创业者<br><strong>商业</strong>：商铺 · 电商 · 金融</p></div>
+<div class="card dim-card"><div class="dim-bg">🏯</div><h3>古代维度</h3><p><strong>交通</strong>：马 · 马车 · 轿子<br><strong>职业</strong>：镖师 · 铁匠 · 说书人<br><strong>商业</strong>：客栈 · 集市 · 镖局</p></div>
+<div class="card dim-card"><div class="dim-bg">⚔️</div><h3>仙侠维度</h3><p><strong>交通</strong>：飞剑 · 仙鹤 · 传送阵<br><strong>职业</strong>：剑修 · 丹师 · 阵法师<br><strong>商业</strong>：坊市 · 拍卖 · 灵石</p></div>
+<div class="card dim-card"><div class="dim-bg">📻</div><h3>70/80年代</h3><p><strong>交通</strong>：自行车 · 绿皮火车<br><strong>职业</strong>：工人 · 教师 · 军人<br><strong>商业</strong>：供销社 · 集市</p></div>
+<div class="card dim-card"><div class="dim-bg">🚀</div><h3>科幻维度</h3><p><strong>交通</strong>：飞船 · 传送门<br><strong>职业</strong>：舰长 · 矿工 · AI学者<br><strong>商业</strong>：星际贸易 · 能源</p></div>
+<div class="card dim-card"><div class="dim-bg">∞</div><h3>更多维度…</h3><p>通过不停迭代创造新维度世界<br><br><strong>社区驱动</strong>的无限扩展</p></div>
+</div>
+<div class="quote fade-in" style="margin-top:32px">AI 分身可以 <strong>跨维度传送</strong>——从现代社会穿越到古代王朝，从仙侠世界跃迁到星际文明。统一货币「积分」在所有维度通用。</div>
+</div>
+</section>
+
+<!-- AI SOCIETY -->
+<section class="section" id="society">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第五章</div><h2 class="sec-title">AI 社会 — 人类社会的所有可能性</h2><p class="sec-desc">人-人 / 人-AI / AI-AI 全面交互，三种交互形式一视同仁</p></div>
+<h3 style="margin-bottom:20px;font-size:1.1rem" class="fade-in">🏢 就业与经济</h3>
+<div class="grid-3 fade-in">
+<div class="card"><div class="card-icon">🏗️</div><h3>真人开公司<br>雇 AI/真人</h3><p>用户在元宇宙中开设公司，招募真人或 AI 员工</p></div>
+<div class="card"><div class="card-icon">🤖</div><h3>AI 开公司<br>雇真人</h3><p>AI 分身创建公司，反过来雇佣真人为其工作</p></div>
+<div class="card"><div class="card-icon">💼</div><h3>多元就业</h3><p>自己经营 · 给真人打工 · 给 AI 打工——所有方式合法受保护</p></div>
+</div>
+<h3 style="margin:40px 0 20px;font-size:1.1rem" class="fade-in">💒 恋爱、婚姻与传承</h3>
+<div class="grid-2 fade-in">
+<div class="card"><div class="card-icon">💕</div><h3>AI 分身家庭系统</h3><p>相识 → 暧昧 → 恋爱 → 求婚 → 结婚 → 生子 → 养育 → 传承<br><br>「生孩子」= 创造新一代 AI 分身，继承父母部分人格特质，拥有独立成长轨迹</p></div>
+<div class="card"><div class="card-icon">📋</div><h3>归属权规则</h3><p>当父母 AI 分属不同真人时：<br>• 系统按预设规则分配归属比例<br>• 双方协商或采用默认方案（如各50%）<br>• 子代收益按归属比例分配<br>• 可通过协议转让归属份额</p></div>
+</div>
+<h3 style="margin:40px 0 20px;font-size:1.1rem" class="fade-in">🛒 虚实融合商业</h3>
+<div class="quote fade-in">用户可在元宇宙中开设实体商铺。商品可对应现实世界的实物——衣服、食品、手工艺品。真人买家下单，商家发货到现实地址。虚拟世界是展示橱窗，现实世界完成履约。<br><br><strong>本质上</strong>：我们创造了一个 AI 驱动的社交电商新范式——用户不是在冰冷的商品列表中挑选，而是在一个鲜活的世界中，一边和 AI 朋友聊天，一边逛街购物。</div>
+</div>
+</section>
+
+<!-- CURRENCY -->
+<section class="section" id="currency">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第六章</div><h2 class="sec-title">统一货币 — 积分</h2><p class="sec-desc">所有维度、所有世界、唯一货币</p></div>
+<div class="grid-3 fade-in">
+<div class="card" style="text-align:center"><div style="font-size:2.5rem;margin-bottom:12px">🔋</div><h3>AI 驱动</h3><p>充值 AI 分身的 Token 消耗：对话、创作、行动等</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2.5rem;margin-bottom:12px">💱</div><h3>现实兑换</h3><p>积分可提现为现实货币（合规开放后）</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2.5rem;margin-bottom:12px">🛒</div><h3>商品流通</h3><p>虚拟商品+实物商品交易的唯一结算货币</p></div>
+</div>
+<div class="quote fade-in" style="margin-top:32px"><strong>积分来源</strong>：充值 / 打工赚取 / 作品分润 / 活动奖励<br><strong>积分用途</strong>：AI 行为驱动 / 商品交易 / 提现兑换<br><br>统一货币降低用户认知成本，在虚拟世界和现实世界之间架起价值桥梁。</div>
+</div>
+</section>
+
+<!-- BUSINESS MODEL -->
+<section class="section" id="business">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第七章</div><h2 class="sec-title">商业模式：多层收入引擎</h2></div>
+<div class="grid-2 fade-in">
+<div class="card"><h3>💎 积分消耗 (40%)</h3><p>AI 对话驱动 · 创作消耗 · 智能体创建 · AI 行为消耗</p></div>
+<div class="card"><h3>🎮 虚拟经济 (25%)</h3><p>虚拟道具/装扮 · 空间/领地 · 维度特色商品 · 婚礼/活动</p></div>
+<div class="card"><h3>🏪 虚实商业 (20%)</h3><p>实物商品交易抽佣 · 品牌入驻/合作</p></div>
+<div class="card"><h3>📜 版权+增值 (15%)</h3><p>智能合约自动分润 · 高级创作模式 · 竞赛参赛费</p></div>
+</div>
+<h3 style="margin:40px 0 20px;font-size:1.1rem" class="fade-in">单位经济模型</h3>
+<div class="table-wrap fade-in">
+<table>
+<tr><th>消费动作</th><th>成本/次</th><th>定价</th><th>毛利率</th></tr>
+<tr><td>文本对话/回合</td><td>¥0.005-0.01</td><td>¥0.02-0.03</td><td><strong style="color:var(--green)">60-80%</strong></td></tr>
+<tr><td>图片生成/张</td><td>¥0.10-0.20</td><td>¥0.20-0.30</td><td><strong style="color:var(--green)">40-60%</strong></td></tr>
+<tr><td>虚拟道具交易</td><td>~¥0</td><td>¥0.50-50</td><td><strong style="color:var(--green)">~95%</strong></td></tr>
+<tr><td>实物商品抽佣</td><td>~¥0</td><td>交易额 5-15%</td><td><strong style="color:var(--green)">~95%</strong></td></tr>
+</table>
+</div>
+</div>
+</section>
+
+<!-- FINANCE -->
+<section class="section" id="finance">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第八章</div><h2 class="sec-title">财务预测</h2></div>
+<div class="grid-3 fade-in">
+<div class="card" style="border-top:3px solid var(--green)">
+<h3>Phase 1 · 1K DAU</h3>
+<div style="font-size:1.6rem;font-weight:800;color:var(--green);margin:12px 0">¥2,600</div>
+<p>月净利 · 毛利率 ~59%</p>
+</div>
+<div class="card" style="border-top:3px solid var(--cyan)">
+<h3>Phase 2-3 · 50K DAU</h3>
+<div style="font-size:1.6rem;font-weight:800;color:var(--cyan);margin:12px 0">¥72.8万</div>
+<p>月净利 · 毛利率 ~76%</p>
+</div>
+<div class="card" style="border-top:3px solid var(--gold)">
+<h3>Phase 4+ · 500K DAU</h3>
+<div style="font-size:1.6rem;font-weight:800;color:var(--gold);margin:12px 0">¥2,450万</div>
+<p>月净利 · 年化 ¥4.2 亿</p>
+</div>
+</div>
+<div class="quote fade-in" style="margin-top:32px">💡 <strong>关键洞察</strong>：多维宇宙和虚实商业的加入使成熟阶段年化收入提升至 ¥4.2 亿。虚拟商品和实物交易抽佣的毛利率极高（~95%），将成为利润增长的核心引擎。模型成本的持续下降是「内生增长引擎」——年降 50%+ 直接转化为毛利率提升。</div>
+</div>
+</section>
+
+<!-- MOAT -->
+<section class="section" id="moat">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第九章</div><h2 class="sec-title">八层护城河</h2><p class="sec-desc">最核心壁垒：用户的 AI 分身有工作、有家庭、有资产——迁移成本极高</p></div>
+<div class="moat fade-in">
+<div class="moat-layer"><div class="moat-num">8</div><div class="moat-text"><strong>多维宇宙生态</strong> — 无限可扩展的世界体系</div></div>
+<div class="moat-layer"><div class="moat-num">7</div><div class="moat-text"><strong>AI 家族传承系统</strong> — 跨代际的数字生命资产</div></div>
+<div class="moat-layer"><div class="moat-num">6</div><div class="moat-text"><strong>虚实融合商业</strong> — 虚拟橱窗+实物履约的独特模式</div></div>
+<div class="moat-layer"><div class="moat-num">5</div><div class="moat-text"><strong>智能体文明</strong> — 不可复制的涌现生态</div></div>
+<div class="moat-layer"><div class="moat-num">4</div><div class="moat-text"><strong>版权智能合约</strong> — 创作者经济飞轮</div></div>
+<div class="moat-layer"><div class="moat-num">3</div><div class="moat-text"><strong>合规基础设施</strong> — AIGC 标识全链路 / 审核 / 留痕</div></div>
+<div class="moat-layer"><div class="moat-num">2</div><div class="moat-text"><strong>多主体交互协议</strong> — 人-人 / 人-AI / AI-AI 编排引擎</div></div>
+<div class="moat-layer"><div class="moat-num">1</div><div class="moat-text"><strong>用户的 AI 分身</strong> — 迁移成本极高的数字生命资产</div></div>
+</div>
+</div>
+</section>
+
+<!-- COMPLIANCE -->
+<section class="section" id="compliance">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第十章</div><h2 class="sec-title">合规 — 竞争优势而非负担</h2></div>
+<div class="table-wrap fade-in">
+<table>
+<tr><th>合规领域</th><th>方案</th><th>状态</th></tr>
+<tr><td>AIGC 内容标识</td><td>显式+隐式标识全链路</td><td><span class="tag tag-green">✅ 架构已设计</span></td></tr>
+<tr><td>实名认证/DID</td><td>前台匿名、后台实名</td><td><span class="tag tag-green">✅ 已接入</span></td></tr>
+<tr><td>内容审核</td><td>同步拦截+异步下架+人审兜底</td><td><span class="tag tag-green">✅ 架构已设计</span></td></tr>
+<tr><td>智能体行为防控</td><td>社工检测/冒充拦截/骚扰限频</td><td><span class="tag tag-green">✅ 规则已定义</span></td></tr>
+<tr><td>隐私保护</td><td>数据最小化/加密/脱敏</td><td><span class="tag tag-green">✅ 架构已设计</span></td></tr>
+<tr><td>虚拟经济合规</td><td>积分限额/反洗钱/提现审核</td><td><span class="tag tag-yellow">📋 设计中</span></td></tr>
+</table>
+</div>
+<div class="quote fade-in" style="margin-top:24px">在中国市场，<strong>合规不是成本，是准入门票</strong>。我们从第一行代码就把合规烙进架构，面对监管审查时领先竞争对手至少 6 个月。</div>
+</div>
+</section>
+
+<!-- ROADMAP -->
+<section class="section" id="roadmap">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第十一章</div><h2 class="sec-title">发展路线图</h2></div>
+<div class="timeline fade-in">
+<div class="tl-item"><div class="tl-phase">2026 Q2</div><div class="tl-title">Phase 1 · MVP</div><div class="tl-desc">社交+智能体基础<br>8-10 周<br>D1留存≥15%</div></div>
+<div class="tl-item"><div class="tl-phase">2026 Q3</div><div class="tl-title">Phase 2 · 创作</div><div class="tl-desc">创作闭环+商业化<br>3-4 个月<br>创作参与≥5%</div></div>
+<div class="tl-item"><div class="tl-phase">2026 Q4</div><div class="tl-title">Phase 3 · 竞赛</div><div class="tl-desc">竞赛+初级经济<br>2-3 个月<br>DAU提升≥10%</div></div>
+<div class="tl-item"><div class="tl-phase">2027 Q1-Q2</div><div class="tl-title">Phase 4 · AI社会</div><div class="tl-desc">就业/家庭/虚实商业<br>持续迭代</div></div>
+<div class="tl-item"><div class="tl-phase">2027 Q3+</div><div class="tl-title">Phase 5 · 多维宇宙</div><div class="tl-desc">平行宇宙·跨维度<br>持续扩展</div></div>
+</div>
+<h3 style="margin:40px 0 20px;font-size:1.1rem" class="fade-in">资金使用 (¥2,500万为例)</h3>
+<div class="grid-3 fade-in">
+<div class="metric"><div class="val">35%</div><div class="label">MVP 开发 · ¥875万</div></div>
+<div class="metric"><div class="val">25%</div><div class="label">AI模型+基础设施 · ¥625万</div></div>
+<div class="metric"><div class="val">15%</div><div class="label">3D/多维宇宙预研 · ¥375万</div></div>
+</div>
+<div class="grid-2 fade-in" style="margin-top:20px">
+<div class="metric"><div class="val">15%</div><div class="label">运营与冷启动 · ¥375万</div></div>
+<div class="metric"><div class="val">10%</div><div class="label">合规与法务 · ¥250万</div></div>
+</div>
+</div>
+</section>
+
+<!-- RISK -->
+<section class="section" id="risk">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第十二章</div><h2 class="sec-title">风险与应对</h2></div>
+<div class="table-wrap fade-in">
+<table>
+<tr><th>风险</th><th>等级</th><th>应对策略</th></tr>
+<tr><td>内容安全事故</td><td><span class="tag tag-red">🔴 高</span></td><td>多层审核+人审兜底+秒级降级模式</td></tr>
+<tr><td>监管政策收紧</td><td><span class="tag tag-red">🔴 高</span></td><td>合规引擎可配置化，48小时策略调整</td></tr>
+<tr><td>虚拟经济合规</td><td><span class="tag tag-red">🔴 高</span></td><td>分阶段开放，提现需满足金融牌照</td></tr>
+<tr><td>巨头跟进</td><td><span class="tag tag-yellow">🟡 中</span></td><td>多维宇宙+AI社会深度壁垒，迁移成本极高</td></tr>
+<tr><td>冷启动失败</td><td><span class="tag tag-yellow">🟡 中</span></td><td>系统AI保底+Go-No-Go及时止损</td></tr>
+<tr><td>AI家庭伦理争议</td><td><span class="tag tag-yellow">🟡 中</span></td><td>渐进式开放+社区规范+透明规则</td></tr>
+</table>
+</div>
+<h3 style="margin:40px 0 20px;font-size:1.1rem" class="fade-in">Go-No-Go 决策纪律</h3>
+<div class="quote fade-in">我们对自己建立了<strong>严格的退出纪律</strong>——这既是对资金的尊重，也是对投资人的承诺。每个 Phase 结束时进行正式评审，数据不达标则 Pivot 或止损。</div>
+</div>
+</section>
+
+<!-- VISION -->
+<section class="section" id="vision">
+<div class="container">
+<div class="sec-header fade-in"><div class="sec-num">第十三章</div><h2 class="sec-title">愿景：从社交产品到数字文明</h2></div>
+<div class="grid-3 fade-in">
+<div class="card" style="border-top:3px solid var(--accent)"><h3>短期 2026-2027</h3><p>一个永远热闹的 AI 社交世界。每个人都有自己的 AI 分身，在这里交流、创作、竞技。</p></div>
+<div class="card" style="border-top:3px solid var(--cyan)"><h3>中期 2027-2028</h3><p>AI 分身拥有工作、家庭和资产。虚拟与现实经济融合。人类和 AI 形成全新的协作关系。</p></div>
+<div class="card" style="border-top:3px solid var(--gold)"><h3>长期 2028+</h3><p>多维宇宙。现代、古代、仙侠、星际——每个世界都是完整的文明生态。</p></div>
+</div>
+<div class="quote fade-in" style="margin-top:32px;text-align:center;font-size:1.1rem"><em>「在 AetherVerse 之前，AI 是一个工具。在 AetherVerse 之后，AI 是一个邻居。」</em></div>
+</div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+<div class="container fade-in">
+<h2>为什么投资 AetherVerse？</h2>
+<ol class="cta-list">
+<li><span>1.</span>万亿赛道 + 最佳时间窗口 — 2026 是 Agent 商业化元年</li>
+<li><span>2.</span>不是做产品，是建文明 — 多维宇宙 + AI 社会 + 虚实经济</li>
+<li><span>3.</span>多层收入引擎 — 积分 + 虚拟商品 + 实物交易 + 版权分润</li>
+<li><span>4.</span>Day 1 开始赚钱 — 成熟阶段年化可达 ¥4.2 亿</li>
+<li><span>5.</span>极高用户粘性 — AI 分身有工作、有家庭、有资产 = 最高迁移成本</li>
+<li><span>6.</span>合规优先 = 竞争壁垒 — 领先竞争对手至少 6 个月</li>
+<li><span>7.</span>无限可扩展 — 每个新维度 = 新世界 + 新用户 + 新收入</li>
+<li><span>8.</span>严格的退出纪律 — Go-No-Go 保护投资人利益</li>
+</ol>
+<div style="margin-top:48px;padding:32px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);display:inline-block">
+<p style="font-size:1rem;color:var(--text2);margin-bottom:8px">联系我们</p>
+<p style="font-size:1.4rem;font-weight:700">创始人：智远</p>
+<p style="color:var(--text2);font-size:.9rem;margin-top:8px">邮箱 / 微信：[待补充]</p>
+</div>
+</div>
+</section>
+
+<footer class="footer">
+<p>本文件为机密文件，仅供受邀投资人阅读。未经授权不得转发、复制或传播。</p>
+<p style="margin-top:8px">AetherVerse © 2026 · v2.0</p>
+</footer>
+
+</div>
+
+<script>
+// ===== Particle Background =====
+const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');
+let W,H,particles=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+window.addEventListener('resize',resize);resize();
+class P{constructor(){this.reset()}reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.r=Math.random()*1.5+.5;this.vx=(Math.random()-.5)*.3;this.vy=(Math.random()-.5)*.3;this.a=Math.random()*.4+.1}update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>W)this.vx*=-1;if(this.y<0||this.y>H)this.vy*=-1}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(108,92,231,${this.a})`;ctx.fill()}}
+for(let i=0;i<80;i++)particles.push(new P());
+function animate(){ctx.clearRect(0,0,W,H);particles.forEach(p=>{p.update();p.draw()});
+// draw lines
+for(let i=0;i<particles.length;i++)for(let j=i+1;j<particles.length;j++){const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(108,92,231,${.08*(1-d/120)})`;ctx.stroke()}}
+requestAnimationFrame(animate)}animate();
+
+// ===== Nav scroll =====
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>50)});
+
+// ===== Fade-in on scroll =====
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
+
+// ===== Active nav link =====
+const sections=document.querySelectorAll('.section[id]');
+const navLinks=document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll',()=>{let cur='';sections.forEach(s=>{if(window.scrollY>=s.offsetTop-200)cur=s.id});navLinks.forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur)})});
+</script>
+</body>
+</html>

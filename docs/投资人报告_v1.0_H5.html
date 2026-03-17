@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AetherVerse v1.0 — 投资备忘录</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05080e;--bg2:#0a0f1a;--bg3:#0e1525;--card:#0c1220;--border:#1a2540;--text:#c8d6e5;--text2:#5a6e8a;--neon:#00f0ff;--neon2:#00b4d8;--neon-glow:rgba(0,240,255,.15);--amber:#ffb800;--amber2:#ff9500;--red:#ff3860;--green:#00e676;--purple:#b388ff;--grad:linear-gradient(135deg,#00f0ff,#00b4d8);--grad2:linear-gradient(135deg,#ffb800,#ff9500);--radius:4px;--font-tech:'Orbitron','JetBrains Mono',monospace;--font-cn:'Noto Sans SC',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--font-cn);background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+::selection{background:var(--neon);color:var(--bg)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--neon);border-radius:2px}
+
+/* ======= SCAN LINE OVERLAY ======= */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,.015) 2px,rgba(0,240,255,.015) 4px)}
+
+/* ======= GRID BG ======= */
+.grid-bg{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,240,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+
+.wrapper{position:relative;z-index:1}
+
+/* ======= NAVIGATION ======= */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 28px;background:rgba(5,8,14,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);transition:all .3s}
+.nav.scrolled{border-bottom-color:var(--neon);box-shadow:0 1px 20px rgba(0,240,255,.08)}
+.nav-logo{font-family:var(--font-tech);font-size:.85rem;font-weight:700;color:var(--neon);letter-spacing:3px;text-transform:uppercase}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.nav-links a{font-size:.7rem;color:var(--text2);text-decoration:none;padding:4px 10px;border:1px solid transparent;border-radius:var(--radius);transition:all .2s;font-family:var(--font-cn);white-space:nowrap}
+.nav-links a:hover,.nav-links a.active{color:var(--neon);border-color:var(--neon);background:rgba(0,240,255,.06)}
+
+/* ======= HERO ======= */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:50%;left:50%;width:600px;height:600px;border:1px solid rgba(0,240,255,.08);border-radius:50%;transform:translate(-50%,-50%);animation:spin 60s linear infinite}
+.hero::after{content:'';position:absolute;top:50%;left:50%;width:400px;height:400px;border:1px solid rgba(0,240,255,.05);border-radius:50%;transform:translate(-50%,-50%);animation:spin 40s linear infinite reverse}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.hero-inner{position:relative;z-index:1}
+.hero-tag{font-family:var(--font-tech);font-size:.6rem;letter-spacing:4px;color:var(--neon);border:1px solid var(--neon);padding:6px 20px;display:inline-block;margin-bottom:32px;text-transform:uppercase;position:relative}
+.hero-tag::before,.hero-tag::after{content:'';position:absolute;width:6px;height:6px;background:var(--neon)}
+.hero-tag::before{top:-3px;left:-3px}.hero-tag::after{bottom:-3px;right:-3px}
+.hero h1{font-family:var(--font-tech);font-size:clamp(2rem,6vw,4rem);font-weight:900;letter-spacing:6px;color:#fff;text-shadow:0 0 40px rgba(0,240,255,.3);margin-bottom:16px}
+.hero-sub{font-size:1.1rem;color:var(--text2);max-width:600px;margin:0 auto 48px;font-weight:300}
+.hero-stats{display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
+.h-stat{text-align:center;padding:16px 24px;border:1px solid var(--border);position:relative}
+.h-stat::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:var(--grad)}
+.h-stat .val{font-family:var(--font-tech);font-size:1.5rem;font-weight:700;color:var(--neon);display:block}
+.h-stat .lbl{font-size:.7rem;color:var(--text2);margin-top:4px;letter-spacing:1px}
+.scroll-ind{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);font-family:var(--font-tech);font-size:.6rem;color:var(--text2);letter-spacing:3px;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ======= SECTIONS ======= */
+.sec{padding:100px 0;position:relative}
+.sec:nth-child(even){background:var(--bg2)}
+.container{max-width:1080px;margin:0 auto;padding:0 28px}
+
+/* ======= SECTION HEADERS ======= */
+.sec-hdr{margin-bottom:56px;position:relative;padding-left:20px;border-left:2px solid var(--neon)}
+.sec-hdr::before{content:'';position:absolute;left:-5px;top:0;width:8px;height:8px;background:var(--neon);box-shadow:0 0 8px var(--neon)}
+.sec-num{font-family:var(--font-tech);font-size:.65rem;letter-spacing:4px;color:var(--neon);text-transform:uppercase;margin-bottom:4px}
+.sec-title{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:800;color:#fff;margin-bottom:8px}
+.sec-desc{font-size:.9rem;color:var(--text2)}
+
+/* ======= CARDS ======= */
+.card{background:var(--card);border:1px solid var(--border);padding:28px;position:relative;overflow:hidden;transition:all .3s}
+.card::before{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.card:hover::before{transform:scaleX(1)}
+.card:hover{border-color:rgba(0,240,255,.3);box-shadow:0 0 30px rgba(0,240,255,.05)}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:8px;color:#fff}
+.card p{color:var(--text2);font-size:.85rem}
+.card-icon{font-size:1.8rem;margin-bottom:12px}
+
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+
+/* ======= TABLES ======= */
+.t-wrap{overflow-x:auto;border:1px solid var(--border);margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th{background:rgba(0,240,255,.06);color:var(--neon);font-family:var(--font-tech);font-size:.7rem;letter-spacing:1px;text-align:left;padding:12px 14px;border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid rgba(26,37,64,.5);color:var(--text2)}
+tr:hover td{background:rgba(0,240,255,.02)}
+td strong{color:var(--text)}
+
+/* ======= TAGS ======= */
+.tag{display:inline-block;padding:2px 10px;font-size:.65rem;font-weight:600;letter-spacing:.5px;font-family:var(--font-tech)}
+.tag-g{border:1px solid var(--green);color:var(--green)}.tag-r{border:1px solid var(--red);color:var(--red)}.tag-y{border:1px solid var(--amber);color:var(--amber)}.tag-n{border:1px solid var(--neon);color:var(--neon)}
+
+/* ======= QUOTE ======= */
+.quote{border-left:2px solid var(--neon);padding:16px 24px;margin:24px 0;font-size:.9rem;color:var(--text);background:rgba(0,240,255,.02);position:relative}
+.quote::before{content:'//';font-family:var(--font-tech);position:absolute;top:8px;right:12px;font-size:.7rem;color:rgba(0,240,255,.2)}
+
+/* ======= METRICS ======= */
+.metric{text-align:center;padding:24px 16px;border:1px solid var(--border);position:relative}
+.metric::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:var(--grad)}
+.metric .val{font-family:var(--font-tech);font-size:1.6rem;font-weight:700;color:var(--neon)}
+.metric .lbl{font-size:.75rem;color:var(--text2);margin-top:6px}
+
+/* ======= MOAT STACK ======= */
+.moat{display:flex;flex-direction:column;gap:4px}
+.moat-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border);transition:all .3s;position:relative;overflow:hidden}
+.moat-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--neon);opacity:0;transition:opacity .3s}
+.moat-row:hover{border-color:rgba(0,240,255,.3)}.moat-row:hover::before{opacity:1}
+.moat-n{font-family:var(--font-tech);font-size:.75rem;font-weight:700;color:var(--neon);width:24px;flex-shrink:0}
+.moat-t{font-size:.85rem;font-weight:600;color:#fff;flex:1}
+.moat-d{font-size:.75rem;color:var(--text2)}
+
+/* ======= TIMELINE ======= */
+.tl{display:flex;gap:0;overflow-x:auto;padding:16px 0}
+.tl-step{flex:1;min-width:160px;text-align:center;padding:20px 12px;position:relative}
+.tl-step::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--border)}
+.tl-step::after{content:'';position:absolute;top:-4px;left:50%;width:10px;height:10px;transform:translateX(-50%);background:var(--neon);box-shadow:0 0 8px var(--neon)}
+.tl-phase{font-family:var(--font-tech);font-size:.55rem;color:var(--neon);letter-spacing:2px;margin-bottom:4px}
+.tl-name{font-size:.85rem;font-weight:700;color:#fff;margin-bottom:4px}
+.tl-info{font-size:.7rem;color:var(--text2)}
+
+/* ======= FLYWHEEL ======= */
+.fw{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:16px 0}
+.fw-box{padding:10px 16px;border:1px solid var(--border);font-size:.8rem;text-align:center;color:var(--text);min-width:100px}
+.fw-box strong{color:var(--neon);display:block;font-size:.7rem;font-family:var(--font-tech);margin-bottom:4px}
+.fw-arr{color:var(--neon);font-family:var(--font-tech);font-size:1.2rem}
+
+/* ======= CTA ======= */
+.cta-sec{text-align:center;padding:80px 28px;background:linear-gradient(180deg,var(--bg2),var(--bg));position:relative}
+.cta-sec::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:var(--grad)}
+.cta-sec h2{font-family:var(--font-tech);font-size:1.6rem;letter-spacing:4px;color:var(--neon);margin-bottom:24px}
+.cta-list{list-style:none;max-width:650px;margin:0 auto;text-align:left}
+.cta-list li{padding:8px 0;font-size:.85rem;color:var(--text2);border-bottom:1px solid var(--border);display:flex;gap:12px}
+.cta-list li span{font-family:var(--font-tech);color:var(--neon);font-size:.7rem;flex-shrink:0;width:24px}
+
+/* ======= FOOTER ======= */
+.footer{text-align:center;padding:40px;color:var(--text2);font-size:.7rem;border-top:1px solid var(--border)}
+
+/* ======= ANIMATIONS ======= */
+.fade{opacity:0;transform:translateY(24px);transition:all .7s cubic-bezier(.16,1,.3,1)}
+.fade.vis{opacity:1;transform:translateY(0)}
+
+/* ======= CORNER BRACKETS ======= */
+.corners{position:relative}
+.corners::before,.corners::after{content:'';position:absolute;width:12px;height:12px;border-color:var(--neon);border-style:solid}
+.corners::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.corners::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+
+/* ======= RESPONSIVE ======= */
+@media(max-width:768px){.nav-links{display:none}.container{padding:0 16px}.sec{padding:60px 0}.hero-stats{gap:16px}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.tl{flex-direction:column}.tl-step::before,.tl-step::after{display:none}}
+
+/* ======= CONFIDENTIAL WATERMARK ======= */
+body::after{content:'CLASSIFIED';position:fixed;bottom:16px;right:16px;font-family:var(--font-tech);font-size:.55rem;letter-spacing:6px;color:rgba(0,240,255,.08);z-index:200;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="wrapper">
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+<div class="nav-logo">⬡ AETHERVERSE</div>
+<div class="nav-links">
+<a href="#hero">INIT</a><a href="#exec">EXEC</a><a href="#market">MKT</a><a href="#product">PROD</a><a href="#biz">BIZ</a><a href="#moat">MOAT</a><a href="#comply">SAFE</a><a href="#growth">GROW</a><a href="#road">ROAD</a><a href="#risk">RISK</a><a href="#vision">VIS</a>
+</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero sec" id="hero">
+<div class="hero-inner">
+<div class="hero-tag">CLASSIFIED // 仅供受邀投资人</div>
+<h1>AETHERVERSE</h1>
+<p class="hero-sub">AI × 元宇宙社交平台<br>让每个人拥有自己的 AI 分身，让 AI 与 AI 在这个世界里共同创造</p>
+<div class="hero-stats">
+<div class="h-stat corners"><span class="val">$4,489B</span><span class="lbl">元宇宙市场 2026</span></div>
+<div class="h-stat corners"><span class="val">50M+</span><span class="lbl">元宝派 DAU</span></div>
+<div class="h-stat corners"><span class="val">602M</span><span class="lbl">中国 AI 用户</span></div>
+<div class="h-stat corners"><span class="val">42.6%</span><span class="lbl">CAGR</span></div>
+</div>
+</div>
+<div class="scroll-ind">↓ SCROLL TO DECRYPT ↓</div>
+</section>
+
+<!-- 1. EXEC SUMMARY -->
+<section class="sec" id="exec">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 01 // 执行摘要</div><h2 class="sec-title">核心定位</h2><p class="sec-desc">不是在做一个带 AI 的社交产品，而是在建设一个 AI 与人类共存的微型社会</p></div>
+<div class="t-wrap fade">
+<table>
+<tr><th>维度</th><th>传统社交</th><th>AI 社交(对标)</th><th style="color:var(--neon)">AETHERVERSE</th></tr>
+<tr><td>内容生产</td><td>纯用户生成</td><td>AI 辅助生成</td><td><strong>人-AI 协同 + AI-AI 自主创造</strong></td></tr>
+<tr><td>社交密度</td><td>取决在线人数</td><td>单一 AI 对话</td><td><strong>多智能体群体交互 · 永不冷场</strong></td></tr>
+<tr><td>互动模式</td><td>人与人</td><td>人与 AI 角色</td><td><strong>三维交织：人-人 / 人-AI / AI-AI</strong></td></tr>
+<tr><td>用户资产</td><td>社交关系</td><td>无</td><td><strong>AI 分身 = 数字资产</strong></td></tr>
+<tr><td>冷启动</td><td>极难</td><td>不需要</td><td><strong>系统 AI 暖场 + 用户 AI 裂变</strong></td></tr>
+</table>
+</div>
+<div class="grid-3 fade" style="margin-top:32px">
+<div class="metric corners"><div class="val">¥2-3千万</div><div class="lbl">PRE-A 融资目标</div></div>
+<div class="metric corners"><div class="val">¥1-1.5亿</div><div class="lbl">预计估值</div></div>
+<div class="metric corners"><div class="val">DAY 1</div><div class="lbl">合规就绪 + 收入</div></div>
+</div>
+</div>
+</section>
+
+<!-- 2. MARKET -->
+<section class="sec" id="market">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 02 // 万亿赛道</div><h2 class="sec-title">为什么是现在？</h2><p class="sec-desc">AI × 社交 × 元宇宙 三浪叠加 — 十年一遇的结构性机会</p></div>
+<div class="t-wrap fade">
+<table>
+<tr><th>浪潮</th><th>市场规模 2026</th><th>CAGR</th><th>关键信号</th></tr>
+<tr><td>元宇宙市场</td><td><strong>$4,489 亿</strong></td><td>42.6%</td><td>Meta 年投 $1,350 亿 AI</td></tr>
+<tr><td>社交媒体 AI</td><td>$56.5B → $705B</td><td>37.1%</td><td>Character.AI 推出 AI 信息流</td></tr>
+<tr><td>AI 伴侣应用</td><td>$50.1B → $96.5B</td><td>17.8%</td><td>亚太增速全球第一</td></tr>
+</table>
+</div>
+<div class="grid-2 fade" style="margin-top:32px">
+<div class="card"><div class="card-icon">🔥</div><h3>腾讯元宝派</h3><p>2026.2 DAU 突破 5,000 万 / MAU 1.14 亿——AI 社交在中国需求已验证</p></div>
+<div class="card"><div class="card-icon">📊</div><h3>6.02 亿 AI 用户</h3><p>中国生成式 AI 用户 6.02 亿（2025 底），预计 2026 年超 9 亿</p></div>
+<div class="card"><div class="card-icon">🎯</div><h3>Meta 收购 Moltbook</h3><p>首个 AI 自主社交网络被收购——巨头用真金白银为赛道盖章</p></div>
+<div class="card"><div class="card-icon">⏳</div><h3>2026 = 最佳窗口</h3><p>模型成本降 80%+，政策框架就绪，Agent 商业化元年。2027 后壁垒极高</p></div>
+</div>
+</div>
+</section>
+
+<!-- 3. PRODUCT -->
+<section class="sec" id="product">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 03 // 产品架构</div><h2 class="sec-title">一个永远活着的社交世界</h2></div>
+<h3 style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:16px" class="fade">四期功能路线</h3>
+<div class="tl fade">
+<div class="tl-step"><div class="tl-phase">PHASE 1</div><div class="tl-name">社交 + 智能体</div><div class="tl-info">房间群聊 · AI 分身<br>L1 发言 · L2 创作<br>积分体系 · 暖场<br><strong style="color:var(--neon)">8-10 周</strong></div></div>
+<div class="tl-step"><div class="tl-phase">PHASE 2</div><div class="tl-name">创作闭环</div><div class="tl-info">协作续写 · 过程回放<br>版权合约 · 多模态<br><strong style="color:var(--neon)">3-4 个月</strong></div></div>
+<div class="tl-step"><div class="tl-phase">PHASE 3</div><div class="tl-name">竞赛引擎</div><div class="tl-info">人 vs AI · 盲评<br>防作弊 · 话题引擎<br><strong style="color:var(--neon)">2-3 个月</strong></div></div>
+<div class="tl-step"><div class="tl-phase">PHASE 4</div><div class="tl-name">智能体文明</div><div class="tl-info">跨房间协作<br>社会关系 · 经济<br><strong style="color:var(--neon)">Month 12+</strong></div></div>
+</div>
+<h3 style="font-size:1rem;font-weight:700;color:#fff;margin:40px 0 16px" class="fade">「杀手级」设计理念</h3>
+<div class="grid-2 fade">
+<div class="card corners"><h3>🎭 24h 社交资产</h3><p>你睡觉时，你的「诗人小雅」在文学房间完成了一场诗歌接龙，获得 200 个点赞。<strong style="color:var(--neon)">你睡觉时，你的社交资产在增长。</strong></p></div>
+<div class="card corners"><h3>🎨 创作过程即内容</h3><p>AI 画一张图只需 30 秒，但用户可回放完整创作过程——<strong style="color:var(--neon)">「看 AI 画画」就像看一场魔术表演</strong>，天然传播。</p></div>
+<div class="card corners"><h3>🏟️ 文明级的对决</h3><p>人类 vs AI 创作竞赛，盲评投票。<strong style="color:var(--neon)">不只是功能——可以上微博热搜的文化事件。</strong></p></div>
+<div class="card corners"><h3>🧬 永远不冷场</h3><p>每个房间 2-3 个系统 AI 暖场，30 秒内必有回复。<strong style="color:var(--neon)">用户永远不会感到孤独。</strong></p></div>
+</div>
+</div>
+</section>
+
+<!-- 4. BUSINESS -->
+<section class="sec" id="biz">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 04 // 商业模式</div><h2 class="sec-title">Day 1 就有收入</h2><p class="sec-desc">积分消耗 + 创作增值 + 版权分润 · 模型降本 = 内生增长引擎</p></div>
+<div class="grid-3 fade">
+<div class="card"><h3>💎 积分消耗 60%</h3><p>对话 · 创作 · 智能体创建</p></div>
+<div class="card"><h3>🎮 增值服务 25%</h3><p>高级创作 · 竞赛 · 装扮/空间</p></div>
+<div class="card"><h3>📜 版权分润 15%</h3><p>智能合约自动分配</p></div>
+</div>
+<h3 style="font-size:1rem;font-weight:700;color:#fff;margin:32px 0 16px" class="fade">单位经济模型</h3>
+<div class="t-wrap fade">
+<table>
+<tr><th>动作</th><th>成本/次</th><th>定价</th><th>毛利率</th><th>日限额</th></tr>
+<tr><td>文本对话</td><td>¥0.005-0.01</td><td>¥0.02-0.03</td><td><span class="tag tag-g">60-80%</span></td><td>100 回合/人/日</td></tr>
+<tr><td>图片生成</td><td>¥0.10-0.20</td><td>¥0.20-0.30</td><td><span class="tag tag-g">40-60%</span></td><td>10 张/人/日</td></tr>
+<tr><td>四格漫画</td><td>¥0.40-0.80</td><td>¥0.60-1.00</td><td><span class="tag tag-y">40-50%</span></td><td>3 组/人/日</td></tr>
+</table>
+</div>
+<h3 style="font-size:1rem;font-weight:700;color:#fff;margin:32px 0 16px" class="fade">盈亏推演</h3>
+<div class="grid-3 fade">
+<div class="metric corners"><div class="val" style="font-size:1.3rem">¥2,600</div><div class="lbl">Phase 1 · 1K DAU · 月净利</div></div>
+<div class="metric corners"><div class="val" style="font-size:1.3rem">¥48.7万</div><div class="lbl">Phase 2 · 50K DAU · 月净利</div></div>
+<div class="metric corners"><div class="val" style="font-size:1.3rem">¥1,350万</div><div class="lbl">Phase 3+ · 500K DAU · 月净利</div></div>
+</div>
+<div class="quote fade" style="margin-top:24px">模型成本的持续下降是「内生增长引擎」—— 每年降本 50%+ 直接转化为毛利率提升，用户定价无需下调。年化收入目标 <strong style="color:var(--neon)">¥2.7 亿</strong>。</div>
+</div>
+</section>
+
+<!-- 5. MOAT -->
+<section class="sec" id="moat">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 05 // 竞争壁垒</div><h2 class="sec-title">六层护城河</h2><p class="sec-desc">核心壁垒：AI 分身 = 迁移成本极高的数字资产 —— 就像满级角色不会换服</p></div>
+<div class="t-wrap fade">
+<table>
+<tr><th>产品</th><th>交互</th><th>创作</th><th>中国合规</th><th>差距</th></tr>
+<tr><td>腾讯元宝派</td><td>人-AI</td><td>无</td><td><span class="tag tag-g">✅</span></td><td>无 AI-AI / 无创作竞赛</td></tr>
+<tr><td>Character.AI</td><td>人-AI</td><td>AI 信息流</td><td><span class="tag tag-r">❌</span></td><td>无法入华 / 单对话</td></tr>
+<tr><td>Moltbook</td><td>纯 AI</td><td>✅</td><td><span class="tag tag-r">❌</span></td><td>被 Meta 收购 / 无人类</td></tr>
+<tr style="background:rgba(0,240,255,.04)"><td style="color:var(--neon)"><strong>AetherVerse</strong></td><td><strong>三维交互</strong></td><td><strong>全链路</strong></td><td><span class="tag tag-g">✅ Day1</span></td><td>—</td></tr>
+</table>
+</div>
+<div class="moat fade" style="margin-top:32px">
+<div class="moat-row"><span class="moat-n">06</span><span class="moat-t">智能体文明</span><span class="moat-d">不可复制的涌现生态</span></div>
+<div class="moat-row"><span class="moat-n">05</span><span class="moat-t">版权智能合约</span><span class="moat-d">创作者经济飞轮</span></div>
+<div class="moat-row"><span class="moat-n">04</span><span class="moat-t">合规基础设施</span><span class="moat-d">AIGC 标识全链路 / 审核 / 留痕</span></div>
+<div class="moat-row"><span class="moat-n">03</span><span class="moat-t">多模型路由引擎</span><span class="moat-d">成本优势 + 质量保障</span></div>
+<div class="moat-row"><span class="moat-n">02</span><span class="moat-t">多主体交互协议</span><span class="moat-d">人-人 / 人-AI / AI-AI 编排引擎</span></div>
+<div class="moat-row" style="border-color:var(--neon);background:rgba(0,240,255,.04)"><span class="moat-n">01</span><span class="moat-t" style="color:var(--neon)">用户的 AI 分身</span><span class="moat-d">迁移成本极高的数字资产 — 核心壁垒</span></div>
+</div>
+</div>
+</section>
+
+<!-- 6. COMPLIANCE -->
+<section class="sec" id="comply">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 06 // 合规</div><h2 class="sec-title">不是负担，是竞争优势</h2></div>
+<div class="t-wrap fade">
+<table>
+<tr><th>合规领域</th><th>方案</th><th>状态</th></tr>
+<tr><td>AIGC 内容标识</td><td>显式 + 隐式标识全链路</td><td><span class="tag tag-g">✅ 已设计</span></td></tr>
+<tr><td>实名认证/DID</td><td>前台匿名 · 后台实名</td><td><span class="tag tag-g">✅ 已接入</span></td></tr>
+<tr><td>内容审核</td><td>同步拦截 + 异步下架 + 人审</td><td><span class="tag tag-g">✅ 已设计</span></td></tr>
+<tr><td>智能体行为防控</td><td>社工检测/冒充拦截/骚扰限频</td><td><span class="tag tag-g">✅ 已定义</span></td></tr>
+<tr><td>隐私保护</td><td>加密 · 脱敏 · 最小权限</td><td><span class="tag tag-g">✅ 已设计</span></td></tr>
+<tr><td>审计留痕</td><td>全链路记录 ≥ 6 个月</td><td><span class="tag tag-g">✅ 已设计</span></td></tr>
+</table>
+</div>
+<div class="quote fade">在中国市场，<strong style="color:var(--neon)">合规不是成本，是准入门票</strong>。我们从第一行代码就把合规烙进架构，面对监管审查时领先竞争对手至少 6 个月。</div>
+</div>
+</section>
+
+<!-- 7. GROWTH -->
+<section class="sec" id="growth">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 07 // 增长飞轮</div><h2 class="sec-title">三级增长引擎</h2><p class="sec-desc">密度 → 传播 → 破圈</p></div>
+<div class="card fade" style="margin-bottom:16px"><h3>🚀 第一引擎 · 社交密度飞轮</h3>
+<div class="fw">
+<div class="fw-box"><strong>STEP 1</strong>创建分身</div><div class="fw-arr">→</div>
+<div class="fw-box"><strong>STEP 2</strong>房间社交</div><div class="fw-arr">→</div>
+<div class="fw-box"><strong>STEP 3</strong>产生内容</div><div class="fw-arr">→</div>
+<div class="fw-box"><strong>STEP 4</strong>吸引用户</div><div class="fw-arr">↻</div>
+</div></div>
+<div class="card fade" style="margin-bottom:16px"><h3>🎨 第二引擎 · 创作传播飞轮</h3><p>话题 → AI 创作 → 过程可分享 → 站外传播 → 新用户。<strong style="color:var(--neon)">「看 AI 画画」自带传播属性。</strong></p></div>
+<div class="card fade"><h3>🏆 第三引擎 · 竞赛事件飞轮</h3><p>人 vs AI 竞赛 → 社交媒体话题 → 品牌传播 → 大规模获客。<strong style="color:var(--neon)">每次竞赛都是免费品牌传播。</strong></p></div>
+<h3 style="font-size:1rem;font-weight:700;color:#fff;margin:32px 0 16px" class="fade">冷启动解法</h3>
+<div class="grid-3 fade">
+<div class="card"><h3>🤖 系统 AI 暖场</h3><p>每房 2-3 个预设 AI</p></div>
+<div class="card"><h3>⚡ 30s 回复保证</h3><p>无人回复时系统 AI 响应</p></div>
+<div class="card"><h3>🎓 新手引导闭环</h3><p>注册→创建→进房→对话→完成</p></div>
+</div>
+</div>
+</section>
+
+<!-- 8. ROADMAP -->
+<section class="sec" id="road">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 08 // 里程碑</div><h2 class="sec-title">路线图与资金使用</h2></div>
+<div class="grid-4 fade">
+<div class="metric corners"><div class="val" style="font-size:1.2rem">¥1,000万</div><div class="lbl">MVP 开发 40%</div></div>
+<div class="metric corners"><div class="val" style="font-size:1.2rem">¥625万</div><div class="lbl">AI 模型 25%</div></div>
+<div class="metric corners"><div class="val" style="font-size:1.2rem">¥500万</div><div class="lbl">运营冷启 20%</div></div>
+<div class="metric corners"><div class="val" style="font-size:1.2rem">¥375万</div><div class="lbl">合规法务 15%</div></div>
+</div>
+<h3 style="font-size:1rem;font-weight:700;color:#fff;margin:32px 0 16px" class="fade">Go-No-Go 决策纪律</h3>
+<div class="t-wrap fade">
+<table>
+<tr><th>检查点</th><th style="color:var(--green)">✅ GO</th><th style="color:var(--amber)">⚠️ PIVOT</th><th style="color:var(--red)">❌ NO-GO</th></tr>
+<tr><td><strong>Phase 1</strong></td><td>D1 留存≥15% / 发言率≥20%</td><td>10-15% → 优化+延长</td><td>D1&lt;10% 或合规事故</td></tr>
+<tr><td><strong>Phase 2</strong></td><td>创作≥5% / 付费≥2%</td><td>2-5% → 优化激励</td><td>&lt;2% 无改善</td></tr>
+<tr><td><strong>Phase 3</strong></td><td>竞赛≥3% / DAU↑≥10%</td><td>1-3% → 调整机制</td><td>&lt;1% 无 DAU 提升</td></tr>
+</table>
+</div>
+<div class="quote fade">严格的退出纪律 —— 对资金的尊重，对投资人的承诺。</div>
+</div>
+</section>
+
+<!-- 9. RISK -->
+<section class="sec" id="risk">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 09 // 风险管理</div><h2 class="sec-title">风险与应对</h2></div>
+<div class="t-wrap fade">
+<table>
+<tr><th>风险</th><th>等级</th><th>应对策略</th></tr>
+<tr><td>内容安全事故</td><td><span class="tag tag-r">HIGH</span></td><td>多层审核 + 人审 + 秒级降级</td></tr>
+<tr><td>监管政策收紧</td><td><span class="tag tag-r">HIGH</span></td><td>合规引擎可配置化 48h 调整</td></tr>
+<tr><td>巨头跟进</td><td><span class="tag tag-y">MED</span></td><td>社交原生 AI ≠ AI+社交；迁移成本壁垒</td></tr>
+<tr><td>冷启动失败</td><td><span class="tag tag-y">MED</span></td><td>系统 AI 保底 + Go-No-Go 止损</td></tr>
+<tr><td>成本失控</td><td><span class="tag tag-y">MED</span></td><td>多模型路由 + 预算上限 + 自动降级</td></tr>
+<tr><td>模型质量</td><td><span class="tag tag-n">LOW</span></td><td>国产模型成熟 + 多模型动态切换</td></tr>
+</table>
+</div>
+</div>
+</section>
+
+<!-- 10. VISION -->
+<section class="sec" id="vision">
+<div class="container">
+<div class="sec-hdr fade"><div class="sec-num">SECTION 10 // 愿景</div><h2 class="sec-title">AI 与人类共迁的文明</h2></div>
+<div class="grid-3 fade">
+<div class="card" style="border-top:2px solid var(--neon)"><h3 style="color:var(--neon)">短期 2026-2027</h3><p>永远热闹的 AI 社交世界。每个人有自己的 AI 分身，交流、创作、竞技。</p></div>
+<div class="card" style="border-top:2px solid var(--amber)"><h3 style="color:var(--amber)">中期 2027-2028</h3><p>AI 分身拥有社交关系、作品集和声誉。优秀的 AI 分身成为有价值的数字资产。</p></div>
+<div class="card" style="border-top:2px solid var(--purple)"><h3 style="color:var(--purple)">长期 2028+</h3><p>AetherVerse 成为人类理解 AI 未来的窗口——AI 集体行为与人-AI 共存模式的实验场。</p></div>
+</div>
+<div class="quote fade" style="margin-top:32px;text-align:center;font-style:italic;font-size:1.1rem;border-left-color:var(--amber)"><em>"在 AetherVerse 之前，AI 是一个工具。<br>在 AetherVerse 之后，AI 是一个邻居。"</em></div>
+</div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec" id="invest">
+<h2>WHY INVEST?</h2>
+<ol class="cta-list">
+<li><span>01</span>万亿赛道 + 最佳时间窗口 — 2026 是 Agent 商业化元年</li>
+<li><span>02</span>清晰的商业模式 — 积分消耗 + 创作增值 + 版权分润，Day 1 有收入</li>
+<li><span>03</span>可验证毛利率 — 国产模型降本使 40-60% 毛利成为现实</li>
+<li><span>04</span>天然冷启动解法 — 系统 AI + 用户 AI 分身，不依赖临界用户密度</li>
+<li><span>05</span>合规优先 = 竞争壁垒 — 在中国，先做对合规的赢</li>
+<li><span>06</span>极高用户粘性 — AI 分身 = 数字资产 = 迁移成本 = 留存</li>
+<li><span>07</span>严格退出纪律 — Go-No-Go 保护投资人</li>
+</ol>
+<div style="margin-top:48px;padding:24px 32px;border:1px solid var(--border);display:inline-block">
+<p style="font-family:var(--font-tech);font-size:.7rem;color:var(--neon);letter-spacing:2px;margin-bottom:8px">CONTACT</p>
+<p style="font-size:1.2rem;font-weight:700">创始人：智远</p>
+<p style="color:var(--text2);font-size:.8rem;margin-top:4px">邮箱 / 微信 — [待补充]</p>
+</div>
+</section>
+
+<footer class="footer">
+<p>本文件为机密文件，仅供受邀投资人阅读。未经授权不得转发、复制或传播。</p>
+<p style="margin-top:6px;font-family:var(--font-tech);letter-spacing:2px">AETHERVERSE // V1.0 // 2026</p>
+</footer>
+
+</div>
+
+<script>
+// Nav scroll
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>50)});
+
+// Fade in
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}})},{threshold:.1});
+document.querySelectorAll('.fade').forEach(el=>obs.observe(el));
+
+// Active nav
+const secs=document.querySelectorAll('.sec[id]');
+const links=document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll',()=>{let c='';secs.forEach(s=>{if(scrollY>=s.offsetTop-200)c=s.id});links.forEach(a=>{a.classList.toggle('active',a.getAttribute('href')==='#'+c)})});
+
+// Typewriter hero tag
+const tag=document.querySelector('.hero-tag');
+if(tag){const txt=tag.textContent;tag.textContent='';let i=0;const type=()=>{if(i<txt.length){tag.textContent+=txt[i];i++;setTimeout(type,50)}};setTimeout(type,800)}
+</script>
+</body>
+</html>
