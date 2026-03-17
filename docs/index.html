@@ -1,41 +1,167 @@
-<!DOCTYPE html>
+<![CDATA[<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>AetherVerse — 投资人资料</title>
+<title>AetherVerse — 文档中心</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
+:root{--bg:#07080f;--bg2:#0c0e18;--card:#12152a;--border:#1e2345;--text:#e2e4f0;--text2:#8b8faa;--accent:#6c5ce7;--accent2:#a78bfa;--neon:#00f0ff;--green:#34d399;--gold:#f0c674;--pink:#f472b6;--radius:14px}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#07080f;color:#e2e4f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px}
-.hub{max-width:520px;width:100%;text-align:center}
-h1{font-size:1.6rem;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,#00f0ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-p{color:#8b8faa;margin-bottom:40px;font-size:.9rem}
-.cards{display:flex;flex-direction:column;gap:16px}
-a{display:block;padding:28px 24px;border:1px solid #1e2345;border-radius:12px;text-decoration:none;color:#e2e4f0;background:#12152a;transition:all .3s;text-align:left}
-a:hover{border-color:#6c5ce7;box-shadow:0 0 30px rgba(108,92,231,.12);transform:translateY(-2px)}
-a .ver{font-size:.7rem;letter-spacing:2px;color:#6c5ce7;text-transform:uppercase;margin-bottom:6px}
-a .name{font-size:1.1rem;font-weight:600;margin-bottom:4px}
-a .desc{font-size:.8rem;color:#8b8faa}
-.foot{margin-top:40px;font-size:.7rem;color:#5a5e7a}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Noto Sans SC',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0}
+::selection{background:var(--accent);color:#fff}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+
+/* Hero */
+.hero{text-align:center;padding:80px 24px 48px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:50%;left:50%;width:600px;height:600px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(108,92,231,.1) 0%,transparent 70%);pointer-events:none}
+.hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;background:linear-gradient(135deg,#fff 30%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;position:relative}
+.hero p{color:var(--text2);font-size:1rem;max-width:500px;margin:0 auto;position:relative}
+
+/* Filters */
+.filters{display:flex;justify-content:center;gap:8px;padding:0 24px 40px;flex-wrap:wrap}
+.filter-btn{padding:6px 16px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--text2);font-size:.8rem;cursor:pointer;transition:all .25s;font-family:inherit}
+.filter-btn:hover,.filter-btn.active{color:#fff;border-color:var(--accent);background:rgba(108,92,231,.15)}
+
+/* Grid */
+.container{max-width:960px;margin:0 auto;padding:0 24px 60px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+
+/* Cards */
+.card{display:block;padding:28px 24px;border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text);background:var(--card);transition:all .35s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.card:hover{border-color:var(--accent);box-shadow:0 8px 40px rgba(108,92,231,.12);transform:translateY(-4px)}
+.card:hover::before{transform:scaleX(1)}
+.card[data-cat="investor"]::before{background:linear-gradient(90deg,var(--accent),var(--neon))}
+.card[data-cat="product"]::before{background:linear-gradient(90deg,var(--green),var(--neon))}
+.card[data-cat="prototype"]::before{background:linear-gradient(90deg,var(--pink),var(--gold))}
+
+.card-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.65rem;font-weight:600;letter-spacing:.5px;margin-bottom:12px}
+.tag-investor{background:rgba(108,92,231,.15);color:var(--accent2)}
+.tag-product{background:rgba(52,211,153,.12);color:var(--green)}
+.tag-prototype{background:rgba(244,114,182,.12);color:var(--pink)}
+
+.card-title{font-size:1.05rem;font-weight:700;margin-bottom:6px;line-height:1.4}
+.card-desc{font-size:.82rem;color:var(--text2);line-height:1.6}
+.card-icon{font-size:1.6rem;margin-bottom:12px}
+
+/* Footer */
+.footer{text-align:center;padding:32px 24px;color:var(--text2);font-size:.7rem;border-top:1px solid var(--border)}
+
+/* Animations */
+.card{opacity:0;transform:translateY(20px);animation:fadeUp .5s ease forwards}
+.card:nth-child(1){animation-delay:.05s}
+.card:nth-child(2){animation-delay:.1s}
+.card:nth-child(3){animation-delay:.15s}
+.card:nth-child(4){animation-delay:.2s}
+.card:nth-child(5){animation-delay:.25s}
+.card:nth-child(6){animation-delay:.3s}
+.card:nth-child(7){animation-delay:.35s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* Hide filtered */
+.card.hidden{display:none}
+
+@media(max-width:640px){
+.grid{grid-template-columns:1fr}
+.hero{padding:60px 20px 32px}
+}
 </style>
 </head>
 <body>
-<div class="hub">
+
+<header class="hero">
 <h1>🌌 AetherVerse</h1>
-<p>AI × 元宇宙社交平台 · 投资人资料中心</p>
-<div class="cards">
-<a href="投资人报告_v1.0_H5.html">
-<div class="ver">Version 1.0 · 机械风</div>
-<div class="name">投资备忘录 — 赛博朋克版</div>
-<div class="desc">青色霓虹 · 扫描线 · 机械字体 · 角括号装饰</div>
-</a>
-<a href="投资人报告_H5.html">
-<div class="ver">Version 2.0 · 科技商务风</div>
-<div class="name">投资备忘录 — 商务增强版</div>
-<div class="desc">紫色渐变 · 粒子网格 · 多维宇宙 · AI 社会体系</div>
-</a>
+<p>AI × 元宇宙社交平台 · 文档中心</p>
+</header>
+
+<div class="filters">
+<button class="filter-btn active" data-filter="all">全部</button>
+<button class="filter-btn" data-filter="investor">投资人报告</button>
+<button class="filter-btn" data-filter="product">产品方案</button>
+<button class="filter-btn" data-filter="prototype">交互原型</button>
 </div>
-<div class="foot">机密文件 · 仅供受邀投资人</div>
+
+<main class="container">
+<div class="grid" id="grid">
+
+<!-- Investor Reports -->
+<a class="card" data-cat="investor" href="投资人报告_v1.0_H5.html">
+<div class="card-tag tag-investor">投资人报告</div>
+<div class="card-icon">⬡</div>
+<div class="card-title">投资备忘录 v1.0 — 赛博朋克版</div>
+<div class="card-desc">青色霓虹 · 扫描线 · Orbitron 字体 · 角括号装饰 · 打字机动效</div>
+</a>
+
+<a class="card" data-cat="investor" href="投资人报告_H5.html">
+<div class="card-tag tag-investor">投资人报告</div>
+<div class="card-icon">🌌</div>
+<div class="card-title">投资备忘录 v2.0 — 科技商务版</div>
+<div class="card-desc">紫色渐变 · 粒子网格 · 多维宇宙 · AI 社会 · 虚实经济</div>
+</a>
+
+<!-- Product Docs -->
+<a class="card" data-cat="product" href="AI元宇宙社交平台_方案H5.html">
+<div class="card-tag tag-product">产品方案</div>
+<div class="card-icon">📋</div>
+<div class="card-title">可行性调研与落地方案</div>
+<div class="card-desc">市场调研 · 需求分解 · 技术选型 · 实施路线 · 风险评估</div>
+</a>
+
+<a class="card" data-cat="product" href="Phase1_MVP_需求文档_H5.html">
+<div class="card-tag tag-product">产品方案</div>
+<div class="card-icon">🚀</div>
+<div class="card-title">Phase 1 MVP 需求文档</div>
+<div class="card-desc">功能范围 · 用户故事 · 接口规格 · 验收标准 · 技术约束</div>
+</a>
+
+<!-- Prototypes -->
+<a class="card" data-cat="prototype" href="prototype_mobile.html">
+<div class="card-tag tag-prototype">交互原型</div>
+<div class="card-icon">📱</div>
+<div class="card-title">移动端原型 — 用户端</div>
+<div class="card-desc">房间聊天 · AI 分身管理 · 社交广场 · 积分体系</div>
+</a>
+
+<a class="card" data-cat="prototype" href="prototype_mobile_view.html">
+<div class="card-tag tag-prototype">交互原型</div>
+<div class="card-icon">👁️</div>
+<div class="card-title">移动端原型 — 浏览视图</div>
+<div class="card-desc">只读展示模式 · 简化版交互体验</div>
+</a>
+
+<a class="card" data-cat="prototype" href="prototype_admin.html">
+<div class="card-tag tag-prototype">交互原型</div>
+<div class="card-icon">🖥️</div>
+<div class="card-title">管理后台原型</div>
+<div class="card-desc">数据看板 · 内容审核 · 用户管理 · 安全合规配置</div>
+</a>
+
 </div>
+</main>
+
+<footer class="footer">
+<p>机密文件 · 仅供受邀人员查阅</p>
+<p style="margin-top:6px">AetherVerse © 2026</p>
+</footer>
+
+<script>
+// Filter
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+btn.addEventListener('click',()=>{
+document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+const f=btn.dataset.filter;
+document.querySelectorAll('.card').forEach(c=>{
+if(f==='all'||c.dataset.cat===f){c.classList.remove('hidden')}
+else{c.classList.add('hidden')}
+});
+});
+});
+</script>
 </body>
 </html>
+]]>
