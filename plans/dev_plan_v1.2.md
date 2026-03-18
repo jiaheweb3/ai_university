@@ -1,433 +1,302 @@
-# AetherVerse Multi-Agent Development Plan
+# AetherVerse 多 Agent 并行开发计划
 
-> **Version**: v1.2
-> **Date**: 2026-03-19
-> **Role**: Caesar (PM / Architect / QA, no product code)
-> **Goal**: Define multi-Agent isolation, contract management, and collaboration
-
----
-
-## 1. Role Architecture
-
-```
-Caesar (PM / Architect / QA) -- no product code
-  |-- Phase 0 contract definition (architecture design)
-  |-- Code Review + quality gate
-  |-- shared/ package maintenance
-  |-- Integration test + joint debugging
-  |-- Contract change coordination
-  |-- DevOps / deployment
-```
-
-| Agent | Scope | Tech Stack | Directory |
-|-------|-------|------------|-----------|
-| **Agent A** | Backend (core + security + gateway + SQLAdmin) | Python FastAPI + PostgreSQL + Redis | `server/` |
-| **Agent B** | AI Engine + agent orchestration + AAP | Python FastAPI + LLM SDK + RabbitMQ | `ai-engine/` |
-| **Agent C** | Flutter user app | Flutter + Dart | `app/` |
-
-### 1.1 Detailed Responsibilities
-
-**Caesar -- PM / Architect / QA (no product code):**
-- Phase 0 architecture (DB Schema / API Schema / protocol definitions)
-- `shared/` package maintenance (Pydantic schemas / enums / error codes)
-- `docs/contracts/` change management
-- All Agent code Review + PR merge
-- Integration test lead (Week 5 / Week 10)
-- DevOps (Docker Compose / CI/CD / deploy scripts)
-- Coordinate all Agents, ensure directory isolation, prevent conflicts
-
-**Agent A -- Backend Full-Stack:**
-- User system (register/login/DID/profile)
-- Room system (CRUD/members/messages)
-- Chat system (WebSocket/DM/message delivery/history)
-- Credits & billing (recharge/consume/transaction model/reconciliation)
-- Notification system (in-app messages)
-- Security audit (3-layer pipeline/AIGC labeling/reports/sensitive words)
-- Agent gateway (external Agent access/auth/sandbox/rate limiting)
-- **Admin panel (SQLAdmin + custom views)**
-
-**Agent B -- AI Engine:**
-- AI model routing + agent orchestration (L1/L2)
-- Memory system + persona consistency + system agents (5)
-- Image generation/understanding + AI behavior control
-- AAP protocol implementation + developer SDK + docs
-
-**Agent C -- Flutter User App (no admin panel):**
-- All user-facing pages + UI components
-- State management + network layer + WebSocket client
-
-> **Admin panel**: Phase 1 uses SQLAdmin (Agent A), Phase 2 uses Vue 3 + Element Plus.
+> **版本**: v1.2
+> **日期**: 2026-03-19
+> **角色**: 恺撒（项目经理 / 架构师 / QA，不写产品代码）
+> **目标**: 定义多 Agent 工作隔离、契约管理和协作流程
 
 ---
 
-## 2. Directory Structure & Isolation
+## 一、角色架构
 
-```
-ai_university/
-+-- docs/
-|   +-- contracts/               # Shared contracts (Phase 0 output)
-|   |   +-- api-schema.yaml      #   OpenAPI 3.0
-|   |   +-- db-schema.sql        #   Database DDL
-|   |   +-- db-er.md             #   ER diagram (Mermaid)
-|   |   +-- shared-types.dart    #   Flutter type definitions
-|   |   +-- websocket-protocol.md#   WebSocket protocol
-|   |   +-- ai-engine-api.yaml   #   AI Engine internal API
-|   |   +-- agent-protocol.yaml  #   AAP protocol
-|   |   +-- CHANGELOG.md         #   Contract changelog
-+-- shared/                      # Shared Python package (Caesar maintains)
-|   +-- schemas/                 #   Pydantic models
-|   +-- constants/               #   Enums, error codes
-|   +-- exceptions/              #   Custom exceptions
-|   +-- utils/                   #   Utilities
-|   +-- pyproject.toml
-+-- server/                      # Agent A territory (Python FastAPI)
-|   +-- app/
-|   |   +-- api/                 #   REST routes
-|   |   +-- ws/                  #   WebSocket handlers
-|   |   +-- services/            #   Business logic
-|   |   +-- models/              #   SQLAlchemy ORM
-|   |   +-- core/                #   Config/security/DI
-|   |   +-- gateway/             #   Agent gateway
-|   +-- migrations/              #   Alembic migrations
-|   +-- tests/
-|   +-- pyproject.toml
-+-- ai-engine/                   # Agent B territory (Python FastAPI)
-|   +-- app/
-|   |   +-- router/              #   Model routing
-|   |   +-- orchestrator/        #   Orchestration
-|   |   +-- memory/              #   Memory management
-|   |   +-- persona/             #   Persona management
-|   |   +-- safety/              #   AI behavior control
-|   |   +-- aap/                 #   AAP protocol
-|   |   +-- sdk/                 #   Developer SDK
-|   +-- prompts/
-|   +-- tests/
-|   +-- pyproject.toml
-+-- app/                         # Agent C territory (Flutter)
-|   +-- lib/
-|   +-- assets/
-|   +-- pubspec.yaml
-+-- infra/                       # Caesar (DevOps)
-    +-- docker-compose.yml
-    +-- k8s/
-    +-- terraform/
-```
+恺撒（PM / 架构师 / QA）不写产品代码，负责：
+- Phase 0 契约定义（架构设计）
+- 代码 Review + 质量把关
+- shared/ 共享包维护
+- 集成测试 + 联调主导
+- 契约变更协调
+- DevOps / 部署
 
-### Isolation Rules
+| Agent | 负责模块 | 技术栈 | 产出目录 |
+|-------|---------|--------|---------|
+| **Agent A** | 后端全栈（核心 + 安全 + Agent 网关 + SQLAdmin） | Python FastAPI + PostgreSQL + Redis | server/ |
+| **Agent B** | AI 引擎 + 智能体编排 + AAP 协议 | Python FastAPI + LLM SDK + RabbitMQ | ai-engine/ |
+| **Agent C** | Flutter 用户端 | Flutter + Dart | app/ |
 
-| Rule | Description |
-|------|-------------|
-| **Directory isolation** | Each Agent only modifies its own directory |
-| **Read-only shared** | `docs/contracts/` and `shared/` are read-only, changes via Caesar only |
-| **API communication** | Agents communicate through API contracts, no direct code calls |
-| **Independent builds** | Each module has its own `pyproject.toml` or `pubspec.yaml` |
-| **Git branches** | Each Agent works on feature branches, PR merged by Caesar |
+### 1.1 详细职责
 
-### Git Branch Strategy
+**恺撒 — PM / 架构师 / QA（不写产品代码）:**
+- Phase 0 架构设计（DB Schema / API Schema / 协议定义）
+- shared/ 共享包维护（Pydantic schemas / 枚举 / 错误码）
+- docs/contracts/ 契约变更管理
+- 所有 Agent 的代码 Review + PR 合并
+- 集成测试 + 联调主导（Week 5 / Week 10）
+- DevOps（Docker Compose / CI/CD / 部署脚本）
+- 协调各 Agent 工作，确保目录隔离、避免冲突
 
-```
-main                              # Protected, PR merge only
-+-- develop                       # Development mainline
-|   +-- feature/agent-a/xxx
-|   +-- feature/agent-b/xxx
-|   +-- feature/agent-c/xxx
-+-- release/v1.0
-```
+**Agent A — 后端全栈:**
+- 用户系统（注册/登录/DID/个人资料）
+- 房间系统（CRUD/成员管理/消息）
+- 聊天系统（WebSocket/私聊/消息投递/历史消息）
+- 积分与计费（充值/消耗/事务模型/对账）
+- 通知系统（站内消息）
+- 安全审核（三层审核管线/AIGC 标识/举报处置/敏感词库）
+- Agent 网关（外部 Agent 接入/网关鉴权/行为沙箱/频率限制）
+- 管理后台（SQLAdmin + 审核工作台/Go-No-Go 看板自定义页面）
+
+**Agent B — AI 引擎:**
+- AI 模型路由 + 智能体编排（L1/L2）
+- 记忆系统 + 人格一致性 + 系统智能体（5 个）
+- 图片生成/理解 + AI 行为防控
+- AAP 协议实现 + 开发者 SDK + 文档
+
+**Agent C — Flutter 用户端（不做管理后台）:**
+- 用户端全部页面 + UI 组件库
+- 状态管理 + 网络层 + WebSocket 客户端
+
+> 管理后台: Phase 1 用 SQLAdmin（Agent A 做），Phase 2 再上 Vue 3 + Element Plus。
 
 ---
 
-## 3. Contract Change Management
+## 二、目录结构与隔离策略
 
-```
-Need to change contract
-  -> Agent tells Caesar
-  -> Caesar evaluates impact, notifies all Agents
-  -> Caesar updates docs/contracts/ + CHANGELOG.md
-  -> All Agents pull latest contracts, update their code
-  -> Integration test
-```
+### 2.1 目录规划
 
-### CHANGELOG.md Format
+- docs/contracts/ — 共享契约（Phase 0 产出，只读）
+  - api-schema.yaml, db-schema.sql, db-er.md
+  - shared-types.dart, websocket-protocol.md
+  - ai-engine-api.yaml, agent-protocol.yaml, CHANGELOG.md
+- shared/ — 共享 Python 包（恺撒维护，Agent A/B 只读引用）
+  - schemas/, constants/, exceptions/, utils/, pyproject.toml
+- server/ — Agent A 领地（Python FastAPI）
+  - app/api/, app/ws/, app/services/, app/models/, app/core/, app/gateway/
+  - migrations/, tests/, pyproject.toml
+- ai-engine/ — Agent B 领地（Python FastAPI）
+  - app/router/, app/orchestrator/, app/memory/, app/persona/
+  - app/safety/, app/aap/, app/sdk/, prompts/, tests/, pyproject.toml
+- app/ — Agent C 领地（Flutter）
+  - lib/core/, lib/models/, lib/services/, lib/providers/
+  - lib/screens/, lib/widgets/, assets/, pubspec.yaml
+- infra/ — 恺撒负责（DevOps）
+  - docker-compose.yml, k8s/, terraform/
 
-```markdown
-## [Date] - Description
+### 2.2 隔离原则
 
-### Changed
-- `POST /api/v1/rooms` added `max_members` field
+| 规则 | 说明 |
+|------|------|
+| 目录隔离 | 每个 Agent 只能修改自己的目录（server/, ai-engine/, app/） |
+| 只读共享 | docs/contracts/ 和 shared/ 是只读共享区，任何修改必须通过恺撒协调 |
+| 接口通信 | Agent 之间通过 API 契约通信，不直接调用对方代码 |
+| 独立构建 | 每个模块有独立的 pyproject.toml 或 pubspec.yaml |
+| Git 分支 | 每个 Agent 在功能分支开发，PR 合并由恺撒审核 |
 
-### Impact
-- Agent A: Update room creation API
-- Agent C: Update room creation form
-- Agent B: No impact
+### 2.3 Git 分支策略
 
-### Status
-- [x] Agent A adapted
-- [ ] Agent C pending
-```
-
----
-
-## 4. Phase 0 -- Contract & Architecture (1-2 weeks)
-
-> **Executor**: Caesar (single Agent, serial)
-> **Goal**: Define all contracts before multi-Agent parallel begins
-
-| # | Output | File | Description |
-|---|--------|------|-------------|
-| 1 | API Schema | `docs/contracts/api-schema.yaml` | All REST endpoints (OpenAPI 3.0) |
-| 2 | DB Schema | `docs/contracts/db-schema.sql` | All table DDL |
-| 3 | ER Diagram | `docs/contracts/db-er.md` | Mermaid format |
-| 4 | WebSocket Protocol | `docs/contracts/websocket-protocol.md` | Message format, events, heartbeat |
-| 5 | AI Engine API | `docs/contracts/ai-engine-api.yaml` | Backend-to-AI internal API |
-| 6 | AAP Protocol | `docs/contracts/agent-protocol.yaml` | External Agent protocol |
-| 7 | Shared Types | `shared/` + `shared-types.dart` | Pydantic schemas + Dart types |
-| 8 | Changelog | `docs/contracts/CHANGELOG.md` | Contract change log |
-| 9 | Scaffolding | `shared/` + `server/` + `ai-engine/` + `app/` | Module init |
-| 10 | Local Dev | `infra/docker-compose.yml` | PostgreSQL + Redis + MinIO + RabbitMQ |
-| 11 | CI/CD | `.github/workflows/` | lint + build + test pipeline |
-
-### Phase 0 Schedule
-
-```
-Week 1:
-+-- Day 1-2: DB Schema (all tables DDL + ER diagram)
-+-- Day 3-4: API Schema (all REST endpoints OpenAPI)
-+-- Day 5:   WebSocket protocol + AI Engine API + AAP protocol
-
-Week 2:
-+-- Day 1:   Shared type definitions (shared/ + Dart)
-+-- Day 2:   Project scaffolding (all modules init)
-+-- Day 3:   Docker Compose + CI/CD pipeline
-+-- Day 4-5: Self-check + docs + finalize Agent startup instructions
-```
+- main: 受保护，只通过 PR 合并
+- develop: 开发主线
+  - feature/agent-a/xxx: Agent A 功能分支
+  - feature/agent-b/xxx: Agent B 功能分支
+  - feature/agent-c/xxx: Agent C 功能分支
+- release/v1.0: 发布分支
+- docs/contracts/ 和 shared/ 的修改只能由恺撒在 develop 上直接提交
 
 ---
 
-## 5. Agent Startup Instructions
+## 三、契约变更管理
 
-> Copy-paste these into each Agent's conversation window at Phase 1 start.
+发现需要修改契约 -> 开发者告知恺撒 -> 恺撒评估影响范围 -> 恺撒修改 docs/contracts/ 并更新 CHANGELOG.md -> 所有 Agent 拉取最新契约 -> 集成测试验证
 
-### 5.1 Agent A Startup
-
-```
-# Agent A -- Backend Full-Stack
-
-## Who You Are
-You are AetherVerse's backend full-stack developer, codename Agent A.
-
-## Your Scope
-- User system (register/login/DID/profile)
-- Room system (CRUD/members)
-- Chat system (WebSocket/DM/message delivery/history)
-- Credits & billing (recharge/consume/transaction/reconciliation)
-- Notification system (in-app messages)
-- Security audit (3-layer pipeline/AIGC labeling/sensitive words)
-- Agent gateway (external Agent access)
-- Admin panel (SQLAdmin + custom audit/dashboard views)
-
-## Work Rules
-1. Only modify files under `server/`
-2. `docs/contracts/` and `shared/` are READ-ONLY, tell Caesar if changes needed
-3. Implement REST API per `docs/contracts/api-schema.yaml`
-4. Implement WebSocket per `docs/contracts/websocket-protocol.md`
-5. Create SQLAlchemy models per `docs/contracts/db-schema.sql`
-6. Import Pydantic schemas from `shared/`, no duplicate type definitions
-7. MANDATORY async: no sync blocking calls (see coding_conventions.md)
-8. Git branch: `feature/agent-a/xxx` from develop
-9. Check `docs/contracts/CHANGELOG.md` for contract changes
-
-## Must-Read Files
-- docs/contracts/api-schema.yaml
-- docs/contracts/db-schema.sql
-- docs/contracts/websocket-protocol.md
-- docs/contracts/agent-protocol.yaml (gateway side)
-- docs/Phase1_MVP_requirements.md
-- context_memory/coding_conventions.md
-
-## Schedule
-- Week 3-4: User register/login + Room CRUD + WebSocket messaging
-- Week 5-6: Credits + DM + notifications + DB migrations
-- Week 5 end: Integration checkpoint (with Agent B/C)
-- Week 7-9: 3-layer audit + AIGC labeling + Agent gateway + SQLAdmin
-```
-
-### 5.2 Agent B Startup
-
-```
-# Agent B -- AI Engine
-
-## Who You Are
-You are AetherVerse's AI engine developer, codename Agent B.
-
-## Your Scope
-- AI model routing (multi-provider/fallback/health check)
-- Agent orchestration (L1 speech/L2 creation)
-- Memory system (context/summary/expiry)
-- Persona consistency + system agents (5 preset AIs)
-- AI behavior control (impersonation/social engineering detection)
-- Image generation/understanding
-- AAP protocol (external Agent messaging/protocol conversion)
-- Developer SDK + docs
-
-## Work Rules
-1. Only modify files under `ai-engine/`
-2. `docs/contracts/` and `shared/` are READ-ONLY
-3. Call backend via `docs/contracts/api-schema.yaml`
-4. Receive requests via `docs/contracts/ai-engine-api.yaml`
-5. Tech: Python FastAPI, import shared package directly
-6. MANDATORY async: no sync blocking calls
-7. Git branch: `feature/agent-b/xxx` from develop
-8. Check CHANGELOG.md for contract changes
-
-## Must-Read Files
-- docs/contracts/ai-engine-api.yaml
-- docs/contracts/api-schema.yaml
-- docs/contracts/agent-protocol.yaml (AAP)
-- docs/contracts/db-schema.sql
-- docs/Phase1_MVP_requirements.md section 3
-- plans/Phase1_landing_plan.md section 2.5
-- context_memory/coding_conventions.md
-
-## Schedule
-- Week 3-4: LLM routing + Prompt templates + basic dialogue
-- Week 5-6: Avatar creation, speech scheduling, memory system
-- Week 5 end: Integration checkpoint
-- Week 7-9: System AIs (5) + AI safety + image + AAP + SDK
-```
-
-### 5.3 Agent C Startup
-
-```
-# Agent C -- Flutter User App
-
-## Who You Are
-You are AetherVerse's Flutter user app developer, codename Agent C.
-
-## Your Scope
-- User app Flutter (iOS/Android)
-- UI components (based on design specs)
-- State management + network layer + local storage
-
-Note: Admin panel is NOT your responsibility (Agent A handles with SQLAdmin)
-
-## Work Rules
-1. Only modify files under `app/`
-2. `docs/contracts/` is READ-ONLY
-3. Call backend API per `docs/contracts/api-schema.yaml`
-4. Implement WebSocket per `docs/contracts/websocket-protocol.md`
-5. Use shared types from `docs/contracts/shared-types.dart`
-6. Week 3-4: design specs not ready, build framework layer first
-7. Week 5+: design specs arrive, start UI implementation
-8. Git branch: `feature/agent-c/xxx` from develop
-9. Check CHANGELOG.md for contract changes
-
-## Must-Read Files
-- docs/contracts/api-schema.yaml
-- docs/contracts/websocket-protocol.md
-- docs/contracts/shared-types.dart
-- docs/Phase1_MVP_requirements.md (modules 1-7)
-- docs/prototype_mobile.html
-- context_memory/coding_conventions.md
-
-## Schedule
-- Week 3-4: Routing + state management + network + WebSocket + theming
-- Week 5: Integration checkpoint (login + rooms + basic messaging)
-- Week 5-6: Core pages from design specs (login/register/chat/rooms)
-- Week 7-9: Avatar/credits/profile/settings (100% user experience focus)
-```
-
-### 5.4 Caesar's Own Work (PM / Architect / QA)
-
-```
-Caesar (no product code):
-- Phase 0: All contract definitions (architecture design)
-- shared/ package maintenance (contract layer, not business code)
-- docs/contracts/ change management
-- Code Review + PR merge
-- Integration test + joint debugging lead
-- DevOps (infra/ deployment)
-- Coordinate all Agents, ensure isolation, prevent conflicts
-```
+CHANGELOG.md 格式:
+- 日期 + 变更描述
+- 影响范围（哪些 Agent 需要适配）
+- 适配状态跟踪
 
 ---
 
-## 6. Integration Checkpoints
+## 四、Phase 0 — 契约与架构定义（1-2 周）
 
-### 6.1 Week 5 -- Mid-Phase Verification
+执行者: 恺撒（单 Agent 串行）
+目标: 在开启多 Agent 并行前把所有契约定好
 
-| Item | Agent A | Agent B | Agent C |
-|------|---------|---------|---------|
-| User login | Register/login API ready | -- | Login page works |
-| Room list | Room CRUD API ready | -- | Room list displays |
-| Basic messaging | WebSocket delivery | Basic LLM dialogue | Chat UI send/receive |
-| AI speaking | Message bus connected | Trigger one AI reply | Show AI message + label |
-| Credits | Credits query API | -- | Balance display |
+| 序号 | 产出 | 文件 |
+|------|-----|------|
+| 1 | API Schema | docs/contracts/api-schema.yaml |
+| 2 | DB Schema | docs/contracts/db-schema.sql |
+| 3 | ER 图 | docs/contracts/db-er.md |
+| 4 | WebSocket 协议 | docs/contracts/websocket-protocol.md |
+| 5 | AI 引擎 API | docs/contracts/ai-engine-api.yaml |
+| 6 | AAP 协议 | docs/contracts/agent-protocol.yaml |
+| 7 | 共享类型 | shared/ + shared-types.dart |
+| 8 | 变更日志 | docs/contracts/CHANGELOG.md |
+| 9 | 项目脚手架 | shared/ + server/ + ai-engine/ + app/ |
+| 10 | 本地环境 | infra/docker-compose.yml |
+| 11 | CI/CD | .github/workflows/ |
 
-**Method**: Caesar starts all 3 services in local Docker Compose, verify each item
-
-### 6.2 Week 10 -- Full Integration Test
-
-All 13 modules end-to-end.
-
----
-
-## 7. Communication
-
-### 7.1 Daily Collaboration
-
-| Scenario | Action |
-|----------|--------|
-| Agent needs contract change | Tell Caesar in conversation |
-| Caesar updated contract | Update CHANGELOG.md, remind Agents |
-| Integration issue found | Caesar provides error logs/screenshots to relevant Agent |
-| Emergency conflict | Caesar pauses all Agents, fixes, then resumes |
-
-### 7.2 Founder (Zhiyuan) Role
-
-| Task | Zhiyuan's Action |
-|------|-----------------|
-| **Create Agent conversations** | Open 3 new AI Agent windows (A, B, C) |
-| **Send startup instructions** | Copy startup instructions into each Agent window |
-| **Contract change notification** | Caesar tells Zhiyuan -> Zhiyuan relays to Agents |
-| **Integration support** | Week 5/10 integration needs Zhiyuan to coordinate |
-| **External affairs** | UI design outsourcing, App Store account, cloud servers |
-| **Device testing** | Test Agent C's Flutter code on real devices |
+执行顺序:
+- Week 1: Day 1-2 DB Schema + Day 3-4 API Schema + Day 5 协议
+- Week 2: Day 1 共享类型 + Day 2 脚手架 + Day 3 Docker/CI + Day 4-5 自检+启动指令
 
 ---
 
-## 8. Phase 0 Action Checklist
+## 五、各 Agent 启动指令
 
-Caesar starts Phase 0 immediately:
+### 5.1 Agent A 启动指令 — 后端全栈
 
-1. [x] ~~Multi-Agent development plan~~ (this document)
-2. [ ] Design DB Schema (all table DDL)
-3. [ ] Draw ER diagram
-4. [ ] Define REST API Schema (OpenAPI 3.0)
-5. [ ] Define WebSocket protocol
-6. [ ] Define AI Engine internal API
-7. [ ] Define AAP external Agent protocol
-8. [ ] Generate shared type definitions
-9. [ ] Build project scaffolding (shared/ + server/ + ai-engine/ + app/)
-10. [ ] Docker Compose local dev environment
-11. [ ] CI/CD basic pipeline
-12. [ ] Finalize Agent A/B/C startup instructions
+你是 AetherVerse 项目的后端全栈开发者，代号 Agent A。
+负责: 用户系统、房间、聊天、积分、通知、安全审核、Agent 网关、管理后台(SQLAdmin)
 
-**Phase 0 complete when**: All contracts ready + scaffolding builds + local env starts
+工作规则:
+1. 只修改 server/ 目录
+2. docs/contracts/ 和 shared/ 只读，需要改告知恺撒
+3. 按 api-schema.yaml 实现 REST API
+4. 按 websocket-protocol.md 实现 WebSocket
+5. 按 db-schema.sql 创建 SQLAlchemy 模型
+6. 从 shared/ 包 import Pydantic schemas，不重复定义类型
+7. 强制 async: 禁止同步阻塞调用
+8. Git 分支: feature/agent-a/xxx
 
-After Phase 0, Zhiyuan creates Agent A, B, C conversation windows, pastes startup instructions, development begins.
+必读文件: api-schema.yaml, db-schema.sql, websocket-protocol.md, agent-protocol.yaml, Phase1_MVP需求文档.md, coding_conventions.md
+
+排期:
+- Week 3-4: 用户注册/登录 + 房间 CRUD + WebSocket 消息投递
+- Week 5-6: 积分系统 + 私聊 + 通知 + 数据库迁移
+- Week 5 末: 中间集成验证
+- Week 7-9: 三层审核 + AIGC 标识 + Agent 网关 + SQLAdmin
+
+### 5.2 Agent B 启动指令 — AI 引擎
+
+你是 AetherVerse 项目的 AI 引擎开发者，代号 Agent B。
+负责: AI 模型路由、智能体编排、记忆系统、人格一致性、系统 AI(5个)、AI 行为防控、图片能力、AAP 协议、SDK
+
+工作规则:
+1. 只修改 ai-engine/ 目录
+2. docs/contracts/ 和 shared/ 只读
+3. 调用后端服务通过 api-schema.yaml
+4. 接收后端请求通过 ai-engine-api.yaml
+5. Python FastAPI，直接 import shared 包
+6. 强制 async
+7. Git 分支: feature/agent-b/xxx
+
+必读文件: ai-engine-api.yaml, api-schema.yaml, agent-protocol.yaml, db-schema.sql, Phase1_MVP需求文档.md 第3章, Phase1落地方案.md 第2.5章, coding_conventions.md
+
+排期:
+- Week 3-4: LLM 路由框架 + Prompt 模板 + 基础对话
+- Week 5-6: 分身创建、发言调度、记忆系统
+- Week 5 末: 中间集成验证
+- Week 7-9: 系统 AI(5个) + AI 行为防控 + 图片 + AAP + SDK
+
+### 5.3 Agent C 启动指令 — Flutter 用户端
+
+你是 AetherVerse 项目的 Flutter 用户端开发者，代号 Agent C。
+负责: 用户端 App(iOS/Android)、UI 组件库、状态管理 + 网络层
+注意: 管理后台不在你的职责范围内（Agent A 用 SQLAdmin 处理）
+
+工作规则:
+1. 只修改 app/ 目录
+2. docs/contracts/ 只读
+3. 按 api-schema.yaml 调用后端 API
+4. 按 websocket-protocol.md 实现消息通信
+5. 按 shared-types.dart 使用共享类型
+6. Week 3-4 设计稿未到，先做框架层
+7. Week 5 起设计稿到位，开始 UI 还原
+8. Git 分支: feature/agent-c/xxx
+
+必读文件: api-schema.yaml, websocket-protocol.md, shared-types.dart, Phase1_MVP需求文档.md(模块1-7), prototype_mobile.html, coding_conventions.md
+
+排期:
+- Week 3-4: 路由框架 + 状态管理 + 网络层 + WebSocket + 主题系统
+- Week 5: 中间集成验证（登录 + 房间列表 + 消息）
+- Week 5-6: 按设计稿还原核心页面
+- Week 7-9: 分身/积分/个人中心/设置（100% 专注用户体验）
+
+### 5.4 恺撒自身工作
+
+恺撒负责（不写产品代码）:
+- Phase 0: 全部契约定义
+- shared/ 共享包维护
+- docs/contracts/ 变更管理
+- 代码 Review + PR 合并
+- 集成测试 + 联调
+- DevOps（infra/ 部署）
+- 协调各 Agent，确保隔离、避免冲突
 
 ---
 
-## 9. Key Risks
+## 六、集成检查点
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Incomplete contracts | Agent rework | Thorough Phase 0, cover all MVP endpoints |
-| Agent misunderstanding | Integration failure | Detailed startup instructions + Week 5 checkpoint |
-| External Agent security | Security risk | Gateway control, Phase 1 invite-only |
-| Design spec delay | Agent C blocked | Week 3-4 build framework first |
-| Multi-Agent coordination overhead | Slow response | Zhiyuan relays + contracts-first reduces communication |
+### 6.1 Week 5 末 — 中间集成验证
+
+| 验证项 | Agent A | Agent B | Agent C |
+|--------|---------|---------|---------|
+| 用户登录 | 注册/登录 API 可用 | — | 登录页面调通 |
+| 房间列表 | 房间 CRUD API 可用 | — | 房间列表展示 |
+| 基础消息 | WebSocket 消息投递 | LLM 基础对话可用 | 聊天界面收发消息 |
+| AI 发言 | 消息总线联通 | 触发一次 AI 回复 | 展示 AI 消息 + 标识 |
+| 积分 | 积分查询 API | — | 余额展示 |
+
+验证方式: 恺撒在本地 Docker Compose 环境中启动三个服务，逐项验证
+
+### 6.2 Week 10 — 全量集成测试
+
+全部 13 个模块的联调。
 
 ---
 
-> **Next step**: Caesar begins Phase 0 Item 1 -- Database Schema design.
+## 七、沟通机制
+
+### 7.1 日常协作
+
+| 场景 | 做法 |
+|------|------|
+| Agent 需要修改契约 | 在对话中告知恺撒 |
+| 恺撒修改了契约 | 更新 CHANGELOG.md，提醒各 Agent |
+| 集成验证发现问题 | 恺撒提供错误日志/截图给对应 Agent |
+| 紧急冲突 | 恺撒暂停所有 Agent，统一修复后再恢复 |
+
+### 7.2 创始人（智远）的角色
+
+| 事项 | 智远的参与 |
+|------|----------|
+| 创建 Agent 对话 | 开 3 个新的 AI Agent 对话窗口（A、B、C） |
+| 下发启动指令 | 把启动指令分别复制进各 Agent 对话 |
+| 契约变更通知 | 恺撒告知智远 -> 智远去对应对话转达 |
+| 集成验证配合 | Week 5/10 协调各 Agent 输出 |
+| 外部事务 | UI 设计外包、App Store 账号、云服务器 |
+| 真机调试 | Agent C 的 Flutter 代码需要智远真机测试 |
+
+---
+
+## 八、Phase 0 立即行动清单
+
+1. [x] 制定多 Agent 并行开发计划（本文档）
+2. [ ] 设计数据库 Schema（所有表的 DDL）
+3. [ ] 绘制 ER 图
+4. [ ] 定义 REST API Schema（OpenAPI 3.0）
+5. [ ] 定义 WebSocket 协议
+6. [ ] 定义 AI 引擎内部 API
+7. [ ] 定义 AAP 外部 Agent 协议
+8. [ ] 生成共享类型定义文件
+9. [ ] 搭建项目脚手架（shared/ + server/ + ai-engine/ + app/）
+10. [ ] Docker Compose 本地开发环境
+11. [ ] CI/CD 基础流水线
+12. [ ] 输出 Agent A/B/C 最终启动指令
+
+Phase 0 完成标志: 所有契约文件就位 + 脚手架可构建 + 本地环境可启动
+
+Phase 0 完成后，智远创建 Agent A、Agent B、Agent C 对话窗口，粘贴启动指令，正式开工。
+
+---
+
+## 九、关键风隩与应对
+
+| 风隩 | 影响 | 应对 |
+|------|------|------|
+| 契约定义不完善 | 多 Agent 返工 | Phase 0 充分设计，覆盖 MVP 需求文档所有接口 |
+| Agent 理解偏差 | 集成失败 | 启动指令详尽 + Week 5 中间验证及早发现 |
+| 外部 Agent 接入增加安全面 | 安全风隩 | Agent 网关统一管控，Phase 1 仅邀请制 |
+| 设计稿延迟 | Agent C 阻塞 | Week 3-4 先做框架层，不依赖设计稿 |
+| 多 Agent 协调开销 | 响应慢 | 智远转达 + 契约先行减少沟通需求 |
+
+---
+
+> 下一步: 恺撒立即开始 Phase 0 第一项 — 数据库 Schema 设计。
