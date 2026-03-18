@@ -31,6 +31,7 @@
 12. **多 Agent 并行开发**：同时运行 2-3 个 AI Agent 对话窗口，分别负责后端核心、AI 引擎、Flutter 前端。前提是 Phase 0 先定好 API Schema + DB Schema + 共享类型作为契约
 13. **外部 Agent 接入提前至 Phase 1**：作为差异化核心竞争力，Phase 1 即支持外部 Agent/分身接入。协议无关（AAP）、安全优先、平台网关模式、国内优先。首批邀请制 5-10 个合作伙伴
 14. **技术栈选型：全 Python FastAPI**：放弃 Go + Python 双语言方案，统一使用 Python FastAPI。理由：(1) 降低多 Agent 协调成本——共享类型/测试/依赖 (2) AI/LLM 生态原生支持 (3) Phase 1 的 1000 并发 FastAPI 完全够用 (4) shared/ 共享包消除类型双写。async 强制规范写入 coding_conventions.md
+15. **管理后台方案**：Phase 1 用 SQLAdmin 挂载在 FastAPI 上（CRUD 自动生成 + 审核工作台/Go-No-Go 看板用 Jinja2 自定义页面，~200 行），Agent A 顺手做。Phase 2 验证通过后再用 Vue 3 + Element Plus 定制开发。Agent C 100% 专注 Flutter 用户端
 
 ## 技术约束
 - 消息：先实时通道再落审计库，Outbox 模式保证至少一次

@@ -1,7 +1,7 @@
 # AetherVerse 多 Agent 并行开发计划
 
-> **版本**：v1.0  
-> **日期**：2026-03-18  
+> **版本**：v1.1  
+> **日期**：2026-03-19  
 > **角色**：恺撒（项目经理 + 主力开发 Agent）  
 > **目标**：规划 Phase 0 → Phase 1 → Phase 2 的开发节奏，定义多 Agent 工作隔离、契约管理和协作流程
 
@@ -15,7 +15,7 @@
 |-------|---------|--------|---------|
 | **Agent A（恺撒）** | 后端核心服务 + 安全审核 + Agent 网关 + DevOps | Python FastAPI + PostgreSQL + Redis | `server/` |
 | **Agent B** | AI 引擎 + 智能体编排 + 外部 Agent 协议(AAP) | Python FastAPI + LLM SDK + RabbitMQ | `ai-engine/` |
-| **Agent C** | Flutter 前端（用户端 + 管理后台） | Flutter + Dart | `app/` |
+| **Agent C** | Flutter 前端（用户端） | Flutter + Dart | `app/` |
 
 ### 1.2 角色详细职责
 
@@ -29,7 +29,7 @@
 - `shared/` 共享包维护（Pydantic schemas/枚举/错误码）
 - Agent 网关（外部 Agent 接入/网关鉴权/行为沙箱/频率限制）
 - DevOps（CI/CD/部署脚本/监控）
-- 管理后台 API（用户管理/房间管理/话题管理/审核台/数据看板）
+- **管理后台（SQLAdmin + 自定义视图）**：CRUD 用 SQLAdmin 自动生成，审核工作台 + Go-No-Go 看板用 Jinja2 自定义页面
 
 **Agent B — AI 引擎：**
 - AI 模型路由（多供应商管理/降级策略/健康检查）
@@ -43,13 +43,14 @@
 - AAP 协议实现（外部 Agent 消息收发/协议转换）
 - 开发者 SDK + 文档
 
-**Agent C — Flutter 前端：**
-- 用户端全部页面（登录/注册/首页/房间/聊天/个人中心/积分/引导流）
-- 管理后台全部页面（Web 端，Flutter Web 或独立 React/Vue）
+**Agent C — Flutter 用户端（专注 App，不做管理后台）：**
+- 用户端全部页面（登录/注册/首页/房间/聊天/个人中心/积分/引导流/设置）
 - UI 组件库（基于设计稿）
 - 状态管理（Riverpod/Bloc）
 - 网络层（API 封装/WebSocket 客户端/错误处理）
 - 本地存储/缓存
+
+> **管理后台方案**：Phase 1 用 SQLAdmin（Agent A 顺手做，~200 行），Phase 2 再上 Vue 3 + Element Plus 定制开发。
 
 ---
 
@@ -118,8 +119,8 @@ ai_university/
 │   ├── assets/                  #   资源
 │   └── pubspec.yaml
 │
-├── admin-web/                   # ⬅ Agent C 领地（管理后台 Web）
-│   └── ...                      #   技术选型待定（Flutter Web / Vue）
+# 管理后台：Phase 1 不单独建目录，用 SQLAdmin 挂载在 server/ 的 FastAPI 实例上
+# Phase 2 再建 admin-web/（Vue 3 + Element Plus）
 │
 └── infra/                       # ⬅ Agent A 负责
     ├── docker-compose.yml       #   本地开发环境
@@ -134,7 +135,7 @@ ai_university/
 | **目录隔离** | 每个 Agent 只能修改自己的目录（`server/`、`ai-engine/`、`app/`） |
 | **只读共享** | `docs/contracts/` 是只读共享区，任何修改必须通过恺撒（Agent A）协调 |
 | **接口通信** | Agent 之间通过 API 契约通信，不直接调用对方代码 |
-| **独立构建** | 每个模块有独立的 `go.mod` 或 `pubspec.yaml`，独立编译运行 |
+| **独立构建** | 每个模块有独立的 `pyproject.toml` 或 `pubspec.yaml`，独立运行 |
 | **Git 分支** | 每个 Agent 在自己的功能分支开发，PR 合并由恺撒审核 |
 
 ### 2.3 Git 分支策略
@@ -209,7 +210,7 @@ main                              # 受保护，只通过 PR 合并
 | 4 | WebSocket 协议 | `docs/contracts/websocket-protocol.md` | 消息格式、事件类型、心跳、重连策略 |
 | 5 | AI 引擎 API | `docs/contracts/ai-engine-api.yaml` | 后端调 AI 引擎的内部接口 |
 | 6 | AAP 协议 | `docs/contracts/agent-protocol.yaml` | 外部 Agent 接入协议完整定义 |
-| 7 | 共享类型 | `docs/contracts/shared-types.ts` + `.dart` | 前后端共享的 enum/DTO/Error Code |
+| 7 | 共享类型 | `shared/` Python 包 + `docs/contracts/shared-types.dart` | Pydantic schemas + Dart 类型定义 |
 | 8 | 变更日志 | `docs/contracts/CHANGELOG.md` | 契约变更记录 |
 | 9 | 项目脚手架 | `server/`、`ai-engine/`、`app/` | 各模块初始化（空壳 + 构建配置） |
 | 10 | 本地 Dev 环境 | `infra/docker-compose.yml` | PostgreSQL + Redis + MinIO + RabbitMQ |
@@ -283,20 +284,21 @@ AetherVerse 是一个 AI 分身社交平台。你负责 AI 引擎模块，包括
 ### 5.2 Agent C 启动指令
 
 ```markdown
-# Agent C 启动指令 — Flutter 前端
+# Agent C 启动指令 — Flutter 用户端
 
 ## 你是谁
-你是 AetherVerse 项目的 Flutter 前端开发者，代号 Agent C。
+你是 AetherVerse 项目的 Flutter 用户端开发者，代号 Agent C。
 
 ## 项目概述
-AetherVerse 是一个 AI 分身社交平台。你负责全部前端开发：
+AetherVerse 是一个 AI 分身社交平台。你专注用户端 Flutter App 开发：
 - 用户端 Flutter App（iOS/Android）
-- 管理后台 Web 端
-- UI 组件库
+- UI 组件库（基于设计稿）
 - 状态管理 + 网络层 + 本地存储
 
+> **注意**：管理后台不在你的职责范围内（由 Agent A 用 SQLAdmin 处理）
+
 ## 工作规则
-1. **只修改 `app/` 和 `admin-web/` 目录下的文件**
+1. **只修改 `app/` 目录下的文件**
 2. **契约文件在 `docs/contracts/`，只读**，需要修改时告知恺撒
 3. 按 `docs/contracts/api-schema.yaml` 调用后端 API
 4. 按 `docs/contracts/websocket-protocol.md` 实现消息通信
@@ -310,15 +312,15 @@ AetherVerse 是一个 AI 分身社交平台。你负责全部前端开发：
 - `docs/contracts/api-schema.yaml` — 你要调用的所有 API
 - `docs/contracts/websocket-protocol.md` — WebSocket 消息协议
 - `docs/contracts/shared-types.dart` — 共享类型定义
-- `docs/Phase1_MVP_需求文档.md` — 全部功能需求
+- `docs/Phase1_MVP_需求文档.md` — 用户端功能需求（重点看模块 1-7）
 - `docs/prototype_mobile.html` — 移动端原型
-- `docs/prototype_admin.html` — 管理后台原型
+- `context_memory/coding_conventions.md` — 编码规范
 
 ## 排期
 - Week 3-4: 路由框架 + 状态管理 + 网络层 + WebSocket 客户端 + 主题系统
 - Week 5: ⚡ 中间集成验证（登录 + 房间列表 + 消息基本流）
 - Week 5-6: 按设计稿还原核心页面（登录/注册/聊天/房间）
-- Week 7-9: 分身/积分/个人中心/管理后台/设置页面
+- Week 7-9: 分身/积分/个人中心/设置页面（100% 专注用户体验）
 ```
 
 ### 5.3 Agent A（恺撒）自身工作
@@ -327,6 +329,8 @@ AetherVerse 是一个 AI 分身社交平台。你负责全部前端开发：
 我（恺撒）负责：
 - Phase 0 全部契约定义
 - server/ 全部后端代码
+- shared/ 共享包维护
+- 管理后台（SQLAdmin + 审核工作台/Go-No-Go 看板自定义页面）
 - infra/ 部署相关
 - 所有 Agent 的 PR review
 - 契约变更协调
@@ -391,7 +395,7 @@ AetherVerse 是一个 AI 分身社交平台。你负责全部前端开发：
 6. ⬜ 定义 AI 引擎内部 API
 7. ⬜ 定义 AAP 外部 Agent 协议
 8. ⬜ 生成共享类型定义文件
-9. ⬜ 搭建项目脚手架（server/ + ai-engine/ + app/ 初始化）
+9. ⬜ 搭建项目脚手架（shared/ + server/ + ai-engine/ + app/ 初始化）
 10. ⬜ Docker Compose 本地开发环境
 11. ⬜ CI/CD 基础流水线
 12. ⬜ 输出 Agent B/C 最终启动指令
