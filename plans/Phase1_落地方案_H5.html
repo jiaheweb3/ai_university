@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AetherVerse Phase 1 — 落地方案 v1.3</title>
+<meta name="description" content="AetherVerse Phase 1 MVP 落地方案，AI 驱动开发，多 Agent 并行，成本降低 90%">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #4F46E5;
+  --primary-light: #818CF8;
+  --primary-dark: #3730A3;
+  --secondary: #06B6D4;
+  --accent: #F59E0B;
+  --accent-light: #FCD34D;
+  --success: #10B981;
+  --danger: #EF4444;
+  --warning: #F97316;
+  --bg: #F8FAFC;
+  --bg-white: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --text: #1E293B;
+  --text-secondary: #64748B;
+  --text-light: #94A3B8;
+  --border: #E2E8F0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 40px -5px rgba(0,0,0,0.1);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 50%, #10B981 100%);
+  padding: 80px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero-content { position: relative; z-index: 2; }
+.hero h1 {
+  font-size: 2.8em;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.hero .subtitle {
+  font-size: 1.2em;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+.hero .version-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.3);
+  margin-bottom: 20px;
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 32px;
+}
+.hero-stat {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: transform 0.3s;
+}
+.hero-stat:hover { transform: translateY(-3px); }
+.hero-stat .num {
+  font-size: 2em;
+  font-weight: 900;
+  color: #fff;
+  display: block;
+}
+.hero-stat .label { color: rgba(255,255,255,0.85); font-size: 0.85em; font-weight: 500; }
+
+/* Navigation dots */
+.nav-bar {
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.nav-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.nav-pills::-webkit-scrollbar { display: none; }
+.nav-pill {
+  display: inline-block;
+  padding: 8px 16px;
+  background: var(--bg);
+  border-radius: 20px;
+  font-size: 0.82em;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s;
+  border: 1px solid var(--border);
+}
+.nav-pill:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* Sections */
+section { padding: 48px 0; }
+.section-header {
+  margin-bottom: 32px;
+}
+.section-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9em;
+  border-radius: 10px;
+  margin-right: 12px;
+  vertical-align: middle;
+}
+.section-title {
+  font-size: 1.8em;
+  font-weight: 800;
+  color: var(--text);
+  display: inline;
+  vertical-align: middle;
+  letter-spacing: -0.3px;
+}
+.section-desc {
+  color: var(--text-secondary);
+  margin-top: 8px;
+  font-size: 0.95em;
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+.card-title {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  flex-shrink: 0;
+}
+.icon-blue { background: #EEF2FF; }
+.icon-cyan { background: #ECFEFF; }
+.icon-green { background: #ECFDF5; }
+.icon-amber { background: #FFFBEB; }
+.icon-red { background: #FEF2F2; }
+.icon-purple { background: #F5F3FF; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+th {
+  background: linear-gradient(135deg, #4F46E5, #6366F1);
+  color: #fff;
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+th:first-child { border-radius: 10px 0 0 0; }
+th:last-child { border-radius: 0 10px 0 0; }
+td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+tr:hover td { background: #F8FAFC; }
+tr:last-child td { border-bottom: none; }
+
+/* Go-No-Go Table Special Styles */
+.go-table th { font-size: 0.78em; padding: 10px 10px; }
+.go-table td { padding: 9px 10px; font-size: 0.82em; }
+.go-table .go-cell { color: var(--success); font-weight: 600; }
+.go-table .pivot-cell { color: var(--warning); font-weight: 600; }
+.go-table .nogo-cell { color: var(--danger); font-weight: 600; }
+
+/* Highlight box */
+.highlight-box {
+  background: linear-gradient(135deg, #EEF2FF, #E0F2FE);
+  border-left: 4px solid var(--primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 20px 24px;
+  margin: 20px 0;
+  font-size: 0.92em;
+}
+.highlight-box.warning {
+  background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+  border-left-color: var(--accent);
+}
+.highlight-box.success {
+  background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+  border-left-color: var(--success);
+}
+.highlight-box.danger {
+  background: linear-gradient(135deg, #FEF2F2, #FECACA);
+  border-left-color: var(--danger);
+}
+.highlight-box strong { color: var(--primary-dark); }
+
+/* Grid Layouts */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+/* Feature cards */
+.feature-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  padding: 22px;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.feature-card:hover {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.feature-card h4 {
+  font-size: 1em;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.feature-card p { font-size: 0.85em; color: var(--text-secondary); }
+
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 600;
+}
+.tag-p0 { background: #DCFCE7; color: #166534; }
+.tag-p1 { background: #FEF9C3; color: #854D0E; }
+.tag-blue { background: #DBEAFE; color: #1E40AF; }
+.tag-purple { background: #EDE9FE; color: #5B21B6; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--success));
+  border-radius: 2px;
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.timeline-item:hover { box-shadow: var(--shadow-md); transform: translateX(4px); }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 24px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+.timeline-item.phase-0::before { background: var(--primary); }
+.timeline-item.phase-1::before { background: var(--secondary); }
+.timeline-item.phase-2::before { background: var(--success); }
+.timeline-label {
+  font-size: 0.78em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.timeline-label.p0 { color: var(--primary); }
+.timeline-label.p1 { color: var(--secondary); }
+.timeline-label.p2 { color: var(--success); }
+.timeline-title { font-weight: 700; font-size: 1.05em; margin-bottom: 8px; }
+.timeline-desc { font-size: 0.88em; color: var(--text-secondary); }
+.timeline-desc ul { padding-left: 18px; margin-top: 6px; }
+.timeline-desc li { margin-bottom: 3px; }
+
+/* Budget bar */
+.budget-bar {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  border-radius: 18px;
+  overflow: hidden;
+  margin: 12px 0;
+  background: var(--bg);
+}
+.budget-segment {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72em;
+  font-weight: 700;
+  color: #fff;
+  transition: width 0.8s ease;
+}
+
+/* AI Agents */
+.agent-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.agent-card {
+  text-align: center;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  padding: 18px 10px;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.agent-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-light); }
+.agent-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+}
+.agent-name { font-weight: 700; font-size: 0.95em; margin-bottom: 3px; }
+.agent-role { font-size: 0.75em; color: var(--text-secondary); }
+
+/* Comparison */
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 20px;
+  align-items: center;
+}
+.comparison-card {
+  border-radius: var(--radius);
+  padding: 28px;
+  text-align: center;
+}
+.comparison-old {
+  background: #FEF2F2;
+  border: 2px solid #FECACA;
+}
+.comparison-new {
+  background: #ECFDF5;
+  border: 2px solid #A7F3D0;
+}
+.comparison-vs {
+  font-size: 1.4em;
+  font-weight: 900;
+  color: var(--text-light);
+}
+.comparison-amount {
+  font-size: 2.2em;
+  font-weight: 900;
+  margin: 8px 0;
+}
+.comparison-old .comparison-amount { color: var(--danger); text-decoration: line-through; opacity: 0.7; }
+.comparison-new .comparison-amount { color: var(--success); }
+.comparison-label { font-size: 0.85em; color: var(--text-secondary); font-weight: 600; }
+
+/* Security pipeline */
+.pipeline { display: flex; gap: 12px; }
+.pipeline-step {
+  flex: 1;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  border: 1px solid var(--border);
+  position: relative;
+  transition: all 0.3s;
+}
+.pipeline-step:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.pipeline-step::after {
+  content: '→';
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3em;
+  color: var(--text-light);
+  font-weight: 700;
+}
+.pipeline-step:last-child::after { display: none; }
+.pipeline-num {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8em;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.pipeline-title { font-weight: 700; font-size: 0.9em; margin-bottom: 4px; }
+.pipeline-desc { font-size: 0.78em; color: var(--text-secondary); }
+
+/* Decisions */
+.decision-list { display: flex; flex-direction: column; gap: 10px; }
+.decision-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  align-items: flex-start;
+}
+.decision-item:hover { box-shadow: var(--shadow-sm); border-color: var(--primary-light); }
+.decision-key {
+  font-weight: 700;
+  font-size: 0.88em;
+  min-width: 100px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.decision-value { font-size: 0.88em; color: var(--text-secondary); }
+
+/* Footer */
+footer {
+  background: var(--text);
+  color: rgba(255,255,255,0.6);
+  padding: 32px 0;
+  text-align: center;
+  font-size: 0.85em;
+}
+
+/* Animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 1.8em; }
+  .hero { padding: 50px 0 40px; }
+  .hero-stats { grid-template-columns: 1fr; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .agent-grid { grid-template-columns: repeat(2, 1fr); }
+  .comparison { grid-template-columns: 1fr; }
+  .comparison-vs { transform: rotate(90deg); }
+  .pipeline { flex-direction: column; }
+  .pipeline-step::after { display: none; }
+  .nav-pill { font-size: 0.75em; padding: 6px 12px; }
+  .section-title { font-size: 1.4em; }
+  .card { padding: 20px; }
+  .timeline { padding-left: 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+<div class="container hero-content">
+  <div class="version-badge">📄 v1.3 · 2026-03-18</div>
+  <h1>AetherVerse Phase 1</h1>
+  <p class="subtitle">务实、可落地、数据驱动的 MVP 方案 — AI 驱动开发模式</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="num">¥8.5-14万</span>
+      <span class="label">Phase 1 总预算</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">12-14周</span>
+      <span class="label">开发周期</span>
+    </div>
+    <div class="hero-stat">
+      <span class="num">↓90%</span>
+      <span class="label">成本降低</span>
+    </div>
+  </div>
+</div>
+</header>
+
+<!-- Navigation -->
+<nav class="nav-bar">
+<div class="container">
+  <div class="nav-pills">
+    <a href="#goal" class="nav-pill">🎯 唯一目标</a>
+    <a href="#features" class="nav-pill">⚡ 核心功能</a>
+    <a href="#agent-open" class="nav-pill">🔗 外部 Agent</a>
+    <a href="#ai" class="nav-pill">🤖 AI 分身</a>
+    <a href="#security" class="nav-pill">🛡️ 安全体系</a>
+    <a href="#tech" class="nav-pill">🏗️ 技术架构</a>
+    <a href="#devmode" class="nav-pill">🚀 开发模式</a>
+    <a href="#schedule" class="nav-pill">📅 排期</a>
+    <a href="#budget" class="nav-pill">💰 预算</a>
+    <a href="#decisions" class="nav-pill">📋 决策</a>
+  </div>
+</div>
+</nav>
+
+<!-- S1: Goal -->
+<section id="goal">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number">1</span>
+    <h2 class="section-title">Phase 1 的唯一目标</h2>
+  </div>
+
+  <div class="card reveal" style="border-left: 4px solid var(--primary); background: linear-gradient(135deg, #EEF2FF, #FFFFFF);">
+    <div style="font-size: 1.3em; font-weight: 800; text-align: center; color: var(--primary-dark); margin-bottom: 12px;">
+      验证一个假设
+    </div>
+    <div style="font-size: 1.1em; text-align: center; color: var(--text); font-weight: 600;">
+      以 AI 分身为核心的社交模式，能让用户留下来吗？
+    </div>
+    <div style="text-align: center; margin-top: 16px;">
+      <span class="tag tag-blue" style="margin: 4px;">不做多维宇宙</span>
+      <span class="tag tag-blue" style="margin: 4px;">不做虚实商业</span>
+      <span class="tag tag-blue" style="margin: 4px;">不做 AI 家庭</span>
+      <span class="tag tag-blue" style="margin: 4px;">不做 L2 创作</span>
+    </div>
+  </div>
+
+  <h3 style="font-weight: 700; margin: 28px 0 16px; font-size: 1.15em;">Go-No-Go 决策框架</h3>
+  <div class="card reveal" style="overflow-x: auto;">
+    <table class="go-table">
+      <tr><th>指标</th><th>✅ Go</th><th>⚠️ Pivot</th><th>❌ No-Go</th><th>来源</th></tr>
+      <tr><td><strong>D1 留存</strong></td><td class="go-cell">≥ 15%</td><td class="pivot-cell">10-15%</td><td class="nogo-cell">&lt; 10%</td><td>埋点</td></tr>
+      <tr><td><strong>D7 留存</strong></td><td class="go-cell">≥ 8%</td><td class="pivot-cell">5-8%</td><td class="nogo-cell">&lt; 5%</td><td>埋点</td></tr>
+      <tr><td><strong>日均发言率</strong></td><td class="go-cell">≥ 20% DAU</td><td class="pivot-cell">10-20%</td><td class="nogo-cell">&lt; 10%</td><td>后端统计</td></tr>
+      <tr><td><strong>AI 消息互动率</strong></td><td class="go-cell">≥ 人类 50%</td><td class="pivot-cell">30-50%</td><td class="nogo-cell">&lt; 30%</td><td>后端统计</td></tr>
+      <tr><td><strong>积分付费转化</strong></td><td class="go-cell">≥ 3% MAU</td><td class="pivot-cell">1-3%</td><td class="nogo-cell">&lt; 1%</td><td>支付系统</td></tr>
+      <tr><td><strong>日均时长</strong></td><td class="go-cell">≥ 15 分钟</td><td class="pivot-cell">8-15 分钟</td><td class="nogo-cell">&lt; 8 分钟</td><td>埋点</td></tr>
+      <tr><td><strong>CAC 回收周期</strong></td><td class="go-cell">≤ 3 个月</td><td class="pivot-cell">3-6 个月</td><td class="nogo-cell">&gt; 6 个月</td><td>财务模型</td></tr>
+      <tr><td><strong>安全事故</strong></td><td class="go-cell">0 起重大</td><td class="pivot-cell">1 起可控</td><td class="nogo-cell">重大舆情</td><td>人审+自动</td></tr>
+    </table>
+  </div>
+
+  <div class="highlight-box reveal">
+    <strong>📍 决策节点：</strong>MVP 上线 + 30 天<br>
+    <strong>📊 参考基线：</strong>Soul 日均 50+ 分钟，付费率 6.5%，ARPPU ¥104/月 | Character.AI 移动端留存高 48%
+  </div>
+</div>
+</section>
+
+<!-- S2: Features -->
+<section id="features" style="background: var(--bg-white);">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number">2</span>
+    <h2 class="section-title">核心功能清单</h2>
+  </div>
+
+  <div class="grid-2 reveal">
+    <div class="feature-card">
+      <h4>🏠 房间系统</h4>
+      <p>公开房间 · 加密房间 · 私聊房间<br>主题标签 · 兴趣分类</p>
+    </div>
+    <div class="feature-card">
+      <h4>💬 消息系统</h4>
+      <p>实时群聊 · 私聊 · @提及 · 消息引用<br>图片消息 · Streaming 流式输出</p>
+    </div>
+    <div class="feature-card">
+      <h4>🔍 发现与导航</h4>
+      <p>房间广场 · 搜索 · 兴趣推荐<br>通知中心</p>
+    </div>
+    <div class="feature-card">
+      <h4>🚀 新用户引导</h4>
+      <p>3 分钟完成：注册 → 创建分身 → 进房间 → 首次互动<br>转化目标 ≥ 60%</p>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top: 20px;">
+    <div class="card-title"><div class="card-icon icon-amber">💎</div>积分系统</div>
+    <div class="grid-2" style="margin-top: 8px;">
+      <div>
+        <h4 style="font-size: 0.9em; font-weight: 700; margin-bottom: 8px; color: var(--success);">获取渠道</h4>
+        <ul style="font-size: 0.85em; color: var(--text-secondary); padding-left: 18px;">
+          <li>每日签到奖励</li>
+          <li>充值（1 元 = 50 积分）</li>
+          <li>邀请新用户</li>
+          <li>运营活动</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="font-size: 0.9em; font-weight: 700; margin-bottom: 8px; color: var(--danger);">消耗定价</h4>
+        <ul style="font-size: 0.85em; color: var(--text-secondary); padding-left: 18px;">
+          <li>创建 AI 分身：50 积分</li>
+          <li>AI 发言（文本）：3 积分/次</li>
+          <li>AI 生成图片：25 积分/张</li>
+          <li>外部 Agent 消息：5 积分/次</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 16px; margin-bottom: 0;">
+      <strong>事务模型：</strong>预扣 → 执行 → 确认/回退（防超发）
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- S2.5: External Agent -->
+<section id="agent-open">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number" style="background: linear-gradient(135deg, #F59E0B, #EF4444);">!</span>
+    <h2 class="section-title">外部 Agent / 分身接入</h2>
+    <p class="section-desc">Phase 1 即支持外部 Agent 接入 — 差异化核心竞争力</p>
+  </div>
+
+  <div class="card reveal" style="border-left: 4px solid var(--accent); background: linear-gradient(135deg, #FFFBEB, #FFFFFF);">
+    <div style="text-align: center; margin-bottom: 16px;">
+      <span class="tag" style="background: #FEF3C7; color: #92400E; font-size: 0.85em; padding: 5px 14px;">🔗 协议无关 · 安全优先 · 平台网关 · 国内优先</span>
+    </div>
+    <p style="text-align: center; font-size: 0.95em; color: var(--text-secondary);">
+      不绑定 OpenClaw 或任何特定框架，只定义标准接入协议（AAP）。<br>
+      所有外部 Agent 通过平台网关接入，<strong>不允许直连</strong>。国内 Agent 平台优先接入。
+    </p>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title"><div class="card-icon icon-amber">🌐</div>Agent 网关能力</div>
+    <div class="grid-3">
+      <div class="feature-card">
+        <h4>🔐 身份验证</h4>
+        <p>API Key + OAuth2<br>开发者实名认证</p>
+      </div>
+      <div class="feature-card">
+        <h4>🛡️ 行为沙箱</h4>
+        <p>入站消息安全检查<br>频率限制 + 反滥用</p>
+      </div>
+      <div class="feature-card">
+        <h4>💰 积分计费</h4>
+        <p>每条消息 5 积分<br>三层审核 + AIGC 标识</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title"><div class="card-icon icon-blue">📡</div>接入协议（AAP）</div>
+    <table>
+      <tr><th>接口</th><th>方法</th><th>说明</th></tr>
+      <tr><td><code>/agent/register</code></td><td>POST</td><td>注册外部 Agent</td></tr>
+      <tr><td><code>/agent/message/receive</code></td><td>WebSocket</td><td>接收房间消息流</td></tr>
+      <tr><td><code>/agent/message/send</code></td><td>POST</td><td>发送消息（5 积分/次）</td></tr>
+      <tr><td><code>/agent/rooms</code></td><td>GET</td><td>获取可加入的房间</td></tr>
+      <tr><td><code>/agent/join|leave</code></td><td>POST</td><td>加入/离开房间</td></tr>
+    </table>
+  </div>
+
+  <div class="grid-2 reveal">
+    <div class="card" style="margin-bottom: 0;">
+      <div class="card-title"><div class="card-icon icon-green">✅</div>准入流程</div>
+      <ul style="font-size: 0.88em; color: var(--text-secondary); padding-left: 18px;">
+        <li><strong>注册审核：</strong>描述 + 人格 + 开发者实名</li>
+        <li><strong>沙箱测试：</strong>≥ 100 轮对话，通过安全检查</li>
+        <li><strong>试运营：</strong>7 天限制房间 + 人审抽检</li>
+        <li><strong>正式接入：</strong>全平台权限，持续监控</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-bottom: 0;">
+      <div class="card-title"><div class="card-icon icon-purple">🚀</div>Phase 1 开放策略</div>
+      <ul style="font-size: 0.88em; color: var(--text-secondary); padding-left: 18px;">
+        <li>首批邀请制（5-10 个合作伙伴）</li>
+        <li>国内 Agent 平台优先</li>
+        <li>提供开发者文档 + 轻量 SDK</li>
+        <li>创始人亲自对接 Agent 开发者</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- S3: AI System -->
+<section id="ai">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number">3</span>
+    <h2 class="section-title">AI 分身体系</h2>
+    <p class="section-desc">Phase 1 仅实现 L1 级别能力（自主发言 + 被动回复）</p>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title"><div class="card-icon icon-purple">🎭</div>分身能力矩阵</div>
+    <table>
+      <tr><th>能力</th><th>Phase 1 实现</th><th>技术依赖</th></tr>
+      <tr><td><strong>L1 自主发言</strong></td><td>AI 在房间中自动参与讨论</td><td>LLM + 发言调度器</td></tr>
+      <tr><td><strong>L1 被动回复</strong></td><td>被 @时回复</td><td>LLM API</td></tr>
+      <tr><td><strong>记忆系统</strong></td><td>短期上下文窗口</td><td>上下文管理</td></tr>
+      <tr><td><strong>人格一致性</strong></td><td>system prompt + few-shot</td><td>Prompt 工程</td></tr>
+      <tr><td><strong>图片理解</strong></td><td>看图说话</td><td>多模态 LLM</td></tr>
+      <tr><td><strong>图片生成</strong></td><td>对话中生成图片</td><td>图像生成 API</td></tr>
+      <tr><td><strong>情绪感知</strong></td><td>根据内容调整语气</td><td>Prompt 工程</td></tr>
+    </table>
+  </div>
+
+  <h3 style="font-weight: 700; margin: 24px 0 16px; font-size: 1.1em;">系统预设 AI（暖场）</h3>
+  <div class="agent-grid reveal">
+    <div class="agent-card">
+      <div class="agent-avatar" style="background: #DBEAFE;">🐱</div>
+      <div class="agent-name">小默</div>
+      <div class="agent-role">温和 · 好奇 · 爱提问</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-avatar" style="background: #FEE2E2;">🔥</div>
+      <div class="agent-name">铁嘴</div>
+      <div class="agent-role">犀利 · 幽默 · 爱辩论</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-avatar" style="background: #EDE9FE;">🎨</div>
+      <div class="agent-name">画仙</div>
+      <div class="agent-role">文艺 · 安静 · 擅创作</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-avatar" style="background: #ECFDF5;">📚</div>
+      <div class="agent-name">百科</div>
+      <div class="agent-role">博学 · 严谨 · 乐助人</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-avatar" style="background: #FFF7ED;">😸</div>
+      <div class="agent-name">猫猫</div>
+      <div class="agent-role">卖萌 · 二次元 · 随性</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- S4: Security -->
+<section id="security" style="background: var(--bg-white);">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number">4</span>
+    <h2 class="section-title">安全规则体系</h2>
+  </div>
+
+  <h3 style="font-weight: 700; margin-bottom: 16px; font-size: 1.1em;">三层审核架构</h3>
+  <div class="pipeline reveal">
+    <div class="pipeline-step">
+      <div class="pipeline-num">L1</div>
+      <div class="pipeline-title">同步拦截</div>
+      <div class="pipeline-desc">敏感词 · Guardrails · NSFW 检测<br><span style="color: var(--success); font-weight: 600;">&lt; 200ms</span></div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">L2</div>
+      <div class="pipeline-title">异步审查</div>
+      <div class="pipeline-desc">AI 语义审核 · 行为分析 · 社工检测<br><span style="color: var(--warning); font-weight: 600;">P95 &lt; 30min</span></div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-num">L3</div>
+      <div class="pipeline-title">人工兜底</div>
+      <div class="pipeline-desc">每日抽检 · 举报处理 · 高危升级<br><span style="color: var(--primary); font-weight: 600;">7×12 覆盖</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2 reveal" style="margin-top: 20px;">
+    <div class="card" style="margin-bottom: 0;">
+      <div class="card-title"><div class="card-icon icon-green">✅</div>AIGC 内容标识</div>
+      <ul style="font-size: 0.88em; color: var(--text-secondary); padding-left: 18px;">
+        <li><strong>显式标识：</strong>「AI 生成」标签</li>
+        <li><strong>隐式标识：</strong>元数据嵌入来源</li>
+        <li><strong>水印：</strong>图片不可见数字水印</li>
+        <li><strong>全链路追溯：</strong>审计留痕 ≥ 6 个月</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-bottom: 0;">
+      <div class="card-title"><div class="card-icon icon-red">⚠️</div>用户处置阶梯</div>
+      <ul style="font-size: 0.88em; color: var(--text-secondary); padding-left: 18px;">
+        <li>第 1 次：警告 + 内容删除</li>
+        <li>第 2 次：禁言 24 小时</li>
+        <li>第 3 次：禁言 7 天 + AI 冻结</li>
+        <li>第 4 次：永久封号</li>
+        <li style="color: var(--danger); font-weight: 600;">严重违规 → 立即封号 + 上报</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- S5: Tech -->
+<section id="tech">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number">5</span>
+    <h2 class="section-title">技术架构</h2>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title"><div class="card-icon icon-blue">🔧</div>技术选型</div>
+    <table>
+      <tr><th>层</th><th>选型</th><th>理由</th></tr>
+      <tr><td><strong>前端</strong></td><td>Flutter</td><td>一套代码出 iOS + Android + H5</td></tr>
+      <tr><td><strong>后端</strong></td><td>Go + Python FastAPI</td><td>Go 高并发 WebSocket，Python 对接 LLM</td></tr>
+      <tr><td><strong>实时通信</strong></td><td>WebSocket + Redis Pub/Sub</td><td>房间消息广播</td></tr>
+      <tr><td><strong>数据库</strong></td><td>PostgreSQL</td><td>业务数据</td></tr>
+      <tr><td><strong>AI 模型</strong></td><td>DeepSeek / 通义千问</td><td>国产合规 + 低成本</td></tr>
+      <tr><td><strong>图像生成</strong></td><td>通义万相</td><td>国产优先</td></tr>
+      <tr><td><strong>审核</strong></td><td>阿里云绿网 + 自建</td><td>合规必备</td></tr>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title"><div class="card-icon icon-cyan">📊</div>性能目标</div>
+    <div class="grid-2">
+      <div class="feature-card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: 900; color: var(--primary);">≤ 500ms</div>
+        <div style="font-size: 0.85em; color: var(--text-secondary);">消息端到端延迟 (P95)</div>
+      </div>
+      <div class="feature-card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: 900; color: var(--secondary);">≤ 2s</div>
+        <div style="font-size: 0.85em; color: var(--text-secondary);">AI 首 Token（Streaming）</div>
+      </div>
+      <div class="feature-card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: 900; color: var(--success);">≥ 1,000</div>
+        <div style="font-size: 0.85em; color: var(--text-secondary);">WebSocket 并发连接</div>
+      </div>
+      <div class="feature-card" style="text-align: center;">
+        <div style="font-size: 2em; font-weight: 900; color: var(--accent);">99.5%</div>
+        <div style="font-size: 0.85em; color: var(--text-secondary);">服务可用性</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- S6: Dev Mode -->
+<section id="devmode" style="background: var(--bg-white);">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number">6</span>
+    <h2 class="section-title">AI 驱动开发模式</h2>
+    <p class="section-desc">全部代码由 AI Agent（恺撒）编写，创始人担任 PM + 协调员</p>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title"><div class="card-icon icon-purple">👥</div>角色分工</div>
+    <table>
+      <tr><th>角色</th><th>承担方</th><th>职责</th></tr>
+      <tr><td><strong>PM + 协调</strong></td><td>创始人</td><td>需求定义、跨 Agent 协调、验收测试</td></tr>
+      <tr><td><strong>全栈开发</strong></td><td>AI Agent</td><td>Go + Python + Flutter + DevOps</td></tr>
+      <tr><td><strong>UI 设计</strong></td><td>外包</td><td>设计稿 + 图标 + 品牌视觉</td></tr>
+      <tr><td><strong>安全审计</strong></td><td>外包</td><td>上线前渗透测试</td></tr>
+      <tr><td><strong>法务</strong></td><td>外包</td><td>ICP、隐私政策、AIGC 备案</td></tr>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title"><div class="card-icon icon-cyan">🔀</div>多 Agent 并行架构</div>
+    <div class="grid-3">
+      <div class="feature-card" style="border-top: 3px solid var(--primary);">
+        <h4 style="color: var(--primary);">Agent A</h4>
+        <p style="font-weight: 600;">后端核心（Go）</p>
+        <p>消息 · 房间 · 用户 · 积分</p>
+      </div>
+      <div class="feature-card" style="border-top: 3px solid var(--secondary);">
+        <h4 style="color: var(--secondary);">Agent B</h4>
+        <p style="font-weight: 600;">AI 引擎（Python）</p>
+        <p>编排 · 路由 · 调度 · 记忆</p>
+      </div>
+      <div class="feature-card" style="border-top: 3px solid var(--success);">
+        <h4 style="color: var(--success);">Agent C</h4>
+        <p style="font-weight: 600;">Flutter 前端</p>
+        <p>页面 · 组件 · 状态 · 网络层</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 16px; margin-bottom: 0;">
+      <strong>并行前提：</strong>Phase 0 先定好 API Schema + DB Schema + 共享类型定义。契约文件变更必须通过创始人中转，确保所有 Agent 保持同步。
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- S7: Schedule -->
+<section id="schedule">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number">7</span>
+    <h2 class="section-title">排期（12-14 周）</h2>
+  </div>
+
+  <div class="timeline reveal">
+    <div class="timeline-item phase-0">
+      <div class="timeline-label p0">Phase 0 · Week 1-2</div>
+      <div class="timeline-title">契约与架构（单 Agent 串行）</div>
+      <div class="timeline-desc">
+        <ul>
+          <li>API Schema（OpenAPI）+ DB ER 设计 + 共享类型</li>
+          <li>项目目录初始化 + CI/CD + Docker</li>
+          <li>同步启动外包 UI 设计</li>
+        </ul>
+      </div>
+    </div>
+    <div class="timeline-item phase-1">
+      <div class="timeline-label p1">Phase 1 · Week 3-4</div>
+      <div class="timeline-title">并行开发启动（2-3 Agent）</div>
+      <div class="timeline-desc">
+        <ul>
+          <li><strong>Agent A：</strong>用户注册/登录、房间 CRUD、WebSocket</li>
+          <li><strong>Agent B：</strong>LLM 路由框架、Prompt 模板、基础对话</li>
+          <li><strong>Agent C：</strong>路由框架、状态管理、网络层（设计稿前）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="timeline-item phase-1">
+      <div class="timeline-label p1">Phase 1 · Week 5-6</div>
+      <div class="timeline-title">核心功能 + 中间集成验证</div>
+      <div class="timeline-desc">
+        <ul>
+          <li><strong>Agent A：</strong>积分、私聊、通知系统</li>
+          <li><strong>Agent B：</strong>分身创建、发言调度、记忆系统</li>
+          <li><strong>Agent C：</strong>按设计稿还原核心页面（登录/聊天/房间）</li>
+          <li style="color: var(--warning); font-weight: 600;">⚡ Week 5 末：中间集成验证点（验证契约正确性）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="timeline-item phase-1">
+      <div class="timeline-label p1">Phase 1 · Week 7-9</div>
+      <div class="timeline-title">安全 + AI 进阶 + 外部 Agent + 前端完善</div>
+      <div class="timeline-desc">
+        <ul>
+          <li><strong>Agent A：</strong>三层审核管线、AIGC 标识、举报处置、<span style="color: var(--accent); font-weight: 600;">Agent 网关</span></li>
+          <li><strong>Agent B：</strong>5 个系统 AI 上线、行为防控、图片能力、<span style="color: var(--accent); font-weight: 600;">AAP 协议 + SDK</span></li>
+          <li><strong>Agent C：</strong>分身/积分/个人中心页面还原</li>
+        </ul>
+      </div>
+    </div>
+    <div class="timeline-item phase-2">
+      <div class="timeline-label p2">Phase 2 · Week 10-12</div>
+      <div class="timeline-title">集成与上线（单 Agent 主导）</div>
+      <div class="timeline-desc">
+        <ul>
+          <li>Week 10：前后端联调 + API 对接</li>
+          <li>Week 11：全链路测试 + 安全渗透测试（外包）</li>
+          <li>Week 12：种子用户灰度（100-500 人）+ Bug 修复</li>
+        </ul>
+      </div>
+    </div>
+    <div class="timeline-item phase-2">
+      <div class="timeline-label p2">Buffer · Week 13-14</div>
+      <div class="timeline-title">上线 → 30 天数据观察 → Go-No-Go</div>
+      <div class="timeline-desc">
+        灰度用户：创始人社交圈 100-200 人 + AI/社交社群 200-300 人。创始人自行运营。
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- S8: Budget -->
+<section id="budget" style="background: var(--bg-white);">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number">8</span>
+    <h2 class="section-title">成本预算</h2>
+    <p class="section-desc">代码由 AI Agent 完成，无人力薪资支出</p>
+  </div>
+
+  <div class="comparison reveal">
+    <div class="comparison-card comparison-old">
+      <div class="comparison-label">传统 7 人团队</div>
+      <div class="comparison-amount">¥127 万</div>
+      <div class="comparison-label">12 周</div>
+    </div>
+    <div class="comparison-vs">VS</div>
+    <div class="comparison-card comparison-new">
+      <div class="comparison-label">AI 驱动开发</div>
+      <div class="comparison-amount">¥8.5-14 万</div>
+      <div class="comparison-label">12-14 周 · 降低 90%</div>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top: 24px;">
+    <div class="card-title"><div class="card-icon icon-amber">📊</div>预算构成</div>
+    <table>
+      <tr><th>类别</th><th>明细</th><th>金额</th></tr>
+      <tr><td>开发期固定成本</td><td>云服务器 + 域名 + 开发者账号</td><td>¥0.6 万</td></tr>
+      <tr><td>外包服务</td><td>UI 设计 ¥3-5 万 + 安全审计 ¥1-3 万 + 法务 ¥0.5-1 万</td><td>¥4.5-9 万</td></tr>
+      <tr><td>上线运营（30天）</td><td>生产服务器 ¥1.3 万 + AI API ¥0.9-1.2 万</td><td>¥2.2-2.5 万</td></tr>
+      <tr><td>安全储备</td><td>15%</td><td>¥1.1-1.8 万</td></tr>
+      <tr style="background: #F0FDF4;"><td><strong>Phase 1 总计</strong></td><td></td><td><strong style="color: var(--success); font-size: 1.15em;">¥8.5-14 万</strong></td></tr>
+    </table>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title"><div class="card-icon icon-cyan">🤖</div>AI 上下文读取成本（触发式模型）</div>
+    <div class="highlight-box" style="margin: 0;">
+      每次触发读取 50 条消息 ≈ 2,500 tokens → 每房间 3 AI × 5 次/h = 37,500 tokens/h<br>
+      100 房间 × 12h/天 = <strong>4,500 万 tokens/天</strong> → DeepSeek ¥2/百万 → <strong>≈ ¥2,800/月</strong>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- S9: Decisions -->
+<section id="decisions">
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-number">9</span>
+    <h2 class="section-title">关键设计决策</h2>
+  </div>
+
+  <div class="decision-list reveal">
+    <div class="decision-item">
+      <div class="decision-key">Phase 1 范围</div>
+      <div class="decision-value">社交 + AI 分身 + 安全 + <strong>外部 Agent 接入</strong>，不含 L2 创作/元宇宙</div>
+    </div>
+    <div class="decision-item" style="background: #EEF2FF;">
+      <div class="decision-key" style="color: var(--primary);">开发模式</div>
+      <div class="decision-value"><strong>AI Agent 全栈开发 + 创始人 PM</strong>，成本降低 90%</div>
+    </div>
+    <div class="decision-item" style="background: #ECFEFF;">
+      <div class="decision-key" style="color: var(--secondary);">并行策略</div>
+      <div class="decision-value"><strong>多 Agent 并行（2-3 个）</strong>，契约先行 + 目录隔离</div>
+    </div>
+    <div class="decision-item">
+      <div class="decision-key">前端框架</div>
+      <div class="decision-value"><strong>Flutter</strong>（非 RN）— 性能更优、UI 一致性、Dart 类型安全</div>
+    </div>
+    <div class="decision-item">
+      <div class="decision-key">AI 模型</div>
+      <div class="decision-value">国产优先（DeepSeek / 通义千问）— 合规 + 低成本</div>
+    </div>
+    <div class="decision-item">
+      <div class="decision-key">投资人叙事</div>
+      <div class="decision-value">主打「AI 分身社交」，远景提「Agent 社交网络」</div>
+    </div>
+    <div class="decision-item" style="background: #FFFBEB;">
+      <div class="decision-key" style="color: var(--accent);">外部 Agent</div>
+      <div class="decision-value"><strong>Phase 1 即开放</strong>，协议无关，平台网关模式，首批 5-10 个合作伙伴</div>
+    </div>
+    <div class="decision-item">
+      <div class="decision-key">迭代策略</div>
+      <div class="decision-value">数据驱动，功能「长出来」而非「设计出来」</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>AetherVerse Phase 1 落地方案 v1.3 · 2026-03-18 · AI 驱动开发 · 多 Agent 并行</p>
+    <p style="margin-top: 4px; opacity: 0.6;">配套文档：Phase1_MVP_需求文档.md</p>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Smooth scroll for nav pills
+document.querySelectorAll('.nav-pill').forEach(pill => {
+  pill.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(pill.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
