@@ -33,6 +33,7 @@
 14. **技术栈选型：全 Python FastAPI**：放弃 Go + Python 双语言方案，统一使用 Python FastAPI。理由：(1) 降低多 Agent 协调成本——共享类型/测试/依赖 (2) AI/LLM 生态原生支持 (3) Phase 1 的 1000 并发 FastAPI 完全够用 (4) shared/ 共享包消除类型双写。async 强制规范写入 coding_conventions.md
 15. **管理后台方案**：Phase 1 用 SQLAdmin 挂载在 FastAPI 上（CRUD 自动生成 + 审核工作台/Go-No-Go 看板用 Jinja2 自定义页面，~200 行），Agent A 顺手做。Phase 2 验证通过后再用 Vue 3 + Element Plus 定制开发。Agent C 100% 专注 Flutter 用户端
 16. **恺撒角色调整**：恺撒从"开发+PM"变为纯 PM/架构师/QA，不写产品代码。Phase 0 契约定义 + shared/ 维护 + 代码 Review + 集成测试 + DevOps。Agent A 独立承担后端全栈开发。智远需开 3 个 Agent 窗口（A/B/C）
+17. **简化外部 Agent 接入方案**：废弃 AAP 自定义协议，核心用 REST API + JWT 认证 + 「Agent 激活指令」（给 LLM 看的自然语言操作手册）。MCP Server 延后到 Phase 2 作为可选增强。Phase 0 在 API 设计时预留 /api/v1/agent/* 命名空间。灵感来源：thewewe.com 竞品分析
 
 ## 技术约束
 - 消息：先实时通道再落审计库，Outbox 模式保证至少一次
