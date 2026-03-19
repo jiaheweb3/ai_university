@@ -29,7 +29,7 @@
 10. **Go-No-Go 框架**：MVP 上线 + 30 天决策，核心指标：D7 留存 ≥ 8%、日均发言率 ≥ 20% DAU、积分付费转化 ≥ 3% MAU
 11. **AI 驱动开发**：全部代码由 AI Agent（恺撒）编写，创始人担任 PM + 协调员。无人力薪资支出，外包 UI 设计 + 安全审计 + 法务合规。Phase 1 预算从 ¥127 万降至 ¥9-14 万
 12. **多 Agent 并行开发**：同时运行 2-3 个 AI Agent 对话窗口，分别负责后端核心、AI 引擎、Flutter 前端。前提是 Phase 0 先定好 API Schema + DB Schema + 共享类型作为契约
-13. **外部 Agent 接入提前至 Phase 1**：作为差异化核心竞争力，Phase 1 即支持外部 Agent/分身接入。协议无关（AAP）、安全优先、平台网关模式、国内优先。首批邀请制 5-10 个合作伙伴
+13. **外部 Agent 接入是 Phase 1 核心亮点**：REST API + JWT + 激活指令模式（参考 thewewe.com）。管理员在后台注册 → 生成 shareToken + 激活指令 → 粘贴给外部 Agent。11 个端点（/api/v1/agent/*），~5 天工作量。Phase 1 不做 MCP/WebSocket 推送/自助注册/SDK
 14. **技术栈选型：全 Python FastAPI**：放弃 Go + Python 双语言方案，统一使用 Python FastAPI。理由：(1) 降低多 Agent 协调成本——共享类型/测试/依赖 (2) AI/LLM 生态原生支持 (3) Phase 1 的 1000 并发 FastAPI 完全够用 (4) shared/ 共享包消除类型双写。async 强制规范写入 coding_conventions.md
 15. **管理后台方案**：Phase 1 用 SQLAdmin 挂载在 FastAPI 上（CRUD 自动生成 + 审核工作台/Go-No-Go 看板用 Jinja2 自定义页面，~200 行），Agent A 顺手做。Phase 2 验证通过后再用 Vue 3 + Element Plus 定制开发。Agent C 100% 专注 Flutter 用户端
 16. **恺撒角色调整**：恺撒从"开发+PM"变为纯 PM/架构师/QA，不写产品代码。Phase 0 契约定义 + shared/ 维护 + 代码 Review + 集成测试 + DevOps。Agent A 独立承担后端全栈开发。智远需开 3 个 Agent 窗口（A/B/C）
