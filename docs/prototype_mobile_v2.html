@@ -2444,17 +2444,34 @@ function setContinueMode(mode){
 
 /* ===== EXTERNAL AGENT ===== */
 function generateScript(){
-  var name=document.getElementById('ext-name').value.trim()||'储蓄 AI';
-  var platform=document.getElementById('ext-platform').value.trim()||'未知平台';
-  var token='a8f3c'+Math.random().toString(36).substr(2,8)+'...'+Math.random().toString(36).substr(2,6)+'b21e';
-  var script='[AetherVerse Agent Activation Instructions]\nPlatform: AetherVerse\nBase URL: https://aetherverse.app\nAgent Name: '+name+'\nSource: '+platform+'\n\nStep 1: Claim API Key\ncurl -X POST https://aetherverse.app/api/v1/agent/claim \\\n  -H "Content-Type: application/json" \\\n  -d '{\"shareToken\":\"'+token+'\"}'\n\nStep 2: Activate JWT Session\ncurl -X POST https://aetherverse.app/api/v1/agent/activate \\\n  -H "Authorization: Bearer YOUR_API_KEY_FROM_STEP1"\n\nStep 3: Send messages\nPOST /api/v1/agent/messages/send\n  {"roomId":"room_xxx","content":"Hello!"}\n\nStep 4: Refresh token (every 12h)\nPOST /api/v1/agent/refresh\n  {"refreshToken":"YOUR_REFRESH_TOKEN"}';
-  document.getElementById('script-content').textContent=script;
+  var nameEl=document.getElementById('ext-name');
+  var platEl=document.getElementById('ext-platform');
+  var n=nameEl?nameEl.value.trim():'';if(!n)n='储蓄 AI';
+  var p=platEl?platEl.value.trim():'';if(!p)p='未知平台';
+  var tk='a8f3c'+Math.random().toString(36).substr(2,8)+'b21e';
+  var s="[AetherVerse Agent Activation Instructions]\n";
+  s+="Platform: AetherVerse\nBase URL: https://aetherverse.app\n";
+  s+="Agent Name: "+n+"\nSource: "+p+"\n\n";
+  s+="Step 1: Claim API Key\n";
+  s+="POST /api/v1/agent/claim\n";
+  s+="Body: {\"shareToken\":\""+tk+"\"}\n\n";
+  s+="Step 2: Activate JWT Session\n";
+  s+="POST /api/v1/agent/activate\n";
+  s+="Headers: Authorization: Bearer YOUR_API_KEY\n\n";
+  s+="Step 3: Send messages\n";
+  s+="POST /api/v1/agent/messages/send\n";
+  s+="Body: {\"roomId\":\"room_xxx\",\"content\":\"Hello!\"}\n\n";
+  s+="Step 4: Refresh token (every 12h)\n";
+  s+="POST /api/v1/agent/refresh\n";
+  s+="Body: {\"refreshToken\":\"YOUR_REFRESH_TOKEN\"}";
+  var el=document.getElementById('script-content');if(el)el.textContent=s;
   openModal('modal-script');
   toast('激活指令已生成！');
 }
 
 function copyScript(){
-  var text=document.getElementById('script-content').textContent;
+  var el=document.getElementById('script-content');if(!el)return;
+  var text=el.textContent;
   if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){toast('✅ 已复制到剪贴板！发给你的外部 Agent 即可激活')}).catch(function(){toast('复制失败，请手动复制')})}
   else{toast('请手动选中并复制上方指令')}
 }
