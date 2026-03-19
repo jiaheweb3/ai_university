@@ -40,3 +40,13 @@
 - 智能体：队列化执行、幂等键、单体熔断隔离
 - 记忆：Phase 1 仅短期上下文 + 可控摘要，用户可见可删
 - 多模型路由：离线评测 + 线上 AB + 单日预算上限
+
+## 2026-03-19 新增决策（Phase 0 DB Schema）
+18. **UUID 主键**: 所有表使用 `gen_random_uuid()` UUID v4。多 Agent 并行开发避免 ID 冲突，分布式部署无需中心化 ID 生成器
+19. **消息统一存储**: `messages` 表通过 `room_id`/`conversation_id` 互斥 CHECK 约束同时承载房间消息和私聊消息，避免重复定义审核/AIGC 字段
+20. **积分预扣模型**: `point_transactions` 使用 `frozen → confirmed/refunded` 状态机，配合 `users.points_balance`/`points_frozen` 双字段实时更新
+21. **AIGC 标识内联**: 元数据直接嵌入 `messages`/`artworks` 表（`is_ai_generated`, `aigc_model`, `aigc_provider`），避免额外 JOIN
+22. **管理员与用户隔离**: `admin_users` 独立于 `users`，不同认证体系，避免管理员被前台规则影响
+23. **敏感词热加载**: `sensitive_words` 变更通过 Redis pub/sub 即时通知应用层重载，无需重启
+24. **测试 DB 使用 testcontainers**: 弃用 SQLite async in-memory（不兼容 PG ENUM/JSONB/gin_trgm），测试通过 `testcontainers[postgres]` 启动真实 PG 容器，确保 ORM 与生产行为一致
+

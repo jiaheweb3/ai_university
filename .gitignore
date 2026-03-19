@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Node (Flutter web / admin tools)
+node_modules/
+.dart_tool/
+.packages
+
+# Flutter
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Coverage / Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Temp
+tmp/
+*.tmp
+*.log

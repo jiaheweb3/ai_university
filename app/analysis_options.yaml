@@ -1,0 +1,7 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    use_null_aware_elements: false
+    unnecessary_underscores: false
+    dangling_library_doc_comments: false

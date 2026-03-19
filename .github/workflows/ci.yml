@@ -1,0 +1,91 @@
+# AetherVerse CI — Lint + Test
+# 维护者: 恺撒
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [develop]
+
+jobs:
+  # ============================================================
+  # Python (server + ai-engine + shared)
+  # ============================================================
+  python-lint:
+    name: Python Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff
+      - run: ruff check shared/ server/ ai-engine/
+      - run: ruff format --check shared/ server/ ai-engine/
+
+  python-test:
+    name: Python Tests
+    runs-on: ubuntu-latest
+    needs: python-lint
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: aetherverse_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install shared
+        run: pip install -e "./shared[dev]"
+      - name: Install server
+        run: pip install -e "./server[dev]"
+      - name: Test server
+        run: cd server && pytest -v
+        env:
+          DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/aetherverse_test
+          REDIS_URL: redis://localhost:6379/0
+      - name: Install ai-engine
+        run: pip install -e "./ai-engine[dev]"
+      - name: Test ai-engine
+        run: cd ai-engine && pytest -v
+
+  # ============================================================
+  # Flutter (app)
+  # ============================================================
+  # flutter-lint:
+  #   name: Flutter Lint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: "3.22"
+  #     - run: cd app && flutter pub get
+  #     - run: cd app && flutter analyze
+  #
+  # flutter-test:
+  #   name: Flutter Tests
+  #   runs-on: ubuntu-latest
+  #   needs: flutter-lint
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: "3.22"
+  #     - run: cd app && flutter pub get
+  #     - run: cd app && flutter test

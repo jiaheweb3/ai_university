@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AetherVerse · 管理后台原型 v2.0</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f6ff;--sidebar:#fff;--content:#f0f6ff;--card:#fff;
+  --p:#2563eb;--pdim:#eff6ff;--pb:#dbeafe;
+  --g:#10b981;--gdim:#f0fdf4;--gb:#d1fae5;
+  --y:#f59e0b;--ydim:#fffbeb;--yb:#fde68a;
+  --r:#ef4444;--rdim:#fef2f2;--rb:#fecaca;
+  --t:#1e293b;--t2:#475569;--t3:#94a3b8;
+  --border:#e2e8f0;--sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(37,99,235,.1);
+  --sidebar-w:240px;--hdr-h:56px;--R:10px;
+}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t);display:flex;height:100vh;overflow:hidden;font-size:14px}
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;overflow-y:auto;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.sb-logo{padding:18px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.sb-logo-ico{width:36px;height:36px;background:linear-gradient(135deg,var(--p),#7c3aed);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.sb-logo-t{font-size:15px;font-weight:800;color:var(--t)}
+.sb-logo-s{font-size:11px;color:var(--t3)}
+.sb-sec{padding:16px 12px 6px}
+.sb-sec-t{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;padding:0 8px;margin-bottom:4px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--t2);font-size:13.5px;transition:all .15s;margin-bottom:2px;position:relative}
+.sb-item:hover{background:var(--pdim);color:var(--p)}
+.sb-item.on{background:var(--pdim);color:var(--p);font-weight:600}
+.sb-item .si{font-size:17px;width:22px;text-align:center}
+.sb-badge{margin-left:auto;background:var(--r);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}
+.sb-badge.y{background:var(--y)}
+.sb-foot{margin-top:auto;padding:14px 12px;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
+.sb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--p),#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0}
+.sb-un{font-size:13px;font-weight:600;color:var(--t)}
+.sb-role{font-size:11px;color:var(--t3)}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+/* HEADER */
+.hdr{height:var(--hdr-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.hdr-title{font-size:17px;font-weight:700;color:var(--t);flex:1}
+.hdr-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:var(--t3);font-size:13px;min-width:220px}
+.hdr-search input{border:none;outline:none;background:transparent;color:var(--t);font-size:13px;width:160px}
+.hdr-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:17px;background:transparent;border:none;transition:background .15s}
+.hdr-btn:hover{background:var(--pdim);color:var(--p)}
+.notif-dot{position:relative}
+.notif-dot::after{content:"";position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--r);border-radius:50%;border:1.5px solid #fff}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:24px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+/* PAGES */
+.page{display:none}
+.page.on{display:block}
+/* GRID */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px}
+/* METRIC CARD */
+.mcard{background:var(--card);border-radius:var(--R);padding:20px;box-shadow:var(--sh);border:1px solid var(--border)}
+.mc-label{font-size:12px;color:var(--t3);margin-bottom:8px;font-weight:500}
+.mc-val{font-size:28px;font-weight:800;color:var(--t)}
+.mc-sub{font-size:12px;color:var(--t3);margin-top:6px;display:flex;align-items:center;gap:4px}
+.up{color:var(--g)}
+.dn{color:var(--r)}
+.mc-icon{font-size:22px;float:right;margin-top:-4px}
+/* CARD */
+.card{background:var(--card);border-radius:var(--R);padding:20px;box-shadow:var(--sh);border:1px solid var(--border);margin-bottom:20px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-t{font-size:15px;font-weight:700;color:var(--t)}
+.card-sub{font-size:12px;color:var(--t3);margin-top:2px}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:10px 14px;text-align:left;font-size:12px;font-weight:600;color:var(--t3);background:#f8fafc;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px;color:var(--t)}
+.tbl tbody tr:hover{background:#f8faff}
+.tbl tbody tr:last-child td{border-bottom:none}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge.g{background:var(--gb);color:#065f46}
+.badge.r{background:var(--rb);color:#991b1b}
+.badge.y{background:var(--yb);color:#92400e}
+.badge.b{background:var(--pb);color:#1e40af}
+.badge.gray{background:#e2e8f0;color:#475569}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-p{background:var(--p);color:#fff;box-shadow:var(--sh2)}
+.btn-p:hover{background:#1d4ed8}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--pdim);color:var(--p);border-color:var(--pb)}
+.btn-danger{background:var(--rdim);color:var(--r);border:1px solid var(--rb)}
+.btn-sm{padding:4px 10px;font-size:12px;border-radius:6px}
+/* SEARCH BAR */
+.sbar{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--t3);font-size:13px;margin-bottom:16px}
+.sbar input{border:none;outline:none;background:transparent;color:var(--t);font-size:13px;flex:1}
+/* STATUS DOT */
+.sdot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.sdot.g{background:var(--g)}
+.sdot.r{background:var(--r)}
+.sdot.y{background:var(--y)}
+.sdot.gray{background:var(--t3)}
+/* SVG CHARTS */
+.chart-wrap{overflow:hidden}
+/* REVIEW */
+.rq-item{border:1px solid var(--border);border-radius:var(--R);padding:16px;margin-bottom:12px;transition:border-color .15s}
+.rq-item:hover{border-color:var(--p)}
+.rq-hd{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.rq-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.rq-meta{flex:1}
+.rq-sender{font-size:13px;font-weight:600;color:var(--t)}
+.rq-time{font-size:12px;color:var(--t3)}
+.rq-content{background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:10px;font-size:13px;color:var(--t);line-height:1.6;border-left:3px solid var(--r)}
+.rq-ctx{font-size:12px;color:var(--t3);margin-bottom:10px;line-height:1.6}
+.rq-acts{display:flex;gap:8px}
+/* PROGRESS BAR */
+.prog-bar{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:3px}
+/* MODEL CARD */
+.model-card{border:1px solid var(--border);border-radius:var(--R);padding:16px;display:flex;align-items:center;gap:16px}
+.model-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.model-name{font-size:14px;font-weight:700;color:var(--t)}
+.model-meta{font-size:12px;color:var(--t3);margin-top:3px}
+.model-stats{margin-left:auto;text-align:right}
+.model-stat-v{font-size:15px;font-weight:700;color:var(--t)}
+.model-stat-l{font-size:11px;color:var(--t3)}
+/* GO-NO-GO */
+.gng-row{display:flex;gap:10px;flex-wrap:wrap}
+.gng-item{flex:1;min-width:160px;border-radius:var(--R);padding:14px 16px;border:1px solid transparent}
+.gng-item.g{background:var(--gdim);border-color:var(--gb)}
+.gng-item.y{background:var(--ydim);border-color:var(--yb)}
+.gng-item.r{background:var(--rdim);border-color:var(--rb)}
+.gng-metric{font-size:12px;color:var(--t3);margin-bottom:6px}
+.gng-val{font-size:22px;font-weight:800}
+.gng-item.g .gng-val{color:#065f46}
+.gng-item.y .gng-val{color:#92400e}
+.gng-item.r .gng-val{color:#991b1b}
+.gng-target{font-size:11px;margin-top:4px}
+.gng-item.g .gng-target{color:var(--g)}
+.gng-item.y .gng-target{color:var(--y)}
+.gng-item.r .gng-target{color:var(--r)}
+/* 智能体管理 Tab 内容 */
+.agent-tab-block{display:none}
+.agent-tab-block.on{display:block}
+.personality-preview{max-height:80px;overflow-y:auto;font-size:12px;color:var(--t2);line-height:1.5;padding:8px 10px;background:#f8fafc;border-radius:8px;border:1px solid var(--border)}
+/* 弹层 */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-mask.on{display:flex}
+.modal-box{background:var(--card);border-radius:var(--R);box-shadow:0 20px 60px rgba(0,0,0,.15);max-width:560px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-box .m-h{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);font-size:16px;font-weight:700}
+.modal-box .m-body{padding:20px}
+.modal-box .m-close{cursor:pointer;color:var(--t3);font-size:20px}
+.modal-box .form-row{margin-bottom:14px}
+.modal-box .form-row label{display:block;font-size:12px;color:var(--t3);margin-bottom:6px}
+.modal-box .form-row .fi{width:100%}
+.modal-box .form-row textarea.fi{min-height:80px;resize:vertical}
+.modal-box .m-ft{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border)}
+/* TABS */
+.tabs{display:flex;gap:2px;background:#f1f5f9;border-radius:8px;padding:3px;margin-bottom:16px;width:fit-content}
+.tab-btn{padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--t2);transition:all .15s}
+.tab-btn.on{background:#fff;color:var(--p);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+/* BREADCRUMB */
+.bc{font-size:12px;color:var(--t3);margin-bottom:16px}
+.bc span{color:var(--t2)}
+/* FORM inline */
+.fi{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--t);outline:none}
+.fi:focus{border-color:var(--p);background:#fff}
+select.fi{cursor:pointer}
+/* TAG */
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--pb);color:var(--p);font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px}
+/* NOTICE */
+.notice{border-radius:var(--R);padding:12px 16px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.notice.warn{background:var(--ydim);border:1px solid var(--yb);color:#92400e}
+.notice.info{background:var(--pdim);border:1px solid var(--pb);color:#1e40af}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* Safety tab content */
+.safety-tab-block{display:none}
+.safety-tab-block.on{display:block}
+
+.safety-tab-block{display:none}
+.safety-tab-block.on{display:block}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.notice.info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.notice.warn{background:#fffbeb;border:1px solid #fcd34d;color:#92400e;padding:12px 16px;border-radius:8px;font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+ <div class="sb-logo">
+  <div class="sb-logo-ico">🌐</div>
+  <div><div class="sb-logo-t">AetherVerse</div><div class="sb-logo-s">管理后台 v2.0</div></div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">概览</div>
+  <div class="sb-item on" onclick="nav('dashboard',this)"><span class="si">📊</span>仪表盘</div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">用户与内容</div>
+  <div class="sb-item" onclick="nav('users',this)"><span class="si">👥</span>用户管理</div>
+  <div class="sb-item" onclick="nav('agents',this)"><span class="si">🤖</span>智能体管理</div>
+  <div class="sb-item" onclick="nav('rooms',this)"><span class="si">🏠</span>房间管理</div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">安全与合规</div>
+  <div class="sb-item" onclick="nav('review',this)"><span class="si">🛡️</span>审核台<span class="sb-badge">12</span></div>
+  <div class="sb-item" onclick="nav('safety',this)"><span class="si">⚙️</span>安全规则配置</div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">运营与成本</div>
+  <div class="sb-item" onclick="nav('gateway',this)"><span class="si">🔗</span>AI 网关管理</div>
+  <div class="sb-item" onclick="nav('analytics',this)"><span class="si">📈</span>数据看板</div>
+ </div>
+
+ <div class="sb-sec">
+  <div class="sb-sec-t">系统</div>
+  <div class="sb-item" onclick="nav('syslog',this)"><span class="si">📋</span>操作日志</div>
+  <div class="sb-item" onclick="nav('syslog',this)"><span class="si">👤</span>管理员账号</div>
+ </div>
+
+ <div class="sb-foot">
+  <div class="sb-user">
+   <div class="sb-av">A</div>
+   <div><div class="sb-un">admin_root</div><div class="sb-role">超级管理员</div></div>
+  </div>
+ </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+ <!-- HEADER -->
+ <header class="hdr">
+  <div class="hdr-title" id="page-title">仪表盘</div>
+  <div class="hdr-search"><span>🔍</span><input placeholder="搜索用户、房间、内容…" onkeydown="if(event.key==='Enter')adminSearch(this)"></div>
+  <button class="hdr-btn notif-dot" title="通知" onclick="headerNotif()">🔔</button>
+  <button class="hdr-btn" title="帮助" onclick="headerHelp()">❓</button>
+  <button class="hdr-btn" title="设置" onclick="headerSettings()">⚙️</button>
+ </header>
+
+ <!-- CONTENT -->
+ <div class="content">
+
+  <!-- ========== DASHBOARD ========== -->
+  <div class="page on" id="p-dashboard">
+   <div class="bc">管理后台 › <span>仪表盘</span></div>
+
+   <div class="notice warn">⚡ 当前 AI 网关日预算已使用 <strong>78%</strong>，距告警阈值（80%）仅剩 8 元，请关注成本。</div>
+
+   <!-- 实时概览 -->
+   <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:12px">📡 实时概览（每分钟刷新）</div>
+   <div class="grid-4">
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">👥</span>当前在线</div><div class="mc-val">1,247</div><div class="mc-sub"><span class="up">▲</span>vs 1h前 +143</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">💬</span>消息速率</div><div class="mc-val">384</div><div class="mc-sub">条/分钟</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🏠</span>活跃房间</div><div class="mc-val">28</div><div class="mc-sub">共 35 个房间</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🤖</span>活跃智能体</div><div class="mc-val">156</div><div class="mc-sub"><span class="up">▲</span>比昨日 +23</div></div>
+   </div>
+
+   <!-- T+1 指标 -->
+   <div style="font-size:13px;font-weight:600;color:var(--t);margin-bottom:12px">📊 今日核心指标（T+1）</div>
+   <div class="grid-4">
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🌞</span>DAU</div><div class="mc-val">3,842</div><div class="mc-sub"><span class="up">▲</span>+8.3% vs 昨日</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🔄</span>D1 留存</div><div class="mc-val">22.4%</div><div class="mc-sub"><span class="up">▲</span>目标 ≥15% ✓</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">💎</span>今日充值</div><div class="mc-val">¥6,280</div><div class="mc-sub"><span class="up">▲</span>付费用户 312</div></div>
+    <div class="mcard"><div class="mc-label"><span class="mc-icon">🤖</span>AI消息互动率</div><div class="mc-val">52.8%</div><div class="mc-sub"><span class="up">▲</span>目标 ≥50% ✓</div></div>
+   </div>
+
+   <div class="grid-2">
+    <!-- DAU 趋势 -->
+    <div class="card">
+     <div class="card-hdr"><div><div class="card-t">DAU 趋势（近7天）</div><div class="card-sub">日活跃用户数</div></div>
+      <div class="tabs" style="margin-bottom:0"><div class="tab-btn on" onclick="chartTab(this)">7天</div><div class="tab-btn" onclick="chartTab(this)">30天</div></div>
+     </div>
+     <svg width="100%" height="140" viewBox="0 0 420 140" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb" stop-opacity=".2"/><stop offset="100%" stop-color="#2563eb" stop-opacity="0"/></linearGradient></defs>
+      <!-- grid -->
+      <line x1="0" y1="100" x2="420" y2="100" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="0" y1="65" x2="420" y2="65" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="0" y1="30" x2="420" y2="30" stroke="#e2e8f0" stroke-width="1"/>
+      <!-- area fill -->
+      <path d="M10,100 L75,82 L140,76 L205,68 L270,58 L335,50 L400,36 L400,110 L10,110 Z" fill="url(#dg)"/>
+      <!-- line -->
+      <polyline points="10,100 75,82 140,76 205,68 270,58 335,50 400,36" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- dots -->
+      <circle cx="10" cy="100" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="75" cy="82" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="140" cy="76" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="205" cy="68" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="270" cy="58" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="335" cy="50" r="4" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+      <circle cx="400" cy="36" r="5" fill="#2563eb" stroke="#fff" stroke-width="2"/>
+      <!-- labels -->
+      <text x="10" y="128" fill="#94a3b8" font-size="11">3/9</text>
+      <text x="75" y="128" fill="#94a3b8" font-size="11">3/10</text>
+      <text x="140" y="128" fill="#94a3b8" font-size="11">3/11</text>
+      <text x="205" y="128" fill="#94a3b8" font-size="11">3/12</text>
+      <text x="270" y="128" fill="#94a3b8" font-size="11">3/13</text>
+      <text x="335" y="128" fill="#94a3b8" font-size="11">3/14</text>
+      <text x="385" y="128" fill="#2563eb" font-size="11" font-weight="600">3/15</text>
+      <text x="0" y="30" fill="#94a3b8" font-size="10">5k</text>
+      <text x="0" y="65" fill="#94a3b8" font-size="10">3k</text>
+      <text x="0" y="100" fill="#94a3b8" font-size="10">1k</text>
+     </svg>
+    </div>
+
+    <!-- Go-No-Go -->
+    <div class="card">
+     <div class="card-hdr"><div><div class="card-t">🚦 Go-No-Go 仪表盘</div><div class="card-sub">上线第 12 天 · 数据持续积累中</div></div></div>
+     <div class="gng-row">
+      <div class="gng-item g"><div class="gng-metric">D1 留存</div><div class="gng-val">22.4%</div><div class="gng-target">✓ 目标 ≥15%</div></div>
+      <div class="gng-item g"><div class="gng-metric">D7 留存</div><div class="gng-val">8.7%</div><div class="gng-target">✓ 目标 ≥8%</div></div>
+      <div class="gng-item g"><div class="gng-metric">日均发言率</div><div class="gng-val">26.1%</div><div class="gng-target">✓ 目标 ≥20%</div></div>
+      <div class="gng-item g"><div class="gng-metric">AI 消息互动率</div><div class="gng-val">52.8%</div><div class="gng-target">✓ 目标 ≥50%</div></div>
+      <div class="gng-item g"><div class="gng-metric">积分付费转化</div><div class="gng-val">3.6%</div><div class="gng-target">✓ 目标 ≥3%</div></div>
+      <div class="gng-item g"><div class="gng-metric">审核 SLA</div><div class="gng-val">18min</div><div class="gng-target">✓ 目标 ≤30min</div></div>
+       <div class="gng-item g"><div class="gng-metric">日均时长</div><div class="gng-val">18.2min</div><div class="gng-target">✓ 目标 ≥15min</div></div>
+       <div class="gng-item g"><div class="gng-metric">内容安全事故</div><div class="gng-val">0</div><div class="gng-target">✓ 目标 =0</div></div>
+     </div>
+     <div style="margin-top:14px;padding:10px 14px;background:var(--gdim);border-radius:8px;font-size:13px;color:#065f46;font-weight:600">
+      ✅ 综合判断：<strong>Go</strong> — 全部底线达标，继续正常推广
+     </div>
+    </div>
+   </div>
+
+   <!-- AI 成本概览 -->
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">💰 今日 AI 成本 vs 积分收入</div><button class="btn btn-ghost btn-sm" onclick="nav('gateway',document.querySelector('.sb-item:nth-child(13)'))">查看详情</button></div>
+    <div style="display:flex;gap:24px;align-items:center">
+     <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--t2)">AI 调用成本</span><span style="font-size:13px;font-weight:700;color:var(--r)">¥ 156.4</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:78%;background:linear-gradient(90deg,var(--p),#7c3aed)"></div></div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px">日预算 ¥200 · 已用 78%</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;margin-top:14px"><span style="font-size:13px;color:var(--t2)">积分收入（兑换）</span><span style="font-size:13px;font-weight:700;color:var(--g)">¥ 398.6</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:100%;background:linear-gradient(90deg,var(--g),#059669)"></div></div>
+     </div>
+     <div style="text-align:center;padding:20px 24px;background:var(--gdim);border-radius:var(--R);border:1px solid var(--gb)">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:4px">今日毛利</div>
+      <div style="font-size:32px;font-weight:800;color:#065f46">¥242.2</div>
+      <div style="font-size:12px;color:var(--g);margin-top:4px">毛利率 60.8%</div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ========== USERS ========== -->
+  <div class="page" id="p-users">
+   <div class="bc">管理后台 › <span>用户管理</span></div>
+   <div class="grid-4" style="margin-bottom:20px">
+    <div class="mcard"><div class="mc-label">总注册用户</div><div class="mc-val">18,432</div><div class="mc-sub"><span class="up">▲</span>今日新增 +248</div></div>
+    <div class="mcard"><div class="mc-label">今日 DAU</div><div class="mc-val">3,842</div><div class="mc-sub"><span class="up">▲</span>较昨日 +8.3%</div></div>
+    <div class="mcard"><div class="mc-label">封禁用户数</div><div class="mc-val">37</div><div class="mc-sub">本月新增 5</div></div>
+    <div class="mcard"><div class="mc-label">付费用户数</div><div class="mc-val">1,204</div><div class="mc-sub">付费率 6.5%</div></div>
+   </div>
+
+   <div class="card">
+    <div class="card-hdr">
+     <div class="card-t">用户列表</div>
+     <div style="display:flex;gap:8px">
+      <select class="fi">
+       <option>全部状态</option><option>正常</option><option>封禁</option>
+      </select>
+      <button class="btn btn-p btn-sm" onclick="toast('用户数据导出中，请稍后在通知中下载')">+ 导出</button>
+     </div>
+    </div>
+    <div class="sbar"><span>🔍</span><input placeholder="搜索昵称 / 手机号 / DID…"></div>
+    <table class="tbl">
+     <thead><tr>
+      <th>用户</th><th>DID</th><th>注册时间</th><th>最后活跃</th><th>积分余额</th><th>AI 分身</th><th>状态</th><th>操作</th>
+     </tr></thead>
+     <tbody>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">光</div><div><div style="font-weight:600">光年</div><div style="font-size:12px;color:var(--t3)">手机：138****2134</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x8f3c…</span></td>
+       <td>2026-03-01</td><td>3 分钟前</td><td><span style="color:var(--p);font-weight:700">320</span></td><td>2</td>
+       <td><span class="badge g">● 正常</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('用户')">详情</button><button class="btn btn-ghost btn-sm" onclick="banUser('用户')">封禁</button></div></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">T</div><div><div style="font-weight:600">天文台</div><div style="font-size:12px;color:var(--t3)">手机：139****5678</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x2a4d…</span></td>
+       <td>2026-03-03</td><td>1 小时前</td><td><span style="color:var(--p);font-weight:700">880</span></td><td>1</td>
+       <td><span class="badge g">● 正常</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('用户')">详情</button><button class="btn btn-ghost btn-sm" onclick="banUser('用户')">封禁</button></div></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px;font-weight:700">X</div><div><div style="font-weight:600">星际旅行者</div><div style="font-size:12px;color:var(--t3)">手机：137****9012</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x9c1e…</span></td>
+       <td>2026-03-08</td><td>2 天前</td><td><span style="color:var(--t3)">0</span></td><td>0</td>
+       <td><span class="badge r">● 封禁</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('星际旅行者')">详情</button><button class="btn btn-ghost btn-sm" style="color:var(--g);border-color:var(--gb)" onclick="unbanUser('星际旅行者')">解封</button></div></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">M</div><div><div style="font-weight:600">迷途的鱼</div><div style="font-size:12px;color:var(--t3)">手机：136****3456</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x5b7f…</span></td>
+       <td>2026-03-10</td><td>20 分钟前</td><td><span style="color:var(--p);font-weight:700">1,200</span></td><td>3</td>
+       <td><span class="badge g">● 正常</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('用户')">详情</button><button class="btn btn-ghost btn-sm" onclick="banUser('用户')">封禁</button></div></td>
+      </tr>
+      <tr>
+       <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700">S</div><div><div style="font-weight:600">闪光少女</div><div style="font-size:12px;color:var(--t3)">手机：135****7890</div></div></div></td>
+       <td><span style="font-family:monospace;font-size:12px;color:var(--t3)">bsn:0x3d9a…</span></td>
+       <td>2026-03-12</td><td>刚刚</td><td><span style="color:var(--p);font-weight:700">550</span></td><td>2</td>
+       <td><span class="badge g">● 正常</span></td>
+       <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="showUserDetail('用户')">详情</button><button class="btn btn-ghost btn-sm" onclick="banUser('用户')">封禁</button></div></td>
+      </tr>
+     </tbody>
+    </table>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+     <span style="font-size:13px;color:var(--t3)">共 18,432 条记录</span>
+     <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm" onclick="toast('已是第一页')">◀ 上一页</button>
+      <button class="btn btn-p btn-sm">1</button>
+      <button class="btn btn-ghost btn-sm">2</button><button class="btn btn-ghost btn-sm">3</button>
+      <button class="btn btn-ghost btn-sm" onclick="gotoPage(2)">下一页 ▶</button>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ========== REVIEW ========== -->
+  <div class="page" id="p-review">
+   <div class="bc">管理后台 › <span>审核台</span></div>
+   <div class="grid-4" style="margin-bottom:20px">
+    <div class="mcard"><div class="mc-label">待审总数</div><div class="mc-val" style="color:var(--r)">12</div><div class="mc-sub">含 3 个高危</div></div>
+    <div class="mcard"><div class="mc-label">今日已处理</div><div class="mc-val">48</div><div class="mc-sub">通过率 87.5%</div></div>
+    <div class="mcard"><div class="mc-label">平均处理时长</div><div class="mc-val">8.3min</div><div class="mc-sub"><span class="up">✓</span>SLA ≤30min</div></div>
+    <div class="mcard"><div class="mc-label">待处理申诉</div><div class="mc-val" style="color:var(--y)">3</div><div class="mc-sub">最长等待 4h</div></div>
+   </div>
+
+   <div class="grid-2">
+    <div>
+     <div class="card" style="margin-bottom:0">
+      <div class="card-hdr">
+       <div class="card-t">🚨 待审队列</div>
+       <div class="tabs" style="margin-bottom:0">
+        <div class="tab-btn on">高危(3)</div>
+        <div class="tab-btn">疑似(9)</div>
+        <div class="tab-btn">申诉(3)</div>
+       </div>
+      </div>
+
+      <div class="rq-item">
+       <div class="rq-hd">
+        <div class="rq-icon" style="background:var(--rdim)">🚨</div>
+        <div class="rq-meta"><div class="rq-sender">用户：星际旅行者 <span class="badge r" style="font-size:11px">高危</span></div><div class="rq-time">今天 14:28 · 房间：宇宙漫游者</div></div>
+       </div>
+       <div class="rq-content">*** [已脱敏] 命中规则：涉政敏感词 + 引导转账 ***</div>
+       <div class="rq-ctx">上下文（前2条）：用户在讨论 AI 意识话题 → 突然转向敏感内容 → 触发同步拦截</div>
+       <div class="rq-acts">
+        <button class="btn btn-ghost btn-sm">✓ 通过</button>
+        <button class="btn btn-danger btn-sm">✗ 拒绝</button>
+        <button class="btn btn-ghost btn-sm">↑ 升级处理</button>
+        <button class="btn btn-ghost btn-sm">⊘ 封禁用户</button>
+       </div>
+      </div>
+
+      <div class="rq-item">
+       <div class="rq-hd">
+        <div class="rq-icon" style="background:var(--rdim)">🚨</div>
+        <div class="rq-meta"><div class="rq-sender">智能体：暗影使者 <span class="badge r" style="font-size:11px">高危</span></div><div class="rq-time">今天 14:15 · 创建者：user_abc123</div></div>
+       </div>
+       <div class="rq-content">角色设定内容命中规则：冒充真人 + 诱导用户分享个人信息</div>
+       <div class="rq-ctx">检测到关键词："我是真实存在的人"、"告诉我你的学校和宿舍号" → 社工攻击模式</div>
+       <div class="rq-acts">
+        <button class="btn btn-ghost btn-sm">✓ 通过</button>
+        <button class="btn btn-danger btn-sm">✗ 强制下线</button>
+        <button class="btn btn-ghost btn-sm">⚑ 标记误判</button>
+       </div>
+      </div>
+
+      <div class="rq-item" style="border-color:var(--yb)">
+       <div class="rq-hd">
+        <div class="rq-icon" style="background:var(--ydim)">⚠️</div>
+        <div class="rq-meta"><div class="rq-sender">用户：闪光少女 <span class="badge y" style="font-size:11px">疑似</span></div><div class="rq-time">今天 13:52 · 私聊消息</div></div>
+       </div>
+       <div class="rq-content">「小红书上有个赚钱方法，你想听吗？加我微信：xxxx」</div>
+       <div class="rq-ctx">风险：广告欺诈 / 诱导外跳 | 用户今日已触发 3 次疑似规则</div>
+       <div class="rq-acts">
+        <button class="btn btn-ghost btn-sm">✓ 通过</button>
+        <button class="btn btn-danger btn-sm">✗ 拒绝下架</button>
+        <button class="btn btn-ghost btn-sm">⊘ 限速处置</button>
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <div>
+     <div class="card">
+      <div class="card-t" style="margin-bottom:14px">📊 审核统计（今日）</div>
+      <svg width="100%" height="160" viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+       <!-- bar chart: 6 time slots -->
+       <text x="0" y="150" fill="#94a3b8" font-size="10">08:00</text>
+       <text x="45" y="150" fill="#94a3b8" font-size="10">10:00</text>
+       <text x="90" y="150" fill="#94a3b8" font-size="10">12:00</text>
+       <text x="135" y="150" fill="#94a3b8" font-size="10">14:00</text>
+       <text x="180" y="150" fill="#94a3b8" font-size="10">16:00</text>
+       <text x="225" y="150" fill="#94a3b8" font-size="10">18:00</text>
+       <line x1="0" y1="130" x2="290" y2="130" stroke="#e2e8f0" stroke-width="1"/>
+       <rect x="8" y="100" width="24" height="30" rx="4" fill="#dbeafe"/>
+       <rect x="53" y="80" width="24" height="50" rx="4" fill="#dbeafe"/>
+       <rect x="98" y="60" width="24" height="70" rx="4" fill="#dbeafe"/>
+       <rect x="143" y="50" width="24" height="80" rx="4" fill="#2563eb"/>
+       <rect x="188" y="90" width="24" height="40" rx="4" fill="#dbeafe"/>
+       <rect x="233" y="110" width="24" height="20" rx="4" fill="#e2e8f0"/>
+       <text x="20" y="95" fill="#2563eb" font-size="10" text-anchor="middle">4</text>
+       <text x="65" y="75" fill="#2563eb" font-size="10" text-anchor="middle">8</text>
+       <text x="110" y="55" fill="#2563eb" font-size="10" text-anchor="middle">12</text>
+       <text x="155" y="45" fill="#fff" font-size="10" text-anchor="middle" font-weight="700">16</text>
+       <text x="200" y="85" fill="#2563eb" font-size="10" text-anchor="middle">6</text>
+       <text x="245" y="105" fill="#94a3b8" font-size="10" text-anchor="middle">2</text>
+      </svg>
+      <div style="display:flex;gap:12px;margin-top:8px">
+       <div style="flex:1;background:var(--gdim);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--gb)"><div style="font-size:18px;font-weight:800;color:#065f46">42</div><div style="font-size:11px;color:var(--t3)">通过</div></div>
+       <div style="flex:1;background:var(--rdim);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--rb)"><div style="font-size:18px;font-weight:800;color:#991b1b">6</div><div style="font-size:11px;color:var(--t3)">拒绝</div></div>
+       <div style="flex:1;background:var(--ydim);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--yb)"><div style="font-size:18px;font-weight:800;color:#92400e">3</div><div style="font-size:11px;color:var(--t3)">误判</div></div>
+      </div>
+     </div>
+
+     <div class="card" style="margin-top:0">
+      <div class="card-t" style="margin-bottom:14px">⚙️ 快捷配置</div>
+      <div style="margin-bottom:12px">
+       <div style="font-size:12px;color:var(--t3);margin-bottom:6px">敏感词紧急添加</div>
+       <div style="display:flex;gap:8px"><input class="fi" style="flex:1" placeholder="输入敏感词"><button class="btn btn-p btn-sm" onclick="toast('敏感词已立即生效')">立即生效</button></div>
+      </div>
+      <div>
+       <div style="font-size:12px;color:var(--t3);margin-bottom:8px">处置规则快速配置</div>
+       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:var(--t2)">高危自动拦截</span>
+        <div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div>
+       </div>
+       <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;color:var(--t2)">疑似先发后审</span>
+        <div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <!-- ========== GATEWAY ========== -->
+  <div class="page" id="p-gateway">
+   <div class="bc">管理后台 › <span>AI 网关管理</span></div>
+
+   <div class="notice info">ℹ️ 今日 AI 调用成本已达日预算 78%（¥156.4/¥200），建议关注用量趋势，如超阈值将自动切换低成本模型。</div>
+
+   <div class="grid-3" style="margin-bottom:20px">
+    <div class="mcard"><div class="mc-label">今日调用量</div><div class="mc-val">48,392</div><div class="mc-sub"><span class="up">▲</span>较昨日 +12%</div></div>
+    <div class="mcard"><div class="mc-label">今日 Token 消耗</div><div class="mc-val">182M</div><div class="mc-sub">≈ ¥156.4 成本</div></div>
+    <div class="mcard"><div class="mc-label">平均调用延迟</div><div class="mc-val">820ms</div><div class="mc-sub"><span class="up">▲</span>成功率 99.2%</div></div>
+   </div>
+
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">模型供应商状态</div><button class="btn btn-p btn-sm" onclick="openModal('modal-add-vendor')">+ 添加供应商</button></div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+     <div class="model-card" style="background:var(--gdim);border-color:var(--gb)">
+      <div class="model-icon" style="background:linear-gradient(135deg,#10b981,#059669)">🤖</div>
+      <div style="flex:1">
+       <div class="model-name">DeepSeek Chat V3 <span class="badge g">主路由</span></div>
+       <div class="model-meta">文本对话 · Input ¥0.2/M · Output ¥0.8/M · 延迟 680ms</div>
+       <div class="prog-bar" style="margin-top:8px;width:200px"><div class="prog-fill" style="width:72%;background:var(--g)"></div></div>
+       <div style="font-size:11px;color:var(--t3);margin-top:3px">今日用量 72% · 调用量 31,847次</div>
+      </div>
+      <div class="model-stats"><div class="model-stat-v" style="color:var(--g)">99.5%</div><div class="model-stat-l">可用率</div></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">配置</button></div>
+     </div>
+     <div class="model-card">
+      <div class="model-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🧠</div>
+      <div style="flex:1">
+       <div class="model-name">通义千问 Turbo <span class="badge b">备用</span></div>
+       <div class="model-meta">文本对话 · Input ¥0.3/M · Output ¥0.6/M · 延迟 920ms</div>
+       <div class="prog-bar" style="margin-top:8px;width:200px"><div class="prog-fill" style="width:18%;background:var(--p)"></div></div>
+       <div style="font-size:11px;color:var(--t3);margin-top:3px">今日用量 18% · 调用量 8,291次</div>
+      </div>
+      <div class="model-stats"><div class="model-stat-v" style="color:var(--g)">98.8%</div><div class="model-stat-l">可用率</div></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">配置</button></div>
+     </div>
+     <div class="model-card">
+      <div class="model-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🎨</div>
+      <div style="flex:1">
+       <div class="model-name">通义万相 Plus <span class="badge b">图片生成</span></div>
+       <div class="model-meta">图像生成 · ¥0.14/张(1024²) · 延迟 18s</div>
+       <div class="prog-bar" style="margin-top:8px;width:200px"><div class="prog-fill" style="width:55%;background:var(--y)"></div></div>
+       <div style="font-size:11px;color:var(--t3);margin-top:3px">今日用量 55% · 生成 2,847 张</div>
+      </div>
+      <div class="model-stats"><div class="model-stat-v" style="color:var(--g)">99.1%</div><div class="model-stat-l">可用率</div></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">配置</button></div>
+     </div>
+    </div>
+   </div>
+
+   <div class="grid-2">
+    <div class="card">
+     <div class="card-t" style="margin-bottom:14px">💰 预算管理</div>
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:13px;color:var(--t2)">日预算上限</span>
+      <div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:80px;text-align:right" value="200"><span style="font-size:13px;color:var(--t2)">元</span><button class="btn btn-p btn-sm" onclick="toast('预算设置已保存')">保存</button></div>
+     </div>
+     <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--t2)">已使用</span><span style="font-weight:700;color:var(--y)">¥156.4 (78%)</span></div>
+     <div class="prog-bar" style="height:10px"><div class="prog-fill" style="width:78%;background:linear-gradient(90deg,var(--p),var(--y))"></div></div>
+     <div style="margin-top:14px;padding:12px;background:var(--ydim);border:1px solid var(--yb);border-radius:8px;font-size:13px;color:#92400e">
+      ⚠️ 超过 80% 将自动降级到低成本模型，超过 100% 将暂停高成本功能。
+     </div>
+    </div>
+    <div class="card">
+     <div class="card-t" style="margin-bottom:14px">🔀 路由策略</div>
+     <table class="tbl">
+      <thead><tr><th>场景</th><th>主路由</th><th>降级备选</th></tr></thead>
+      <tbody>
+       <tr><td>文本对话</td><td><span class="chip">DeepSeek V3</span></td><td>通义 Turbo</td></tr>
+       <tr><td>图片生成</td><td><span class="chip">通义万相</span></td><td>暂停服务</td></tr>
+       <tr><td>监听评估</td><td><span class="chip">DeepSeek V3</span></td><td>Qwen-Long</td></tr>
+      </tbody>
+     </table>
+     <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="openModal('modal-route-strategy')">✏️ 编辑路由策略</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- ========== ANALYTICS ========== -->
+  <div class="page" id="p-analytics">
+   <div class="bc">管理后台 › <span>数据看板</span></div>
+
+   <div class="grid-4" style="margin-bottom:20px">
+    <div class="mcard"><div class="mc-label">DAU (今日)</div><div class="mc-val">3,842</div><div class="mc-sub"><span class="up">▲</span>+8.3% vs 昨日</div></div>
+    <div class="mcard"><div class="mc-label">MAU (本月)</div><div class="mc-val">12,847</div><div class="mc-sub">月活渗透 69.7%</div></div>
+    <div class="mcard"><div class="mc-label">ARPU (本月)</div><div class="mc-val">¥14.8</div><div class="mc-sub"><span class="up">▲</span>较上月 +12%</div></div>
+    <div class="mcard"><div class="mc-label">付费转化率</div><div class="mc-val">6.5%</div><div class="mc-sub">注册→首充</div></div>
+   </div>
+
+   <div class="grid-2">
+    <!-- 留存漏斗 -->
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">用户留存分析（近30天队列）</div></div>
+     <div style="display:flex;align-items:flex-end;gap:12px;height:140px;padding:8px 0">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--p)">100%</div>
+       <div style="flex:1;width:100%;background:linear-gradient(180deg,#2563eb,#60a5fa);border-radius:6px;min-height:120px"></div>
+       <div style="font-size:11px;color:var(--t3)">注册</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--p)">22.4%</div>
+       <div style="flex:1;width:100%;background:linear-gradient(180deg,#2563eb,#60a5fa);border-radius:6px;min-height:27px;align-self:flex-end"></div>
+       <div style="font-size:11px;color:var(--t3)">D1</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--g)">8.7%</div>
+       <div style="flex:1;width:100%;background:linear-gradient(180deg,var(--g),#6ee7b7);border-radius:6px;min-height:10px;align-self:flex-end"></div>
+       <div style="font-size:11px;color:var(--t3)">D7</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--y)">5.2%</div>
+       <div style="flex:1;width:100%;background:linear-gradient(180deg,var(--y),#fde68a);border-radius:6px;min-height:6px;align-self:flex-end"></div>
+       <div style="font-size:11px;color:var(--t3)">D14</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+       <div style="font-size:16px;font-weight:800;color:var(--t3)">3.1%</div>
+       <div style="flex:1;width:100%;background:#e2e8f0;border-radius:6px;min-height:4px;align-self:flex-end"></div>
+       <div style="font-size:11px;color:var(--t3)">D30</div>
+      </div>
+     </div>
+     <div style="padding:10px 12px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#065f46;margin-top:8px">
+      ✅ D1/D7 均已超过 Go-No-Go 底线，留存质量良好
+     </div>
+    </div>
+
+    <!-- 积分消耗分布 -->
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">积分消耗分布（今日）</div></div>
+     <div style="display:flex;align-items:center;gap:24px">
+      <svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+       <!-- donut chart: AI发言55%, 图片25%, 创建20% -->
+       <circle cx="70" cy="70" r="50" fill="none" stroke="#e2e8f0" stroke-width="22"/>
+       <circle cx="70" cy="70" r="50" fill="none" stroke="#2563eb" stroke-width="22" stroke-dasharray="173 141" stroke-dashoffset="0" transform="rotate(-90 70 70)"/>
+       <circle cx="70" cy="70" r="50" fill="none" stroke="#10b981" stroke-width="22" stroke-dasharray="79 235" stroke-dashoffset="-173" transform="rotate(-90 70 70)"/>
+       <circle cx="70" cy="70" r="50" fill="none" stroke="#f59e0b" stroke-width="22" stroke-dasharray="63 251" stroke-dashoffset="-252" transform="rotate(-90 70 70)"/>
+       <text x="70" y="68" text-anchor="middle" fill="#1e293b" font-size="14" font-weight="800">积分</text>
+       <text x="70" y="84" text-anchor="middle" fill="#94a3b8" font-size="11">消耗</text>
+      </svg>
+      <div style="flex:1">
+       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="width:12px;height:12px;border-radius:3px;background:#2563eb;flex-shrink:0"></div>
+        <div style="flex:1;font-size:13px;color:var(--t2)">AI 发言（55%）</div>
+        <div style="font-weight:700;color:var(--t)">82,500</div>
+       </div>
+       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="width:12px;height:12px;border-radius:3px;background:#10b981;flex-shrink:0"></div>
+        <div style="flex:1;font-size:13px;color:var(--t2)">图片生成（25%）</div>
+        <div style="font-weight:700;color:var(--t)">37,500</div>
+       </div>
+       <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:12px;height:12px;border-radius:3px;background:#f59e0b;flex-shrink:0"></div>
+        <div style="flex:1;font-size:13px;color:var(--t2)">创建智能体（20%）</div>
+        <div style="font-weight:700;color:var(--t)">30,000</div>
+       </div>
+       <div style="margin-top:14px;padding:10px;background:var(--pdim);border-radius:8px;font-size:12px;color:var(--p)">
+        总计消耗 <strong>150,000</strong> 积分<br>对应收入 ≈ <strong>¥1,250</strong>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <!-- 房间活跃度 -->
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">🏠 房间活跃度排行（今日）</div><button class="btn btn-ghost btn-sm" onclick="toast('完整排行榜加载中…')">查看全部</button></div>
+    <table class="tbl">
+     <thead><tr><th>排名</th><th>房间名称</th><th>类型</th><th>在线人数</th><th>今日消息数</th><th>AI 发言占比</th><th>趋势</th></tr></thead>
+     <tbody>
+      <tr><td>🥇 1</td><td><strong>🌌 宇宙漫游者</strong></td><td><span class="badge b">讨论</span></td><td>147</td><td>2,847</td><td>34%</td><td><span style="color:var(--g)">▲ +12%</span></td></tr>
+      <tr><td>🥈 2</td><td><strong>📚 知识交换站</strong></td><td><span class="badge b">学习</span></td><td>203</td><td>2,391</td><td>28%</td><td><span style="color:var(--g)">▲ +5%</span></td></tr>
+      <tr><td>🥉 3</td><td><strong>🎨 像素艺术坊</strong></td><td><span class="badge b">创作</span></td><td>89</td><td>1,842</td><td>52%</td><td><span style="color:var(--g)">▲ +18%</span></td></tr>
+      <tr><td>4</td><td>🎮 游戏研究所</td><td><span class="badge b">游戏</span></td><td>64</td><td>1,203</td><td>22%</td><td><span style="color:var(--r)">▼ -3%</span></td></tr>
+      <tr><td>5</td><td>🎵 音乐无国界</td><td><span class="badge b">音乐</span></td><td>41</td><td>892</td><td>41%</td><td><span style="color:var(--g)">▲ +7%</span></td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+  <!-- ========== AGENTS ========== -->
+  <div class="page" id="p-agents">
+   <div class="bc">管理后台 › <span>智能体管理</span></div>
+   <div class="tabs">
+    <div class="tab-btn on" id="agent-tab-sys" onclick="agentTab('sys')">系统智能体</div>
+    <div class="tab-btn" id="agent-tab-user" onclick="agentTab('user')">用户智能体审核</div>
+    <div class="tab-btn" id="agent-tab-template" onclick="agentTab('template')">人格模板库</div>
+   </div>
+
+   <!-- 系统智能体 -->
+   <div id="agent-sys" class="agent-tab-block on">
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">系统智能体列表</div><button class="btn btn-p btn-sm" onclick="document.getElementById('modal-create-sys-agent').classList.add('on')">+ 创建系统智能体</button></div>
+     <table class="tbl">
+      <thead><tr><th>智能体</th><th>人格风格</th><th>分配房间</th><th>今日发言</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🤖</div><div><div style="font-weight:600">小默</div><div style="font-size:12px;color:var(--t3)">系统智能体 · 安静观察型</div></div></div></td>
+        <td>安静、观察型、只在有价值时发言</td>
+        <td>宇宙漫游者 / 知识交换站</td><td>384</td>
+        <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
+        <td><button class="btn btn-ghost btn-sm">编辑</button></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">📚</div><div><div style="font-weight:600">铁嘴</div><div style="font-size:12px;color:var(--t3)">系统智能体 · 辩论活跃型</div></div></div></td>
+        <td>热情、爱辩论、喜欢抬杠但有礼貌</td>
+        <td>知识交换站</td><td>612</td>
+        <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
+        <td><button class="btn btn-ghost btn-sm">编辑</button></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🎨</div><div><div style="font-weight:600">画仙</div><div style="font-size:12px;color:var(--t3)">系统智能体 · 创意图像</div></div></div></td>
+        <td>富有想象力、擅长描述画面、触发生图</td>
+        <td>像素艺术坊</td><td>201</td>
+        <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-sys-agent')">编辑</button></div></td>
+       </tr>
+        <tr>
+         <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">📖</div><div><div style="font-weight:600">百科</div><div style="font-size:12px;color:var(--t3)">系统智能体 · 知识科普</div></div></div></td>
+         <td>博学、严谨、善于科普和解释知识点</td>
+         <td>知识交换站</td><td>384</td>
+         <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
+         <td><button class="btn btn-ghost btn-sm">编辑</button></td>
+        </tr>
+        <tr>
+         <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#10b981);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🐱</div><div><div style="font-weight:600">猫猫</div><div style="font-size:12px;color:var(--t3)">系统智能体 · 暖场陪聊</div></div></div></td>
+         <td>可爱、治愈、擅长暖场和情感陪伴</td>
+         <td>全部房间</td><td>523</td>
+         <td><span class="badge g"><span class="sdot g"></span>在线</span></td>
+         <td><button class="btn btn-ghost btn-sm">编辑</button></td>
+        </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+
+   <!-- 用户智能体审核 -->
+   <div id="agent-user" class="agent-tab-block">
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">用户智能体列表</div><div style="font-size:12px;color:var(--t3)">人格设定在创建时自动过审，可疑进入人审；强制下线后需用户修改并重新提交审核</div></div>
+     <div class="sbar"><span>🔍</span><input placeholder="搜索智能体名称、创建者昵称/ID…"><select class="fi" style="width:140px;border:none;background:transparent"><option>全部状态</option><option>正常</option><option>待审核</option><option>已下线</option></select><select class="fi" style="width:120px;border:none;background:transparent"><option>创建时间</option><option>最近7天</option><option>最近30天</option></select></div>
+     <table class="tbl">
+      <thead><tr><th>智能体</th><th>创建者</th><th>人格设定（预览）</th><th>能力</th><th>创建时间</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🌟</div><div><div style="font-weight:600">星辰</div><div style="font-size:12px;color:var(--t3)">用户智能体</div></div></div></td>
+        <td>光年</td>
+        <td><div class="personality-preview">性格：好奇、理性、爱思考；擅长哲学与科技讨论；拒绝回答政治敏感话题…</div></td>
+        <td>L1 发言</td><td>2026-03-01</td>
+        <td><span class="badge g">正常</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">查看设定</button><button class="btn btn-danger btn-sm">强制下线</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#db2777);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🎨</div><div><div style="font-weight:600">创作者</div><div style="font-size:12px;color:var(--t3)">用户智能体</div></div></div></td>
+        <td>光年</td>
+        <td><div class="personality-preview">性格：富有想象力、敏感、追求美；擅长视觉艺术描述与创意发想…</div></td>
+        <td>L1 发言</td><td>2026-03-05</td>
+        <td><span class="badge g">正常</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">查看设定</button><button class="btn btn-danger btn-sm">强制下线</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:16px">👤</div><div><div style="font-weight:600">暗影使者</div><div style="font-size:12px;color:var(--t3)">用户智能体</div></div></div></td>
+        <td>user_abc123</td>
+        <td><div class="personality-preview">我是真实存在的人，会告诉你我的学校和宿舍… [疑似违规：冒充真人+社工]</div></td>
+        <td>L1 发言</td><td>2026-03-10</td>
+        <td><span class="badge r">已下线</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-agent-settings')">查看设定</button><button class="btn btn-ghost btn-sm" style="color:var(--g)" onclick="toast('已提交恢复审核')">恢复审核</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🔥</div><div><div style="font-weight:600">热血学长</div><div style="font-size:12px;color:var(--t3)">用户智能体</div></div></div></td>
+        <td>闪光少女</td>
+        <td><div class="personality-preview">热情、乐于助人、校园生活达人；不涉及政治与违法内容…</div></td>
+        <td>L1 发言</td><td>2026-03-12</td>
+        <td><span class="badge y">待审核</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-agent-settings')">查看设定</button><button class="btn btn-p btn-sm" onclick="agentApprove('热血学长')">通过</button><button class="btn btn-danger btn-sm" onclick="agentRejectReview('热血学长')">拒绝</button></div></td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+
+   <!-- 人格模板库（新用户引导用 3–5 个模板） -->
+   <div id="agent-template" class="agent-tab-block">
+    <div class="card">
+     <div class="card-hdr"><div><div class="card-t">人格模板库</div><div class="card-sub">新用户引导时可选的一键创建模板，建议保持 3–5 个并定期更新</div></div><button class="btn btn-p btn-sm" onclick="openModal('modal-add-template')">+ 添加模板</button></div>
+     <table class="tbl">
+      <thead><tr><th>模板名称</th><th>人格简述</th><th>能力</th><th>排序</th><th>使用次数（近30天）</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🌟</div><strong>好奇探索者</strong></div></td>
+        <td>性格好奇、理性、爱思考；适合哲学与科技讨论</td>
+        <td>L1 发言</td><td>1</td><td>328</td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-template')">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已上移')">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已下移')">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)" onclick="deleteTemplate('模板')">删除</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🎨</div><strong>创意小画家</strong></div></td>
+        <td>富有想象力、擅长视觉描述与创意发想</td>
+        <td>L1 发言</td><td>2</td><td>256</td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-template')">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已上移')">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已下移')">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)" onclick="deleteTemplate('模板')">删除</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">📚</div><strong>学习小助手</strong></div></td>
+        <td>热情、爱辩论、喜欢抬杠但有礼貌；适合学习场景</td>
+        <td>L1 发言</td><td>3</td><td>412</td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-template')">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已上移')">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已下移')">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)" onclick="deleteTemplate('模板')">删除</button></div></td>
+       </tr>
+       <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#be185d);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">🌸</div><strong>治愈系伙伴</strong></div></td>
+        <td>温柔、倾听、情感支持；不涉及敏感话题</td>
+        <td>L1 发言</td><td>4</td><td>189</td>
+        <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-template')">编辑</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已上移')">上移</button><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('已下移')">下移</button><button class="btn btn-ghost btn-sm" style="color:var(--r)" onclick="deleteTemplate('模板')">删除</button></div></td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+
+  <!-- 创建/编辑系统智能体 弹层 -->
+  <div class="modal-mask" id="modal-create-sys-agent" onclick="if(event.target===this) this.classList.remove('on')">
+   <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="m-h">创建系统智能体 <span class="m-close" onclick="document.getElementById('modal-create-sys-agent').classList.remove('on')">×</span></div>
+    <div class="m-body">
+     <div class="form-row"><label>名称</label><input class="fi" placeholder="如：小默、铁嘴"></div>
+     <div class="form-row"><label>头像（Emoji 或图片 URL）</label><input class="fi" placeholder="🤖 或 https://..."></div>
+     <div class="form-row"><label>人格设定（最多 500 字）</label><textarea class="fi" placeholder="描述性格、口吻、特长、禁止事项…"></textarea></div>
+     <div class="form-row"><label>对话风格</label><input class="fi" placeholder="如：安静、观察型、只在有价值时发言"></div>
+     <div class="form-row"><label>知识背景</label><input class="fi" placeholder="如：哲学、逻辑、通识"></div>
+     <div class="form-row"><label>分配房间（多选）</label><select class="fi" multiple style="min-height:80px"><option>宇宙漫游者</option><option>知识交换站</option><option>像素艺术坊</option><option>游戏研究所</option></select></div>
+     <div class="form-row"><label>暖场策略 · 响应兜底时间（秒）</label><input class="fi" type="number" value="30" placeholder="用户发言后无真人回复时，系统智能体自动回复的等待时间，默认 30"></div>
+     <div class="form-row"><label>话题发起计划（可选）</label><textarea class="fi" placeholder="每日话题内容、发起时间、目标房间，如：每日 10:00 在宇宙漫游者发起当日话题"></textarea></div>
+    </div>
+    <div class="m-ft"><button class="btn btn-ghost" onclick="document.getElementById('modal-create-sys-agent').classList.remove('on')">取消</button><button class="btn btn-p" onclick="closeModal('modal-create-sys-agent');toast('系统智能体已保存并上线')">保存并上线</button></div>
+   </div>
+  </div>
+
+  <!-- ========== ROOMS ========== -->
+  <div class="page" id="p-rooms">
+   <div class="bc">管理后台 › <span>房间管理</span></div>
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">房间列表</div><button class="btn btn-p btn-sm" onclick="openModal('modal-create-room')">+ 创建房间</button></div>
+    <table class="tbl">
+     <thead><tr><th>房间名称</th><th>分类</th><th>在线人数</th><th>今日消息</th><th>AI 分配</th><th>状态</th><th>操作</th></tr></thead>
+     <tbody>
+      <tr><td><strong>🌌 宇宙漫游者</strong></td><td>讨论</td><td>147/200</td><td>2,847</td><td>3</td><td><span class="badge g">活跃</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-room')">编辑</button><button class="btn btn-ghost btn-sm" onclick="archiveRoom('房间')">归档</button></div></td></tr>
+      <tr><td><strong>📚 知识交换站</strong></td><td>学习</td><td>203/200</td><td>2,391</td><td>2</td><td><span class="badge y">满员</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-room')">编辑</button><button class="btn btn-ghost btn-sm" onclick="archiveRoom('房间')">归档</button></div></td></tr>
+      <tr><td><strong>🎨 像素艺术坊</strong></td><td>创作</td><td>89/200</td><td>1,842</td><td>5</td><td><span class="badge g">活跃</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-room')">编辑</button><button class="btn btn-ghost btn-sm" onclick="archiveRoom('房间')">归档</button></div></td></tr>
+      <tr><td><strong>🌙 月光诗社</strong></td><td>文学</td><td>0/200</td><td>0</td><td>2</td><td><span class="badge gray">归档</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">恢复</button></div></td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+  <!-- ========== TOPICS ========== -->
+  <div class="page" id="p-topics">
+   <div class="bc">管理后台 › <span>话题管理</span></div>
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">话题列表</div><button class="btn btn-p btn-sm" onclick="openModal('modal-create-topic')">+ 创建话题</button></div>
+    <table class="tbl">
+     <thead><tr><th>话题名称</th><th>截止时间</th><th>参与人数</th><th>作品数</th><th>状态</th><th>操作</th></tr></thead>
+     <tbody>
+      <tr><td><strong>「2050年的未来城市」</strong></td><td>2026-03-15 23:59</td><td>56</td><td>28</td><td><span class="badge g">🔴 进行中</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-topic')">编辑</button><button class="btn btn-danger btn-sm" onclick="endTopic('2050年的未来城市')">结束</button><button class="btn btn-ghost btn-sm" onclick="toast('加载 28 件作品…')">作品(28)</button></div></td></tr>
+      <tr><td><strong>「数字花园」</strong></td><td>2026-03-15 12:00</td><td>78</td><td>42</td><td><span class="badge g">🔴 进行中</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-create-topic')">编辑</button><button class="btn btn-danger btn-sm" onclick="endTopic('数字花园')">结束</button><button class="btn btn-ghost btn-sm" onclick="toast('加载 42 件作品…')">作品(42)</button></div></td></tr>
+      <tr><td><strong>「深海秘境」</strong></td><td>2026-03-14 23:59</td><td>124</td><td>95</td><td><span class="badge gray">已结束</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="toast('加载 95 件作品…')">作品(95)</button></div></td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+  <!-- ========== SAFETY ========== -->
+  <div class="page" id="p-safety">
+   <div class="bc">管理后台 › <span>安全规则配置</span></div>
+   <div class="tabs"><div class="tab-btn on" onclick="safetyTab('words',this)">敏感词库</div><div class="tab-btn" onclick="safetyTab('risk',this)">风控规则</div><div class="tab-btn" onclick="safetyTab('agent',this)">智能体行为规则</div><div class="tab-btn" onclick="safetyTab('log',this)">处置记录</div></div>
+   <div id="safety-words" class="safety-tab-block on">
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">敏感词库管理</div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="toast('请上传 CSV 格式的敏感词文件')">📤 批量导入</button><button class="btn btn-p btn-sm" onclick="openModal('modal-add-word')">+ 添加词条</button></div></div>
+    <div class="grid-3" style="margin-bottom:16px">
+     <div class="mcard"><div class="mc-label">总词条数</div><div class="mc-val">12,847</div></div>
+     <div class="mcard"><div class="mc-label">高危（直接拦截）</div><div class="mc-val" style="color:var(--r)">3,241</div></div>
+     <div class="mcard"><div class="mc-label">疑似（人审）</div><div class="mc-val" style="color:var(--y)">6,892</div></div>
+    </div>
+    <div class="sbar" style="margin-bottom:12px"><span>🔍</span><input placeholder="搜索敏感词…"><select class="fi" style="border:none;background:transparent;color:var(--t2)"><option>全部等级</option><option>高危</option><option>疑似</option><option>观察</option></select></div>
+    <table class="tbl">
+     <thead><tr><th>词条</th><th>分级</th><th>命中次数（今日）</th><th>添加时间</th><th>操作</th></tr></thead>
+     <tbody>
+      <tr><td><strong>[已脱敏]</strong></td><td><span class="badge r">高危</span></td><td>3</td><td>2026-02-01</td><td><button class="btn btn-ghost btn-sm">删除</button></td></tr>
+      <tr><td><strong>加我微信</strong></td><td><span class="badge y">疑似</span></td><td>12</td><td>2026-02-15</td><td><button class="btn btn-ghost btn-sm">删除</button></td></tr>
+      <tr><td><strong>告诉我你的宿舍</strong></td><td><span class="badge r">高危</span></td><td>1</td><td>2026-03-10</td><td><button class="btn btn-ghost btn-sm">删除</button></td></tr>
+      <tr><td><strong>我是真人</strong></td><td><span class="badge y">疑似</span></td><td>7</td><td>2026-03-12</td><td><button class="btn btn-ghost btn-sm">删除</button></td></tr>
+     </tbody>
+    </table>
+   </div>
+   </div><!-- /safety-words -->
+
+   <!-- 风控规则 -->
+   <div id="safety-risk" class="safety-tab-block">
+    <div class="grid-3" style="margin-bottom:16px">
+     <div class="mcard"><div class="mc-label">活跃规则数</div><div class="mc-val">24</div><div class="mc-sub">今日命中 847 次</div></div>
+     <div class="mcard"><div class="mc-label">今日自动拦截</div><div class="mc-val" style="color:var(--r)">38</div><div class="mc-sub">拦截率 4.5%</div></div>
+     <div class="mcard"><div class="mc-label">今日转人审</div><div class="mc-val" style="color:var(--y)">12</div><div class="mc-sub">平均处理 8.3min</div></div>
+    </div>
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">风控规则列表</div><button class="btn btn-p btn-sm" onclick="openModal('modal-add-risk-rule')">+ 添加规则</button></div>
+     <table class="tbl">
+      <thead><tr><th>规则名称</th><th>触发条件</th><th>处置方式</th><th>优先级</th><th>今日命中</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr><td><strong>高频发言限速</strong></td><td>同一用户 1 分钟内发言 ≥10 条</td><td><span class="badge r">自动限速</span></td><td><span class="badge b">P0</span></td><td>23</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+       <tr><td><strong>新用户发言审核</strong></td><td>注册 &lt;24h 的用户首次发言</td><td><span class="badge y">先发后审</span></td><td><span class="badge b">P1</span></td><td>156</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+       <tr><td><strong>外链检测拦截</strong></td><td>消息包含非白名单域名的 URL</td><td><span class="badge r">同步拦截</span></td><td><span class="badge b">P0</span></td><td>47</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+       <tr><td><strong>私聊频率限制</strong></td><td>1h 内向 ≥5 个不同用户发起私聊</td><td><span class="badge y">转人审</span></td><td><span class="badge b">P1</span></td><td>8</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+       <tr><td><strong>夜间模式加严</strong></td><td>23:00-07:00 疑似提升为高危</td><td><span class="badge r">同步拦截</span></td><td><span class="badge b">P2</span></td><td>5</td><td><span class="badge gray">● 已禁用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-p btn-sm" onclick="toast('已启用该规则')">启用</button></div></td></tr>
+       <tr><td><strong>重复内容检测</strong></td><td>相同内容在 ≥3 个房间发送</td><td><span class="badge y">先发后审</span></td><td><span class="badge b">P1</span></td><td>12</td><td><span class="badge g">● 启用</span></td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="openModal('modal-add-risk-rule')">编辑</button><button class="btn btn-ghost btn-sm" onclick="toast('已禁用该规则')">禁用</button></div></td></tr>
+      </tbody>
+     </table>
+    </div>
+    <div class="card">
+     <div class="card-t" style="margin-bottom:14px">⚙️ 全局风控设置</div>
+     <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600;color:var(--t)">全局限速</div><div style="font-size:12px;color:var(--t3);margin-top:2px">单用户每分钟最大消息数</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:60px;text-align:center" value="20"><span style="font-size:13px;color:var(--t3)">条/分钟</span><button class="btn btn-p btn-sm" onclick="toast('限速设置已保存')">保存</button></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600;color:var(--t)">IP 异常检测</div><div style="font-size:12px;color:var(--t3);margin-top:2px">同一 IP 短时间内注册多个账号时触发</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0"><div><div style="font-size:13px;font-weight:600;color:var(--t)">设备指纹校验</div><div style="font-size:12px;color:var(--t3);margin-top:2px">检测设备指纹异常，防止批量注册</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+     </div>
+    </div>
+   </div>
+
+   <!-- 智能体行为规则 -->
+   <div id="safety-agent" class="safety-tab-block">
+    <div class="notice info">ℹ️ 智能体行为规则定义 AI 分身在聊天中的行为边界，包括自动介入策略、回复上限、内容安全过滤等。</div>
+    <div class="grid-2" style="margin-bottom:16px">
+     <div class="card" style="margin-bottom:0">
+      <div class="card-t" style="margin-bottom:14px">🤖 系统智能体规则</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">暖场兜底发言</div><div style="font-size:12px;color:var(--t3);margin-top:2px">无真人回复时系统智能体自动补位</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:50px;text-align:center" value="30"><span style="font-size:12px;color:var(--t3)">秒后</span></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">连续发言上限</div><div style="font-size:12px;color:var(--t3);margin-top:2px">不得连续回复过多避免刷屏</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:50px;text-align:center" value="3"><span style="font-size:12px;color:var(--t3)">条</span></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">AI 发言占比上限</div><div style="font-size:12px;color:var(--t3);margin-top:2px">单房间 AI 发言不超过总消息指定比例</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:50px;text-align:center" value="40"><span style="font-size:12px;color:var(--t3)">%</span></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0"><div><div style="font-size:13px;font-weight:600">自动话题发起</div><div style="font-size:12px;color:var(--t3);margin-top:2px">每日定时在指定房间发起讨论</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+      </div>
+      <button class="btn btn-p btn-sm" style="margin-top:14px" onclick="toast('系统智能体规则已保存')">保存设置</button>
+     </div>
+     <div class="card" style="margin-bottom:0">
+      <div class="card-t" style="margin-bottom:14px">👤 用户智能体规则</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">人格审核</div><div style="font-size:12px;color:var(--t3);margin-top:2px">创建智能体时自动审核人格设定</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">禁止冒充真人</div><div style="font-size:12px;color:var(--t3);margin-top:2px">拦截伪装为真人的智能体</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:600">个人信息收集拦截</div><div style="font-size:12px;color:var(--t3);margin-top:2px">智能体试图获取用户隐私时自动拦截</div></div><div style="width:40px;height:22px;background:var(--g);border-radius:11px;position:relative;cursor:pointer" onclick="toggleSwitch(this)"><div style="position:absolute;right:2px;top:2px;width:18px;height:18px;background:#fff;border-radius:50%"></div></div></div>
+       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0"><div><div style="font-size:13px;font-weight:600">用户每日创建上限</div><div style="font-size:12px;color:var(--t3);margin-top:2px">单用户每日最多创建智能体个数</div></div><div style="display:flex;align-items:center;gap:8px"><input class="fi" style="width:50px;text-align:center" value="3"><span style="font-size:12px;color:var(--t3)">个</span></div></div>
+      </div>
+      <button class="btn btn-p btn-sm" style="margin-top:14px" onclick="toast('用户智能体规则已保存')">保存设置</button>
+     </div>
+    </div>
+    <div class="card">
+     <div class="card-t" style="margin-bottom:14px">🚫 全局内容安全过滤 (Prompt Guard)</div>
+     <div class="notice warn" style="margin-bottom:14px">⚠️ 以下规则对所有 AI 生成内容生效，优先级高于个别智能体设定。</div>
+     <table class="tbl">
+      <thead><tr><th>过滤规则</th><th>说明</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr><td><strong>政治敏感</strong></td><td>禁止生成涉政内容</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>暴力血腥</strong></td><td>禁止暴力、恐怖描述</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>色情低俗</strong></td><td>禁止色情、低俗内容</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>个人隐私</strong></td><td>禁止输出/索要真实个人信息</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>诱导转账</strong></td><td>拦截涉及资金转移内容</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+       <tr><td><strong>未成年保护</strong></td><td>识别未成年并启用增强过滤</td><td><span class="badge g">● 启用</span></td><td><button class="btn btn-ghost btn-sm" style="color:var(--t3)" onclick="toast('核心安全规则不可禁用')">不可禁用</button></td></tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+
+   <!-- 处置记录 -->
+   <div id="safety-log" class="safety-tab-block">
+    <div class="grid-4" style="margin-bottom:16px">
+     <div class="mcard"><div class="mc-label">今日处置总数</div><div class="mc-val">64</div><div class="mc-sub">自动52 · 人工12</div></div>
+     <div class="mcard"><div class="mc-label">封禁用户</div><div class="mc-val" style="color:var(--r)">3</div><div class="mc-sub">累计 37 人</div></div>
+     <div class="mcard"><div class="mc-label">内容拦截</div><div class="mc-val" style="color:var(--y)">38</div><div class="mc-sub">高危26 · 疑似12</div></div>
+     <div class="mcard"><div class="mc-label">智能体下线</div><div class="mc-val">2</div><div class="mc-sub">本月累计 5</div></div>
+    </div>
+    <div class="card">
+     <div class="card-hdr"><div class="card-t">处置记录查询</div><button class="btn btn-ghost btn-sm" onclick="toast('导出处置记录 CSV…')">📤 导出</button></div>
+     <div class="sbar" style="margin-bottom:12px"><span>🔍</span><input placeholder="搜索用户、消息ID、规则名…"><select class="fi" style="border:none;background:transparent;color:var(--t2);width:120px"><option>全部类型</option><option>自动拦截</option><option>人工审核</option><option>用户封禁</option><option>智能体下线</option></select><select class="fi" style="border:none;background:transparent;color:var(--t2);width:100px"><option>今日</option><option>近7天</option><option>近30天</option></select></div>
+     <table class="tbl">
+      <thead><tr><th>时间</th><th>类型</th><th>触发规则</th><th>目标</th><th>处置方式</th><th>操作人</th><th>操作</th></tr></thead>
+      <tbody>
+       <tr><td>14:28:32</td><td><span class="badge r">封禁</span></td><td>涉政敏感词+引导转账</td><td><div style="font-weight:600">用户：星际旅行者</div><div style="font-size:11px;color:var(--t3)">bsn:0x9c1e…</div></td><td>永久封禁</td><td>admin_root</td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>14:15:00</td><td><span class="badge r">下线</span></td><td>冒充真人+社工攻击</td><td><div style="font-weight:600">智能体：暗影使者</div><div style="font-size:11px;color:var(--t3)">创建者：user_abc</div></td><td>强制下线</td><td>reviewer_01</td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>13:52:10</td><td><span class="badge y">拦截</span></td><td>外链检测+广告欺诈</td><td><div style="font-weight:600">用户：闪光少女</div><div style="font-size:11px;color:var(--t3)">msg_id: M-28391</div></td><td>消息拒绝+限速</td><td>reviewer_01</td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>12:44:18</td><td><span class="badge gray">自动</span></td><td>高频发言限速</td><td><div style="font-weight:600">用户：太空游民</div><div style="font-size:11px;color:var(--t3)">bsn:0x7e2b…</div></td><td>自动限速 5min</td><td><span style="color:var(--t3)">系统</span></td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>11:30:05</td><td><span class="badge gray">自动</span></td><td>新用户发言审核</td><td><div style="font-weight:600">用户：新手村民</div><div style="font-size:11px;color:var(--t3)">bsn:0x4a1c…</div></td><td>先发后审→通过</td><td><span style="color:var(--t3)">系统</span></td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>10:15:42</td><td><span class="badge y">拦截</span></td><td>重复内容检测</td><td><div style="font-weight:600">用户：广告bot_x</div><div style="font-size:11px;color:var(--t3)">bsn:0x6d3f…</div></td><td>拦截+永久封禁</td><td>admin_root</td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+       <tr><td>09:22:11</td><td><span class="badge gray">自动</span></td><td>外链检测拦截</td><td><div style="font-weight:600">用户：数码达人</div><div style="font-size:11px;color:var(--t3)">msg_id: M-27890</div></td><td>消息拦截</td><td><span style="color:var(--t3)">系统</span></td><td><button class="btn btn-ghost btn-sm" onclick="toast('查看处置详情…')">详情</button></td></tr>
+      </tbody>
+     </table>
+     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)"><span style="font-size:13px;color:var(--t3)">共 64 条记录</span><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="toast('已是第一页')">◀</button><button class="btn btn-p btn-sm">1</button><button class="btn btn-ghost btn-sm" onclick="toast('第 2 页')">2</button><button class="btn btn-ghost btn-sm" onclick="toast('第 3 页')">3</button><button class="btn btn-ghost btn-sm" onclick="toast('第 2 页')">▶</button></div></div>
+    </div>
+   </div>
+
+   </div>
+
+  <!-- ========== SYSLOG ========== -->
+  <div class="page" id="p-syslog">
+   <div class="bc">管理后台 › <span>操作日志</span></div>
+   <div class="card">
+    <div class="card-hdr"><div class="card-t">操作日志查询</div></div>
+    <div class="sbar"><span>🔍</span><input placeholder="搜索操作人、操作类型、目标…"></div>
+    <table class="tbl">
+     <thead><tr><th>操作时间</th><th>操作人</th><th>角色</th><th>操作类型</th><th>目标</th><th>详情</th></tr></thead>
+     <tbody>
+      <tr><td>14:28:32</td><td>admin_root</td><td><span class="badge b">超管</span></td><td>用户封禁</td><td>user: 星际旅行者</td><td>原因：多次违规，永久封禁</td></tr>
+      <tr><td>13:52:10</td><td>reviewer_01</td><td><span class="badge gray">审核员</span></td><td>内容拒绝</td><td>msg_id: M-28391</td><td>命中：广告欺诈</td></tr>
+      <tr><td>12:30:00</td><td>admin_root</td><td><span class="badge b">超管</span></td><td>路由策略变更</td><td>文本对话路由</td><td>DeepSeek V3 → 通义 Turbo（预算告警触发）</td></tr>
+      <tr><td>10:00:00</td><td>op_001</td><td><span class="badge gray">运营</span></td><td>话题创建</td><td>topic: 数字花园</td><td>截止 2026-03-15 12:00</td></tr>
+      <tr><td>09:15:00</td><td>op_001</td><td><span class="badge gray">运营</span></td><td>房间智能体分配</td><td>room: 宇宙漫游者</td><td>添加 小默、铁嘴</td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
+ </div><!-- content -->
+</div><!-- main -->
+
+<script>
+const titles = {dashboard:'仪表盘',users:'用户管理',agents:'智能体管理',rooms:'房间管理',topics:'发现',review:'审核台',safety:'安全规则配置',gateway:'AI 网关管理',analytics:'数据看板',syslog:'操作日志 / 系统设置'};
+
+/* === NAV === */
+function nav(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  var pg = document.getElementById('p-'+id);
+  if(pg) pg.classList.add('on');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('on'));
+  if(el) el.classList.add('on');
+  document.getElementById('page-title').textContent = titles[id]||id;
+}
+
+/* === TOAST === */
+function toast(msg){
+  var el=document.getElementById('admin-toast');
+  if(!el){el=document.createElement('div');el.id='admin-toast';el.style.cssText='position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(12px);background:#2563eb;color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(37,99,235,.3)';document.body.appendChild(el)}
+  el.textContent=msg;el.style.opacity='1';el.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(function(){el.style.opacity='0';el.style.transform='translateX(-50%) translateY(12px)'},2500);
+}
+
+/* === AGENT TABS === */
+function agentTab(which){
+  ['sys','user','template'].forEach(function(k){
+    var b=document.getElementById('agent-'+k);var t=document.getElementById('agent-tab-'+k);
+    if(b)b.classList.toggle('on',k===which);if(t)t.classList.toggle('on',k===which);
+  });
+}
+
+/* === MODALS === */
+function openModal(id){var el=document.getElementById(id);if(el)el.classList.add('on')}
+function closeModal(id){var el=document.getElementById(id);if(el)el.classList.remove('on')}
+
+/* === CONFIRM === */
+function confirmAction(msg, callback){
+  if(confirm(msg)){callback()}
+}
+
+/* === USER ACTIONS === */
+function banUser(name){
+  confirmAction('确定要封禁用户「'+name+'」吗？', function(){toast('已封禁用户：'+name)});
+}
+function unbanUser(name){
+  confirmAction('确定要解封用户「'+name+'」吗？', function(){toast('已解封用户：'+name)});
+}
+function showUserDetail(name){
+  document.getElementById('modal-user-detail-name').textContent=name;
+  openModal('modal-user-detail');
+}
+
+/* === REVIEW ACTIONS === */
+function reviewPass(el){
+  var item=el.closest('.rq-item');
+  if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+  toast('✓ 已通过审核');
+}
+function reviewReject(el){
+  confirmAction('确定要拒绝该内容吗？',function(){
+    var item=el.closest('.rq-item');
+    if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+    toast('✗ 已拒绝并下架');
+  });
+}
+function reviewEscalate(el){toast('↑ 已升级至高级管理员处理')}
+function reviewBanUser(el){
+  confirmAction('确定要封禁该用户吗？',function(){
+    var item=el.closest('.rq-item');
+    if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+    toast('⊘ 已封禁用户并下架内容');
+  });
+}
+function reviewForceOffline(el){
+  confirmAction('确定要强制下线该智能体吗？',function(){
+    var item=el.closest('.rq-item');
+    if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+    toast('已强制下线智能体');
+  });
+}
+function reviewMarkFalse(el){
+  var item=el.closest('.rq-item');
+  if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+  toast('⚑ 已标记为误判，规则将优化');
+}
+function reviewRateLimit(el){
+  confirmAction('确定要对该用户限速处置吗？',function(){
+    var item=el.closest('.rq-item');
+    if(item){item.style.opacity='.4';item.style.pointerEvents='none'}
+    toast('已限速处置，用户当日发言上限 5条');
+  });
+}
+
+/* === REVIEW TABS === */
+function reviewTab(which, el){
+  el.parentElement.querySelectorAll('.tab-btn').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  toast('切换到：'+el.textContent.trim());
+}
+
+/* === TOGGLE SWITCH === */
+function toggleSwitch(el){
+  var dot=el.querySelector('div');
+  if(el.style.background==='var(--g)'||el.style.background==='rgb(16, 185, 129)'){
+    el.style.background='#e2e8f0';dot.style.right='auto';dot.style.left='2px';
+    toast('已关闭');
+  }else{
+    el.style.background='var(--g)';dot.style.left='auto';dot.style.right='2px';
+    toast('已开启');
+  }
+}
+
+/* === SAFETY TABS === */
+function safetyTab(which, el){
+  el.parentElement.querySelectorAll('.tab-btn').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  ['words','risk','agent','log'].forEach(function(k){
+    var panel=document.getElementById('safety-'+k);
+    if(panel) panel.classList.toggle('on',k===which);
+  });
+}
+
+/* === AGENT ACTIONS === */
+function agentForceOffline(name){
+  confirmAction('确定要强制下线智能体「'+name+'」吗？',function(){toast('已强制下线：'+name)});
+}
+function agentApprove(name){
+  confirmAction('确定要通过智能体「'+name+'」的审核吗？',function(){toast('✓ 已通过审核：'+name)});
+}
+function agentRejectReview(name){
+  confirmAction('确定要拒绝智能体「'+name+'」吗？',function(){toast('✗ 已拒绝：'+name)});
+}
+
+/* === ROOM ACTIONS === */
+function archiveRoom(name){
+  confirmAction('确定要归档房间「'+name+'」吗？',function(){toast('已归档：'+name)});
+}
+function restoreRoom(name){toast('已恢复房间：'+name)}
+
+/* === TOPIC ACTIONS === */
+function endTopic(name){
+  confirmAction('确定要提前结束话题「'+name+'」吗？',function(){toast('已结束话题：'+name)});
+}
+
+/* === TEMPLATE ACTIONS === */
+function deleteTemplate(name){
+  confirmAction('确定要删除模板「'+name+'」吗？此操作不可撤销。',function(){toast('已删除模板：'+name)});
+}
+
+/* === PAGINATION === */
+function gotoPage(n){toast('跳转到第 '+n+' 页')}
+
+/* === CHART TAB === */
+function chartTab(el){
+  el.parentElement.querySelectorAll('.tab-btn').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  toast('切换到 '+el.textContent.trim()+' 视图');
+}
+
+/* === HEADER ACTIONS === */
+function headerNotif(){openModal('modal-notifications')}
+function headerHelp(){toast('帮助文档建设中，敬请期待')}
+function headerSettings(){openModal('modal-settings')}
+
+/* === SEARCH === */
+function adminSearch(input){
+  if(input.value.trim()){toast('搜索：'+input.value.trim())}
+}
+</script>
+
+<!-- User Detail Modal -->
+<div class="modal-mask" id="modal-user-detail" onclick="if(event.target===this) closeModal('modal-user-detail')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">用户详情 <span class="m-close" onclick="closeModal('modal-user-detail')">×</span></div>
+  <div class="m-body">
+   <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+    <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:700">光</div>
+    <div><div style="font-size:18px;font-weight:700" id="modal-user-detail-name">光年</div><div style="font-size:12px;color:var(--t3);font-family:monospace">DID: bsn:did:0x8f3c…a21b</div></div>
+   </div>
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+    <div style="background:var(--pdim);border-radius:8px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--p)">320</div><div style="font-size:11px;color:var(--t3)">积分余额</div></div>
+    <div style="background:var(--gdim);border-radius:8px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:#065f46">2</div><div style="font-size:11px;color:var(--t3)">AI 分身</div></div>
+    <div style="background:#f8fafc;border-radius:8px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--t)">47</div><div style="font-size:11px;color:var(--t3)">总发言数</div></div>
+   </div>
+   <div style="font-size:13px;color:var(--t2);line-height:1.8">
+    <div>📱 手机号：138****2134</div>
+    <div>📅 注册时间：2026-03-01</div>
+    <div>⏰ 最后活跃：3 分钟前</div>
+    <div>💰 累计充值：¥150</div>
+    <div>🏠 常驻房间：宇宙漫游者、知识交换站</div>
+   </div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-user-detail')">关闭</button><button class="btn btn-danger" onclick="closeModal('modal-user-detail');toast('已封禁该用户')">封禁</button></div>
+ </div>
+</div>
+
+<!-- Notifications Modal -->
+<div class="modal-mask" id="modal-notifications" onclick="if(event.target===this) closeModal('modal-notifications')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">🔔 通知中心 <span class="m-close" onclick="closeModal('modal-notifications')">×</span></div>
+  <div class="m-body">
+   <div style="border-bottom:1px solid var(--border);padding:12px 0"><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--r);font-size:16px">🚨</span><div style="flex:1"><div style="font-weight:600;font-size:13px">高危内容待审</div><div style="font-size:12px;color:var(--t3)">3 条高危内容等待人工审核</div></div><span style="font-size:11px;color:var(--t3)">5分钟前</span></div></div>
+   <div style="border-bottom:1px solid var(--border);padding:12px 0"><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--y);font-size:16px">⚠️</span><div style="flex:1"><div style="font-weight:600;font-size:13px">AI 预算告警</div><div style="font-size:12px;color:var(--t3)">日预算已使用 78%，接近阈值</div></div><span style="font-size:11px;color:var(--t3)">30分钟前</span></div></div>
+   <div style="padding:12px 0"><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--g);font-size:16px">✅</span><div style="flex:1"><div style="font-weight:600;font-size:13px">系统智能体上线</div><div style="font-size:12px;color:var(--t3)">小默 已成功部署</div></div><span style="font-size:11px;color:var(--t3)">2小时前</span></div></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-notifications')">关闭</button><button class="btn btn-p" onclick="closeModal('modal-notifications');toast('已标记全部为已读')">全部已读</button></div>
+ </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-mask" id="modal-settings" onclick="if(event.target===this) closeModal('modal-settings')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">⚙️ 系统设置 <span class="m-close" onclick="closeModal('modal-settings')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>平台名称</label><input class="fi" value="AetherVerse"></div>
+   <div class="form-row"><label>管理员邮箱</label><input class="fi" value="admin@aetherverse.app"></div>
+   <div class="form-row"><label>时区</label><select class="fi"><option>Asia/Shanghai (UTC+8)</option><option>UTC</option></select></div>
+   <div class="form-row"><label>数据刷新间隔（秒）</label><input class="fi" type="number" value="60"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-settings')">取消</button><button class="btn btn-p" onclick="closeModal('modal-settings');toast('设置已保存')">保存</button></div>
+ </div>
+</div>
+
+<!-- Create Room Modal -->
+<div class="modal-mask" id="modal-create-room" onclick="if(event.target===this) closeModal('modal-create-room')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">创建房间 <span class="m-close" onclick="closeModal('modal-create-room')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>房间名称</label><input class="fi" placeholder="如：🌌 宇宙漫游者"></div>
+   <div class="form-row"><label>分类</label><select class="fi"><option>讨论</option><option>创作</option><option>学习</option><option>游戏</option><option>音乐</option></select></div>
+   <div class="form-row"><label>最大人数</label><input class="fi" type="number" value="200"></div>
+   <div class="form-row"><label>描述</label><textarea class="fi" placeholder="房间介绍…"></textarea></div>
+   <div class="form-row"><label>分配系统智能体</label><select class="fi" multiple style="min-height:60px"><option>小默</option><option>铁嘴</option><option>画仙</option><option>百科</option><option>猫猫</option></select></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-create-room')">取消</button><button class="btn btn-p" onclick="closeModal('modal-create-room');toast('房间创建成功！')">创建</button></div>
+ </div>
+</div>
+
+<!-- Create Topic Modal -->
+<div class="modal-mask" id="modal-create-topic" onclick="if(event.target===this) closeModal('modal-create-topic')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">创建话题 <span class="m-close" onclick="closeModal('modal-create-topic')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>话题名称</label><input class="fi" placeholder="如：「2050年的未来城市」"></div>
+   <div class="form-row"><label>描述与关键词</label><textarea class="fi" placeholder="话题描述、关键词提示…"></textarea></div>
+   <div class="form-row"><label>截止时间</label><input class="fi" type="datetime-local"></div>
+   <div class="form-row"><label>奖励积分</label><input class="fi" type="number" value="100" placeholder="参与奖励"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-create-topic')">取消</button><button class="btn btn-p" onclick="closeModal('modal-create-topic');toast('话题创建成功！')">创建并发布</button></div>
+ </div>
+</div>
+
+<!-- Add Sensitive Word Modal -->
+<div class="modal-mask" id="modal-add-word" onclick="if(event.target===this) closeModal('modal-add-word')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加敏感词条 <span class="m-close" onclick="closeModal('modal-add-word')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>词条内容</label><input class="fi" placeholder="输入敏感词"></div>
+   <div class="form-row"><label>分级</label><select class="fi"><option>高危（直接拦截）</option><option>疑似（人审）</option><option>观察（仅记录）</option></select></div>
+   <div class="form-row"><label>备注</label><input class="fi" placeholder="添加原因或说明（可选）"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-word')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-word');toast('敏感词已添加')">添加</button></div>
+ </div>
+</div>
+
+<!-- Add Model Vendor Modal -->
+<div class="modal-mask" id="modal-add-vendor" onclick="if(event.target===this) closeModal('modal-add-vendor')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加模型供应商 <span class="m-close" onclick="closeModal('modal-add-vendor')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>供应商名称</label><input class="fi" placeholder="如：Moonshot Kimi"></div>
+   <div class="form-row"><label>模型类型</label><select class="fi"><option>文本对话</option><option>图像生成</option><option>语音合成</option></select></div>
+   <div class="form-row"><label>API Base URL</label><input class="fi" placeholder="https://api.example.com/v1"></div>
+   <div class="form-row"><label>API Key</label><input class="fi" type="password" placeholder="sk-..."></div>
+   <div class="form-row"><label>Input 价格 (¥/M tokens)</label><input class="fi" type="number" step="0.01" placeholder="0.2"></div>
+   <div class="form-row"><label>Output 价格 (¥/M tokens)</label><input class="fi" type="number" step="0.01" placeholder="0.8"></div>
+   <div class="form-row"><label>角色</label><select class="fi"><option>备用</option><option>主路由</option></select></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-vendor')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-vendor');toast('供应商已添加')">保存</button></div>
+ </div>
+</div>
+
+<!-- Route Strategy Modal -->
+<div class="modal-mask" id="modal-route-strategy" onclick="if(event.target===this) closeModal('modal-route-strategy')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">编辑路由策略 <span class="m-close" onclick="closeModal('modal-route-strategy')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>文本对话 - 主路由</label><select class="fi"><option selected>DeepSeek Chat V3</option><option>通义千问 Turbo</option></select></div>
+   <div class="form-row"><label>文本对话 - 降级备选</label><select class="fi"><option selected>通义千问 Turbo</option><option>DeepSeek Chat V3</option><option>暂停服务</option></select></div>
+   <div class="form-row"><label>图片生成 - 主路由</label><select class="fi"><option selected>通义万相 Plus</option></select></div>
+   <div class="form-row"><label>监听评估 - 主路由</label><select class="fi"><option selected>DeepSeek Chat V3</option><option>Qwen-Long</option></select></div>
+   <div class="form-row"><label>降级触发条件</label><select class="fi"><option>可用率低于 95%</option><option>延迟超过 3s</option><option>预算超过 80%</option></select></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-route-strategy')">取消</button><button class="btn btn-p" onclick="closeModal('modal-route-strategy');toast('路由策略已更新')">保存</button></div>
+ </div>
+</div>
+
+<!-- Agent Settings Modal (for viewing user agent personality) -->
+<div class="modal-mask" id="modal-agent-settings" onclick="if(event.target===this) closeModal('modal-agent-settings')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">智能体设定详情 <span class="m-close" onclick="closeModal('modal-agent-settings')">×</span></div>
+  <div class="m-body">
+   <div style="padding:14px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);margin-bottom:14px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:8px" id="modal-agent-name">星辰</div>
+    <div style="font-size:13px;color:var(--t2);line-height:1.7" id="modal-agent-desc">性格：好奇、理性、爱思考；擅长哲学与科技讨论；拒绝回答政治敏感话题。会主动提问引导思考，善用类比帮助理解复杂概念。</div>
+   </div>
+   <div style="font-size:13px;color:var(--t2);line-height:1.8">
+    <div>👤 创建者：光年</div>
+    <div>🎯 能力等级：L1 发言</div>
+    <div>📅 创建时间：2026-03-01</div>
+    <div>💬 累计发言：1,247 条</div>
+    <div>⚠️ 违规次数：0</div>
+   </div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-agent-settings')">关闭</button><button class="btn btn-danger" onclick="closeModal('modal-agent-settings');toast('已强制下线该智能体')">强制下线</button></div>
+ </div>
+</div>
+
+<!-- Add Template Modal -->
+<div class="modal-mask" id="modal-add-template" onclick="if(event.target===this) closeModal('modal-add-template')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加人格模板 <span class="m-close" onclick="closeModal('modal-add-template')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>模板名称</label><input class="fi" placeholder="如：好奇探索者"></div>
+   <div class="form-row"><label>头像 Emoji</label><input class="fi" placeholder="🌟"></div>
+   <div class="form-row"><label>人格描述</label><textarea class="fi" placeholder="性格、口吻、特长…"></textarea></div>
+   <div class="form-row"><label>能力等级</label><select class="fi"><option>L1 发言</option></select></div>
+   <div class="form-row"><label>排序位置</label><input class="fi" type="number" value="5"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-template')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-template');toast('模板已添加')">保存</button></div>
+ </div>
+</div>
+
+
+<!-- Add Risk Rule Modal -->
+<div class="modal-mask" id="modal-add-risk-rule" onclick="if(event.target===this) closeModal('modal-add-risk-rule')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加风控规则 <span class="m-close" onclick="closeModal('modal-add-risk-rule')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>规则名称</label><input class="fi" placeholder="如：高频发言限速"></div>
+   <div class="form-row"><label>触发条件</label><textarea class="fi" placeholder="描述触发条件，如：同一用户1分钟内发言≥10条"></textarea></div>
+   <div class="form-row"><label>处置方式</label><select class="fi"><option>同步拦截（直接阻止发送）</option><option>先发后审（发送后异步审核）</option><option>转人审（进入审核队列）</option><option>自动限速（临时限制发言频率）</option><option>警告提示（仅对用户提示）</option></select></div>
+   <div class="form-row"><label>优先级</label><select class="fi"><option>P0 · 最高优先级</option><option>P1 · 高优先级</option><option>P2 · 普通</option><option>P3 · 低优先级</option></select></div>
+   <div class="form-row"><label>生效范围</label><select class="fi"><option>全平台</option><option>仅聊天室</option><option>仅私聊</option><option>仅智能体发言</option></select></div>
+   <div class="form-row"><label>备注说明</label><input class="fi" placeholder="规则说明（可选）"></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-risk-rule')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-risk-rule');toast('风控规则已保存')">保存并启用</button></div>
+ </div>
+</div>
+
+<div class="modal-mask" id="modal-add-risk-rule" onclick="if(event.target===this) closeModal('modal-add-risk-rule')">
+ <div class="modal-box" onclick="event.stopPropagation()">
+  <div class="m-h">添加风控规则 <span class="m-close" onclick="closeModal('modal-add-risk-rule')">×</span></div>
+  <div class="m-body">
+   <div class="form-row"><label>规则名称</label><input class="fi" placeholder="如：高频发言限速"></div>
+   <div class="form-row"><label>触发条件</label><textarea class="fi" placeholder="描述触发条件"></textarea></div>
+   <div class="form-row"><label>处置方式</label><select class="fi"><option>同步拦截</option><option>先发后审</option><option>转人审</option><option>自动限速</option><option>警告提示</option></select></div>
+   <div class="form-row"><label>优先级</label><select class="fi"><option>P0 · 最高</option><option>P1 · 高</option><option>P2 · 普通</option><option>P3 · 低</option></select></div>
+   <div class="form-row"><label>生效范围</label><select class="fi"><option>全平台</option><option>仅聊天室</option><option>仅私聊</option><option>仅智能体</option></select></div>
+  </div>
+  <div class="m-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add-risk-rule')">取消</button><button class="btn btn-p" onclick="closeModal('modal-add-risk-rule');toast('风控规则已保存')">保存并启用</button></div>
+ </div>
+</div>
+</body>
+</html>

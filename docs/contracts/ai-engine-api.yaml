@@ -1,0 +1,564 @@
+# AetherVerse — AI 引擎内部 API 规范
+# OpenAPI 3.0.3
+# 后端 (Agent A) ↔ AI 引擎 (Agent B) 之间的内部 API
+# 维护者: 恺撒 | 日期: 2026-03-19
+
+openapi: 3.0.3
+info:
+  title: AetherVerse AI Engine Internal API
+  version: 1.0.0
+  description: |
+    后端核心 (server/) 与 AI 引擎 (ai-engine/) 之间的内部通信 API。
+    - 通信方式: HTTP (内网) + RabbitMQ (异步任务)
+    - 认证: 内部服务间 API Key (X-Internal-Key header)
+    - 此 API 不对外暴露, 仅内部服务调用
+
+servers:
+  - url: http://ai-engine:8001/internal/v1
+    description: AI 引擎内部端点 (Docker 网络内)
+
+security:
+  - InternalKey: []
+
+components:
+  securitySchemes:
+    InternalKey:
+      type: apiKey
+      in: header
+      name: X-Internal-Key
+
+  schemas:
+    # 智能体上下文 (后端传给 AI 引擎)
+    AgentContext:
+      type: object
+      required: [agent_id, persona_config]
+      properties:
+        agent_id: { type: string, format: uuid }
+        owner_id: { type: string, format: uuid }
+        name: { type: string }
+        level: { type: string, enum: [L1, L2] }
+        persona_config:
+          type: object
+          properties:
+            personality: { type: string }
+            speaking_style: { type: string }
+            expertise: { type: string }
+            constraints: { type: string }
+        memory_summary: { type: string, description: "最新记忆摘要 (<=500 tokens)" }
+        system_prompt: { type: string, description: "完整系统提示词" }
+
+    # 房间上下文
+    RoomContext:
+      type: object
+      properties:
+        room_id: { type: string, format: uuid }
+        room_name: { type: string }
+        room_description: { type: string }
+        current_topic: { type: string }
+        recent_messages:
+          type: array
+          maxItems: 20
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              sender_name: { type: string }
+              sender_type: { type: string, enum: [user, agent, system] }
+              content: { type: string }
+              created_at: { type: string, format: date-time }
+
+    # AI 生成结果
+    GenerationResult:
+      type: object
+      properties:
+        content: { type: string }
+        model: { type: string }
+        provider: { type: string }
+        input_tokens: { type: integer }
+        output_tokens: { type: integer }
+        latency_ms: { type: integer }
+        cost_yuan: { type: number }
+        request_id: { type: string }
+
+paths:
+  # ----------------------------------------------------------
+  # 智能体发言 (L1)
+  # ----------------------------------------------------------
+  /chat/evaluate:
+    post:
+      tags: [Agent Chat]
+      summary: "评估智能体是否应回复 (监听模式)"
+      description: |
+        后端每 3 条新消息调用一次。AI 引擎判断智能体是否应该回复。
+        **平台成本, 不消耗用户积分。**
+        约 2000 input tokens / 次。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agent, room]
+              properties:
+                agent: { $ref: '#/components/schemas/AgentContext' }
+                room: { $ref: '#/components/schemas/RoomContext' }
+                trigger_type: { type: string, enum: [mention, periodic], description: "mention=被@(直接响应), periodic=定期评估" }
+      responses:
+        '200':
+          description: 评估结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  should_reply: { type: boolean }
+                  confidence: { type: number, minimum: 0, maximum: 1 }
+                  reason: { type: string, description: "评估理由 (调试用)" }
+                  model: { type: string }
+                  tokens_used: { type: integer }
+
+  /chat/generate:
+    post:
+      tags: [Agent Chat]
+      summary: "生成智能体回复内容"
+      description: |
+        evaluate 返回 should_reply=true 后调用, 或被@时直接调用。
+        **消耗用户积分 (2-3 积分/次)。**
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agent, room, request_id]
+              properties:
+                agent: { $ref: '#/components/schemas/AgentContext' }
+                room: { $ref: '#/components/schemas/RoomContext' }
+                request_id: { type: string, description: "幂等键 (防重复发言)" }
+                max_tokens: { type: integer, default: 300, description: "最大输出 token" }
+      responses:
+        '200':
+          description: 生成结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GenerationResult'
+                  - type: object
+                    properties:
+                      is_safe: { type: boolean, description: "AI 自检是否安全" }
+                      safety_flags: { type: array, items: { type: string } }
+
+  /chat/generate-private:
+    post:
+      tags: [Agent Chat]
+      summary: "生成智能体私聊回复"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agent, messages, request_id]
+              properties:
+                agent: { $ref: '#/components/schemas/AgentContext' }
+                messages:
+                  type: array
+                  maxItems: 20
+                  items:
+                    type: object
+                    properties:
+                      sender_type: { type: string }
+                      content: { type: string }
+                      created_at: { type: string, format: date-time }
+                request_id: { type: string }
+      responses:
+        '200':
+          description: 回复内容
+
+  # ----------------------------------------------------------
+  # 记忆系统
+  # ----------------------------------------------------------
+  /memory/summarize:
+    post:
+      tags: [Memory]
+      summary: "生成记忆摘要"
+      description: |
+        每 N 轮对话后, 后端从 agent_memories 收集近期记忆交给 AI 引擎摘要。
+        输出 <= 500 tokens。**平台成本。**
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agent_id, memories]
+              properties:
+                agent_id: { type: string, format: uuid }
+                persona_config: { type: object }
+                memories:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      content: { type: string }
+                      created_at: { type: string, format: date-time }
+                max_tokens: { type: integer, default: 500 }
+      responses:
+        '200':
+          description: 摘要结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary: { type: string }
+                  token_count: { type: integer }
+                  model: { type: string }
+
+  # ----------------------------------------------------------
+  # 人格一致性
+  # ----------------------------------------------------------
+  /persona/build-prompt:
+    post:
+      tags: [Persona]
+      summary: "构建完整系统提示词"
+      description: |
+        根据人格配置 + 记忆摘要 + 场景, 构建完整的系统 prompt。
+        首次创建智能体时调用, 之后在人格配置/记忆更新时重新生成。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [persona_config]
+              properties:
+                persona_config: { type: object }
+                memory_summary: { type: string }
+                scene: { type: string, enum: [room_chat, private_chat, creation], default: room_chat }
+      responses:
+        '200':
+          description: 系统提示词
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  system_prompt: { type: string }
+                  token_count: { type: integer }
+
+  # ----------------------------------------------------------
+  # 创作 (L2)
+  # ----------------------------------------------------------
+  /creation/generate-image:
+    post:
+      tags: [Creation]
+      summary: "生成图片作品"
+      description: |
+        智能体领取创作任务后, 后端调用此接口生成图片。
+        **消耗用户积分 (20-30 积分)。**
+        异步执行: 返回 task_id, 通过 RabbitMQ 回调通知结果。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [agent, topic, request_id]
+              properties:
+                agent: { $ref: '#/components/schemas/AgentContext' }
+                topic:
+                  type: object
+                  properties:
+                    id: { type: string, format: uuid }
+                    title: { type: string }
+                    description: { type: string }
+                    keywords: { type: array, items: { type: string } }
+                    reference_url: { type: string }
+                request_id: { type: string }
+                image_size: { type: string, default: "1024x1024" }
+      responses:
+        '202':
+          description: 任务已接受
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id: { type: string }
+                  estimated_seconds: { type: integer }
+
+  /creation/status/{task_id}:
+    get:
+      tags: [Creation]
+      summary: "查询图片生成状态"
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 任务状态
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [pending, processing, completed, failed] }
+                  image_url: { type: string }
+                  thumbnail_url: { type: string }
+                  creative_process:
+                    type: object
+                    description: "创作过程元数据 (prompt/参数/时间戳)"
+                  model: { type: string }
+                  cost_yuan: { type: number }
+                  error_message: { type: string }
+
+  # ----------------------------------------------------------
+  # 内容审核 (AI 辅助)
+  # ----------------------------------------------------------
+  /moderation/check-text:
+    post:
+      tags: [Moderation]
+      summary: "AI 文本审核"
+      description: |
+        同步调用: 高危关键词快速匹配 + AI 语义理解。
+        返回风险等级。**平台成本。**
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string }
+                context:
+                  type: array
+                  items: { type: string }
+                  description: "上下文消息 (可选, 提高准确率)"
+                sender_type: { type: string, enum: [user, agent] }
+      responses:
+        '200':
+          description: 审核结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  risk_level: { type: string, enum: [safe, suspect, block] }
+                  categories: { type: array, items: { type: string }, description: "触发类别" }
+                  matched_rules: { type: array, items: { type: string } }
+                  confidence: { type: number }
+
+  /moderation/check-image:
+    post:
+      tags: [Moderation]
+      summary: "AI 图片审核"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [image_url]
+              properties:
+                image_url: { type: string }
+      responses:
+        '200':
+          description: 审核结果
+
+  /moderation/check-persona:
+    post:
+      tags: [Moderation]
+      summary: "智能体人格审核"
+      description: "用户创建/修改智能体时, 审核人格设定内容"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [persona_config]
+              properties:
+                persona_config: { type: object }
+                agent_name: { type: string }
+      responses:
+        '200':
+          description: 审核结果
+
+  # ----------------------------------------------------------
+  # AI 行为防控
+  # ----------------------------------------------------------
+  /safety/check-impersonation:
+    post:
+      tags: [Safety]
+      summary: "冒充真人检测"
+      description: "检测智能体输出是否包含冒充真人的表述"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text, sender_type]
+              properties:
+                text: { type: string }
+                sender_type: { type: string, enum: [agent] }
+      responses:
+        '200':
+          description: 检测结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  is_impersonation: { type: boolean }
+                  matched_patterns: { type: array, items: { type: string } }
+
+  /safety/check-social-engineering:
+    post:
+      tags: [Safety]
+      summary: "社工攻击检测"
+      description: "检测智能体是否诱导用户泄露敏感信息"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text: { type: string }
+                conversation_history:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: 检测结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  is_social_engineering: { type: boolean }
+                  risk_indicators: { type: array, items: { type: string } }
+
+  # ----------------------------------------------------------
+  # AIGC 标识
+  # ----------------------------------------------------------
+  /aigc/embed-watermark:
+    post:
+      tags: [AIGC]
+      summary: "嵌入数字水印"
+      description: "为 AI 生成图片写入不可见数字水印"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [image_url, metadata]
+              properties:
+                image_url: { type: string }
+                metadata:
+                  type: object
+                  properties:
+                    content_id: { type: string, format: uuid }
+                    generated_at: { type: string, format: date-time }
+                    model: { type: string }
+                    provider: { type: string }
+      responses:
+        '200':
+          description: 水印后的图片 URL
+
+  # ----------------------------------------------------------
+  # 服务存活探针 (Docker/K8s)
+  # ----------------------------------------------------------
+  /health:
+    get:
+      tags: [Health]
+      summary: "存活探针 (Liveness)"
+      security: []
+      description: "Docker/K8s 健康检查。返回服务基本状态，不检查外部依赖。"
+      responses:
+        '200':
+          description: 服务存活
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ok] }
+                  version: { type: string }
+                  uptime_seconds: { type: integer }
+
+  /ready:
+    get:
+      tags: [Health]
+      summary: "就绪探针 (Readiness)"
+      security: []
+      description: "检查服务及其关键依赖 (Redis, RabbitMQ, 至少一个 AI 模型可用)。"
+      responses:
+        '200':
+          description: 服务就绪
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ready, degraded] }
+                  checks:
+                    type: object
+                    properties:
+                      redis: { type: boolean }
+                      rabbitmq: { type: boolean }
+                      models_available: { type: integer }
+
+  # ----------------------------------------------------------
+  # 模型管理 (AI 引擎内部)
+  # ----------------------------------------------------------
+  /models/health:
+    get:
+      tags: [Models]
+      summary: "所有模型健康状态"
+      responses:
+        '200':
+          description: 各供应商/模型的可用性、延迟、成功率
+
+  /models/route:
+    post:
+      tags: [Models]
+      summary: "智能路由决策 (调试用)"
+      description: "给定场景, 返回应该使用哪个模型"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scene: { type: string, enum: [chat, image_gen, moderation, listen_eval, memory_summary] }
+                fallback_level: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: 路由决策
+
+# ----------------------------------------------------------
+# RabbitMQ 异步消息约定
+# ----------------------------------------------------------
+# Exchange: aetherverse.internal
+# 
+# Queue                          | 生产者    | 消费者    | 说明
+# -------------------------------|-----------|-----------|---
+# ai.chat.evaluate.request       | server    | ai-engine | 监听评估请求
+# ai.chat.evaluate.response      | ai-engine | server    | 评估结果
+# ai.chat.generate.request       | server    | ai-engine | 生成发言请求
+# ai.chat.generate.response      | ai-engine | server    | 生成结果 → server 投递到 WebSocket
+# ai.creation.request            | server    | ai-engine | 图片生成请求
+# ai.creation.result             | ai-engine | server    | 图片生成结果
+# ai.moderation.request          | server    | ai-engine | 异步审核请求
+# ai.moderation.result           | ai-engine | server    | 审核结果
+# ai.memory.summarize.request    | server    | ai-engine | 记忆摘要请求
+# ai.memory.summarize.result     | ai-engine | server    | 摘要结果

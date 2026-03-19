@@ -1,0 +1,1210 @@
+# AetherVerse Phase 1 MVP — 管理后台 API Schema
+# OpenAPI 3.0.3 (Admin 端点)
+# 维护者: 恺撒 | 日期: 2026-03-19
+# 所有端点需 Admin JWT 认证, 前缀 /api/v1/admin
+
+openapi: 3.0.3
+info:
+  title: AetherVerse Admin API
+  version: 1.0.0
+  description: |
+    管理后台 API。认证: Admin JWT。
+    RBAC 角色: super_admin / ops_admin / reviewer
+    响应格式统一 { code, message, data }
+
+servers:
+  - url: /api/v1/admin
+
+security:
+  - AdminAuth: []
+
+components:
+  securitySchemes:
+    AdminAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  # ----------------------------------------------------------
+  # 管理员认证
+  # ----------------------------------------------------------
+  /auth/login:
+    post:
+      tags: [Admin Auth]
+      summary: 管理员登录
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: 登录成功
+
+  # ----------------------------------------------------------
+  # 用户管理 (M-01 ~ M-07)
+  # ----------------------------------------------------------
+  /users:
+    get:
+      tags: [Admin Users]
+      summary: "M-01 用户列表 (搜索/筛选)"
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+          description: "昵称/手机号模糊搜索"
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, banned_temp, banned_perm] }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: page_size
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: 分页用户列表
+
+  /users/{user_id}:
+    get:
+      tags: [Admin Users]
+      summary: "M-02 用户详情 (含积分/DID/最后活跃)"
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 用户完整信息
+
+  /users/{user_id}/activity-logs:
+    get:
+      tags: [Admin Users]
+      summary: "M-03 用户行为日志"
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: log_type
+          in: query
+          schema: { type: string, enum: [message, recharge, report, punishment] }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: 行为日志列表
+
+  /users/{user_id}/ban:
+    post:
+      tags: [Admin Users]
+      summary: "M-04 封禁用户"
+      description: "临时封禁需 ops_admin+, 永久封禁仅 super_admin"
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ban_type, reason]
+              properties:
+                ban_type: { type: string, enum: [temp, perm] }
+                reason: { type: string, maxLength: 500 }
+                duration_hours: { type: integer, description: "临时封禁时长(小时)" }
+      responses:
+        '200':
+          description: 已封禁
+
+  /users/{user_id}/unban:
+    post:
+      tags: [Admin Users]
+      summary: "M-05 解封用户"
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 已解封
+
+  /users/{user_id}/agents:
+    get:
+      tags: [Admin Users]
+      summary: "M-06 查看用户的智能体"
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 智能体列表
+
+  /users/stats:
+    get:
+      tags: [Admin Users]
+      summary: "M-07 用户统计概览"
+      responses:
+        '200':
+          description: 总注册/DAU/新增趋势
+
+  # ----------------------------------------------------------
+  # 智能体管理 (M-08 ~ M-16)
+  # ----------------------------------------------------------
+  /agents/system:
+    get:
+      tags: [Admin Agents]
+      summary: "M-08 系统智能体列表"
+      responses:
+        '200':
+          description: 系统智能体及状态
+    post:
+      tags: [Admin Agents]
+      summary: "M-09 创建系统智能体"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, persona_config]
+              properties:
+                name: { type: string }
+                avatar_url: { type: string }
+                persona_config: { type: object }
+                knowledge_base: { type: object }
+                fallback_timeout_sec: { type: integer, default: 30 }
+      responses:
+        '201':
+          description: 创建成功
+
+  /agents/system/{agent_id}:
+    patch:
+      tags: [Admin Agents]
+      summary: "M-10 编辑系统智能体"
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                persona_config: { type: object }
+                knowledge_base: { type: object }
+      responses:
+        '200':
+          description: 更新成功
+
+  /agents/system/{agent_id}/rooms:
+    put:
+      tags: [Admin Agents]
+      summary: "M-11/M-21 分配智能体到房间"
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [room_ids]
+              properties:
+                room_ids:
+                  type: array
+                  items: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 分配成功
+
+  /agents/system/{agent_id}/topic-schedule:
+    put:
+      tags: [Admin Agents]
+      summary: "M-12 配置每日话题计划"
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schedule:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      time: { type: string, format: time }
+                      room_id: { type: string, format: uuid }
+                      topic_content: { type: string }
+      responses:
+        '200':
+          description: 计划已更新
+
+  /agents/user-created:
+    get:
+      tags: [Admin Agents]
+      summary: "M-13 用户智能体列表"
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string }
+        - name: owner_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: 分页列表
+
+  /agents/{agent_id}/review:
+    post:
+      tags: [Admin Agents]
+      summary: "M-14/M-15 审核/强制下线智能体"
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, enum: [approve, suspend, force_offline] }
+                reason: { type: string }
+      responses:
+        '200':
+          description: 操作完成
+
+  /agents/templates:
+    get:
+      tags: [Admin Agents]
+      summary: "M-16 人格模板库列表"
+      responses:
+        '200':
+          description: 模板列表
+    post:
+      tags: [Admin Agents]
+      summary: "M-16 创建人格模板"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, persona_config]
+              properties:
+                name: { type: string }
+                description: { type: string }
+                avatar_url: { type: string }
+                persona_config: { type: object }
+                is_onboarding: { type: boolean, default: false }
+                sort_order: { type: integer }
+      responses:
+        '201':
+          description: 创建成功
+
+  /agents/templates/{template_id}:
+    patch:
+      tags: [Admin Agents]
+      summary: 编辑人格模板
+      parameters:
+        - name: template_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [Admin Agents]
+      summary: 删除人格模板
+      parameters:
+        - name: template_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 已删除
+
+  # ----------------------------------------------------------
+  # 房间管理 (M-17 ~ M-22)
+  # ----------------------------------------------------------
+  /rooms:
+    get:
+      tags: [Admin Rooms]
+      summary: "M-17 房间列表 (含统计)"
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, archived] }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: 房间列表
+    post:
+      tags: [Admin Rooms]
+      summary: "M-18 创建房间"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, description, category]
+              properties:
+                name: { type: string }
+                description: { type: string }
+                category: { type: string }
+                tags: { type: array, items: { type: string } }
+                cover_url: { type: string }
+                max_members: { type: integer, default: 200 }
+      responses:
+        '201':
+          description: 创建成功
+
+  /rooms/{room_id}:
+    patch:
+      tags: [Admin Rooms]
+      summary: "M-19 编辑房间"
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: 更新成功
+
+  /rooms/{room_id}/archive:
+    post:
+      tags: [Admin Rooms]
+      summary: "M-20 归档房间"
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 已归档
+
+  /rooms/{room_id}/restore:
+    post:
+      tags: [Admin Rooms]
+      summary: "M-20 恢复房间"
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 已恢复
+
+  /rooms/{room_id}/messages:
+    get:
+      tags: [Admin Rooms]
+      summary: "M-22 房间消息管理 (搜索/回放)"
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: sender_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: start_time
+          in: query
+          schema: { type: string, format: date-time }
+        - name: end_time
+          in: query
+          schema: { type: string, format: date-time }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: 消息列表
+
+  /rooms/{room_id}/messages/{message_id}:
+    delete:
+      tags: [Admin Rooms]
+      summary: "M-22 删除违规消息"
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: message_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string }
+      responses:
+        '200':
+          description: 已删除
+
+  # ----------------------------------------------------------
+  # 话题管理 (M-23 ~ M-27)
+  # ----------------------------------------------------------
+  /topics:
+    get:
+      tags: [Admin Topics]
+      summary: "M-23 话题列表"
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, active, ended, archived] }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: 话题列表
+    post:
+      tags: [Admin Topics]
+      summary: "M-24 创建话题"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description]
+              properties:
+                title: { type: string }
+                description: { type: string }
+                keywords: { type: array, items: { type: string } }
+                reference_url: { type: string }
+                room_id: { type: string, format: uuid }
+                deadline: { type: string, format: date-time }
+      responses:
+        '201':
+          description: 创建成功
+
+  /topics/{topic_id}:
+    patch:
+      tags: [Admin Topics]
+      summary: "M-25 编辑话题"
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: 更新成功
+
+  /topics/{topic_id}/end:
+    post:
+      tags: [Admin Topics]
+      summary: "M-26 结束话题"
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 已结束
+
+  /topics/{topic_id}/artworks/{artwork_id}/review:
+    post:
+      tags: [Admin Topics]
+      summary: "M-27 审核作品"
+      parameters:
+        - name: topic_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: artwork_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, enum: [approve, reject] }
+                reason: { type: string }
+      responses:
+        '200':
+          description: 审核完成
+
+  # ----------------------------------------------------------
+  # AI 网关管理 (M-28 ~ M-37)
+  # ----------------------------------------------------------
+  /ai/providers:
+    get:
+      tags: [Admin AI Gateway]
+      summary: "M-28/M-32 供应商列表 (含健康状态)"
+      responses:
+        '200':
+          description: 供应商列表
+    post:
+      tags: [Admin AI Gateway]
+      summary: "M-28 添加供应商"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, display_name, base_url]
+              properties:
+                name: { type: string }
+                display_name: { type: string }
+                base_url: { type: string }
+                health_check_url: { type: string }
+      responses:
+        '201':
+          description: 添加成功
+
+  /ai/providers/{provider_id}:
+    patch:
+      tags: [Admin AI Gateway]
+      summary: "M-28 编辑供应商"
+      parameters:
+        - name: provider_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 更新成功
+
+  /ai/providers/{provider_id}/keys:
+    get:
+      tags: [Admin AI Gateway]
+      summary: "M-29 API Key 列表"
+      parameters:
+        - name: provider_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Key 列表 (脱敏)
+    post:
+      tags: [Admin AI Gateway]
+      summary: "M-29 添加 API Key"
+      parameters:
+        - name: provider_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [key]
+              properties:
+                key: { type: string }
+                daily_limit: { type: integer }
+      responses:
+        '201':
+          description: 添加成功
+
+  /ai/routing:
+    get:
+      tags: [Admin AI Gateway]
+      summary: "M-30 路由策略列表"
+      responses:
+        '200':
+          description: 策略列表
+    post:
+      tags: [Admin AI Gateway]
+      summary: "M-30 添加路由规则"
+      description: "仅 super_admin 可修改, 需记录操作日志"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [scene, provider_id, model_name]
+              properties:
+                scene: { type: string, enum: [chat, image_gen, moderation, listen_eval, memory_summary] }
+                provider_id: { type: string, format: uuid }
+                model_name: { type: string }
+                priority: { type: integer }
+                is_fallback: { type: boolean, default: false }
+                timeout_ms: { type: integer, default: 10000 }
+                max_retries: { type: integer, default: 1 }
+      responses:
+        '201':
+          description: 添加成功
+
+  /ai/routing/{rule_id}:
+    patch:
+      tags: [Admin AI Gateway]
+      summary: "M-30/M-31 编辑路由/降级策略"
+      parameters:
+        - name: rule_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [Admin AI Gateway]
+      summary: 删除路由规则
+      parameters:
+        - name: rule_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 已删除
+
+  /ai/usage:
+    get:
+      tags: [Admin AI Gateway]
+      summary: "M-33/M-34 调用量/成本统计"
+      parameters:
+        - name: period
+          in: query
+          schema: { type: string, enum: [day, week, month], default: day }
+        - name: provider_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: scene
+          in: query
+          schema: { type: string }
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: 统计数据
+
+  /ai/usage/by-user/{user_id}:
+    get:
+      tags: [Admin AI Gateway]
+      summary: "M-37 单用户成本追踪"
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 用户 AI 调用明细
+
+  /ai/budget:
+    get:
+      tags: [Admin AI Gateway]
+      summary: "M-35 日预算配置"
+      responses:
+        '200':
+          description: 当前预算配置 + 今日已消耗
+    put:
+      tags: [Admin AI Gateway]
+      summary: "M-35 更新日预算"
+      description: "仅 super_admin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [daily_limit_yuan]
+              properties:
+                daily_limit_yuan: { type: number }
+                alert_threshold: { type: number, default: 0.80 }
+                alert_webhook: { type: string }
+      responses:
+        '200':
+          description: 更新成功
+
+  # ----------------------------------------------------------
+  # 审核管理 (M-38 ~ M-48)
+  # ----------------------------------------------------------
+  /moderation/queue:
+    get:
+      tags: [Admin Moderation]
+      summary: "M-38 待审队列"
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [pending, appealed] }
+        - name: content_type
+          in: query
+          schema: { type: string, enum: [message, artwork, agent_persona] }
+        - name: priority
+          in: query
+          schema: { type: string, enum: [high, suspect, appeal] }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: 审核队列
+
+  /moderation/queue/{item_id}:
+    get:
+      tags: [Admin Moderation]
+      summary: "M-39 审核项详情 (含上下文)"
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 内容 + 上下文 + 发送者信息
+
+  /moderation/queue/{item_id}/review:
+    post:
+      tags: [Admin Moderation]
+      summary: "M-40 审核操作"
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, enum: [pass, reject, false_positive, escalate] }
+                note: { type: string, maxLength: 500 }
+      responses:
+        '200':
+          description: 审核完成
+
+  /moderation/queue/batch:
+    post:
+      tags: [Admin Moderation]
+      summary: "M-41 批量审核"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [item_ids, action]
+              properties:
+                item_ids:
+                  type: array
+                  items: { type: string, format: uuid }
+                action: { type: string, enum: [pass, reject] }
+                note: { type: string }
+      responses:
+        '200':
+          description: 批量处理完成
+
+  /moderation/appeals/{item_id}/review:
+    post:
+      tags: [Admin Moderation]
+      summary: "M-42 申诉处理"
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, enum: [approve_appeal, reject_appeal] }
+                note: { type: string }
+      responses:
+        '200':
+          description: 申诉已处理
+
+  /moderation/stats:
+    get:
+      tags: [Admin Moderation]
+      summary: "M-43 审核统计"
+      responses:
+        '200':
+          description: 每日审核量/通过率/平均时长
+
+  /moderation/sensitive-words:
+    get:
+      tags: [Admin Moderation]
+      summary: "M-44 敏感词库列表"
+      parameters:
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: level
+          in: query
+          schema: { type: string, enum: [block, suspect, observe] }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: 敏感词列表
+    post:
+      tags: [Admin Moderation]
+      summary: "M-44 添加敏感词"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [word, category, level]
+              properties:
+                word: { type: string }
+                category: { type: string }
+                level: { type: string, enum: [block, suspect, observe] }
+                variants: { type: array, items: { type: string } }
+      responses:
+        '201':
+          description: 添加成功
+
+  /moderation/sensitive-words/import:
+    post:
+      tags: [Admin Moderation]
+      summary: "M-44 批量导入敏感词"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "CSV 文件 (word, category, level)"
+      responses:
+        '200':
+          description: 导入完成
+
+  /moderation/sensitive-words/export:
+    get:
+      tags: [Admin Moderation]
+      summary: "M-44 导出敏感词库"
+      responses:
+        '200':
+          description: CSV 文件下载
+
+  /moderation/risk-rules:
+    get:
+      tags: [Admin Moderation]
+      summary: "M-46/M-47 风控规则列表"
+      parameters:
+        - name: category
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: 规则列表
+    post:
+      tags: [Admin Moderation]
+      summary: "M-46/M-47 添加风控规则"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, category, rule_config, action]
+              properties:
+                name: { type: string }
+                description: { type: string }
+                category: { type: string, enum: [rate_limit, spam, social_engineering, impersonation, harassment] }
+                rule_config: { type: object }
+                action: { type: string, enum: [warn, rate_limit, pause, ban] }
+      responses:
+        '201':
+          description: 添加成功
+
+  /moderation/risk-rules/{rule_id}:
+    patch:
+      tags: [Admin Moderation]
+      summary: 编辑风控规则
+      parameters:
+        - name: rule_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 更新成功
+
+  /moderation/dispositions:
+    get:
+      tags: [Admin Moderation]
+      summary: "M-48 处置记录查询"
+      parameters:
+        - name: target_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: target_type
+          in: query
+          schema: { type: string }
+        - name: action
+          in: query
+          schema: { type: string }
+        - name: start_time
+          in: query
+          schema: { type: string, format: date-time }
+        - name: end_time
+          in: query
+          schema: { type: string, format: date-time }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: 处置记录
+
+  # ----------------------------------------------------------
+  # 数据看板 (M-49 ~ M-60)
+  # ----------------------------------------------------------
+  /dashboard/realtime:
+    get:
+      tags: [Admin Dashboard]
+      summary: "M-49 实时概览"
+      responses:
+        '200':
+          description: 在线人数/活跃房间/消息速率
+
+  /dashboard/metrics:
+    get:
+      tags: [Admin Dashboard]
+      summary: "M-50~M-54 核心指标"
+      parameters:
+        - name: metric
+          in: query
+          required: true
+          schema: { type: string, enum: [dau_mau, retention, speak_rate, room_activity, agent_usage] }
+        - name: period
+          in: query
+          schema: { type: string, enum: [day, week, month], default: day }
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: 指标数据 + 趋势图数据
+
+  /dashboard/business:
+    get:
+      tags: [Admin Dashboard]
+      summary: "M-55~M-58 商业/成本指标"
+      parameters:
+        - name: metric
+          in: query
+          required: true
+          schema: { type: string, enum: [recharge, points_consumption, ai_cost, pay_conversion] }
+        - name: period
+          in: query
+          schema: { type: string, enum: [day, week, month], default: day }
+      responses:
+        '200':
+          description: 商业指标
+
+  /dashboard/go-no-go:
+    get:
+      tags: [Admin Dashboard]
+      summary: "M-59 Go-No-Go 仪表盘"
+      responses:
+        '200':
+          description: 6项指标红/黄/绿状态
+
+  /dashboard/alerts:
+    get:
+      tags: [Admin Dashboard]
+      summary: "M-60 趋势告警列表"
+      responses:
+        '200':
+          description: 告警列表
+
+  # ----------------------------------------------------------
+  # 系统设置
+  # ----------------------------------------------------------
+  /settings/admins:
+    get:
+      tags: [Admin Settings]
+      summary: 管理员列表
+      description: "仅 super_admin"
+      responses:
+        '200':
+          description: 管理员列表
+    post:
+      tags: [Admin Settings]
+      summary: 添加管理员
+      description: "仅 super_admin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, role, display_name]
+              properties:
+                username: { type: string }
+                password: { type: string }
+                role: { type: string, enum: [super_admin, ops_admin, reviewer] }
+                display_name: { type: string }
+      responses:
+        '201':
+          description: 创建成功
+
+  /settings/admins/{admin_id}:
+    patch:
+      tags: [Admin Settings]
+      summary: 编辑管理员
+      parameters:
+        - name: admin_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [Admin Settings]
+      summary: 删除管理员
+      parameters:
+        - name: admin_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 已删除
+
+  /settings/operation-logs:
+    get:
+      tags: [Admin Settings]
+      summary: 操作日志查询
+      parameters:
+        - name: admin_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: action
+          in: query
+          schema: { type: string }
+        - name: start_time
+          in: query
+          schema: { type: string, format: date-time }
+        - name: end_time
+          in: query
+          schema: { type: string, format: date-time }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        '200':
+          description: 操作日志列表
+
+  /settings/config:
+    get:
+      tags: [Admin Settings]
+      summary: 全局配置列表
+      description: "仅 super_admin"
+      responses:
+        '200':
+          description: 配置项列表
+    patch:
+      tags: [Admin Settings]
+      summary: 更新全局配置
+      description: "仅 super_admin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              example:
+                free_daily_chat: 20
+                free_daily_image: 2
+      responses:
+        '200':
+          description: 配置已更新

@@ -1,0 +1,116 @@
+# AetherVerse 本地开发环境
+# 使用: docker compose up -d
+# 维护者: 恺撒
+
+services:
+  # ============================================================
+  # 基础设施
+  # ============================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: aetherverse-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aetherverse
+      POSTGRES_USER: aetherverse
+      POSTGRES_PASSWORD: dev_password_change_me
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docs/contracts/db-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aetherverse"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: aetherverse-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: aetherverse-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: aetherverse
+      RABBITMQ_DEFAULT_PASS: dev_password_change_me
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: aetherverse-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: aetherverse
+      MINIO_ROOT_PASSWORD: dev_password_change_me
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Console
+    volumes:
+      - minio_data:/data
+
+  # ============================================================
+  # 应用服务 (开发时可选, 也可本地 uvicorn 启动)
+  # ============================================================
+  # server:
+  #   build:
+  #     context: .
+  #     dockerfile: server/Dockerfile
+  #   container_name: aetherverse-server
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     DATABASE_URL: postgresql+asyncpg://aetherverse:dev_password_change_me@postgres:5432/aetherverse
+  #     REDIS_URL: redis://redis:6379/0
+  #     RABBITMQ_URL: amqp://aetherverse:dev_password_change_me@rabbitmq:5672/
+  #     S3_ENDPOINT: http://minio:9000
+  #     S3_ACCESS_KEY: aetherverse
+  #     S3_SECRET_KEY: dev_password_change_me
+  #   depends_on:
+  #     postgres: { condition: service_healthy }
+  #     redis: { condition: service_healthy }
+  #     rabbitmq: { condition: service_healthy }
+  #
+  # ai-engine:
+  #   build:
+  #     context: .
+  #     dockerfile: ai-engine/Dockerfile
+  #   container_name: aetherverse-ai-engine
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8001:8001"
+  #   environment:
+  #     REDIS_URL: redis://redis:6379/1
+  #     RABBITMQ_URL: amqp://aetherverse:dev_password_change_me@rabbitmq:5672/
+  #   depends_on:
+  #     redis: { condition: service_healthy }
+  #     rabbitmq: { condition: service_healthy }
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  minio_data:

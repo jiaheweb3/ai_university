@@ -59,3 +59,99 @@
 - 数据库 ER 设计
 - API 接口文档
 
+## 2026-03-19
+
+### 已完成
+- **Phase 0 — 全部 12 项契约定义与工程落地完成**
+  - 契约文件: db-schema.sql / db-er.md / api-schema.yaml / admin-api-schema.yaml / websocket-protocol.md / ai-engine-api.yaml / shared-types.dart / CHANGELOG.md
+  - 共享包: `shared/` (constants + schemas + exceptions)
+  - 脚手架: `server/` (7 目录) + `ai-engine/` (6 目录)
+  - DevOps: `infra/docker-compose.yml` + `.github/workflows/ci.yml` + `.env.example`
+  - 启动指令: `docs/agent-instructions/` (agent-a-marcus / agent-b-minerva / agent-c-apollo)
+- 关键设计决策: UUID 主键 / 消息统一存储 / 积分预扣模型 / AIGC 标识内联 / 管理员与用户隔离 / 敏感词热加载
+- 审阅修补: 注销账号 / 修改密码 / AI 引擎健康探针 / Phase 2 预留事件
+
+### 下一步
+- 智远创建 Agent A/B/C 对话窗口，粘贴启动指令，启动 Phase 1
+- 恺撒提交 Phase 0 到 develop 分支并推送
+
+### 已完成 (Agent A — Marcus 后端实现)
+- **核心基础设施** (6 files): config.py / database.py / redis.py / security.py / deps.py / __init__.py
+- **ORM 模型全量** (15 files, 31 tables): user → room → message → agent → creation → point → notification → moderation → risk → ai_gateway → admin → metrics → external → auxiliary
+- **main.py 重构**: async lifespan, AppException handler, structlog request_id middleware, router registration
+- **Auth 系统** (7 endpoints): SMS 验证码 mock, 注册 DID, 密码/SMS 登录, Token 刷新, 密码重置, JWT 黑名单注销
+- **User 系统** (9 endpoints): profile CRUD, 密码修改, 设置管理, 账号注销, 用户屏蔽
+- **Room 系统** (5 endpoints): cursor 分页列表, 详情, 加入, 离开, 成员列表
+- 新增 `structlog>=24.1` 依赖
+- 计划文档: `plans/Week1-2_后端基础设施与用户房间系统.md`
+
+### 下一步
+- 安装依赖 + Python import 验证
+- 集成测试 (conftest 构建 + test_auth/test_users/test_rooms)
+- Alembic 初始化迁移
+- Docker Compose + uvicorn 手动验证
+
+### 已完成 (Agent B — Minerva AI 引擎实现)
+- **基础设施** (4 files): config.py / deps.py / log.py / schemas.py
+- **模型路由** (1 file): model_router.py — 多供应商 (DeepSeek/Zhipu/OpenAI) + 场景路由 + Redis 缓存 + fallback 降级 + 成本估算
+- **智能体编排** (2 files): evaluator.py (@提及直通 + 定期 LLM JSON 评估) + generator.py (房间/私聊 + 幂等 + 安全自检)
+- **人格系统** (1 file): prompt_builder.py — Jinja2 模板渲染 + token 粗估
+- **安全自检** (1 file): quick_check.py — 冒充/社工正则检测 (8+8 patterns)
+- **MQ 消费者** (1 file): mq_consumer.py — evaluate/generate 队列 + topic exchange
+- **HTTP 路由** (3 files): chat.py + persona.py + models.py
+- **提示词** (3 files): system_prompt.j2 + evaluate_prompt.j2 + system_agents.yaml (5 暖场智能体)
+- **主入口** (1 file): main.py 重构 — lifespan + 路由注册 + 真实 health/ready 探针
+- **测试**: 46/46 passed (5 test suites)
+- **构建修复**: shared pyproject → setuptools; ai-engine pyproject → packages = ["app"]
+
+### 下一步 (Agent B)
+- 获取 API Key → 端到端验证
+- Week 3-4: 记忆系统 + 图片生成 + 内容审核
+
+### 已完成 (Agent B — Week 3-4)
+- **记忆系统** (3 files): summarizer.py + memory_summarize.j2 + router/memory.py — 以智能体第一人称视角压缩记忆
+- **图片生成** (3 files): image_generator.py + image_gen_prompt.j2 + router/creation.py — 异步创作 (Redis 任务状态) + 中→英 prompt 翻译
+- **内容审核** (3 files): moderator.py + moderation_prompt.j2 + router/moderation.py — 文本 (7类关键词+LLM) / 图片 (mock) / 人格 (7类 regex)
+- **安全路由** (1 file): router/safety.py — 冒充+社工 HTTP 端点
+- **AIGC 水印** (2 files): watermark.py + router/aigc.py — Pillow LSB 嵌入+提取 (roundtrip 验证)
+- **Schemas** 扩展: 15 个新 Pydantic 模型
+- **MQ 消费者**: +3 队列 (memory/creation/moderation)
+- **测试**: 75/75 passed (新增 29 个用例: test_memory/test_creation/test_moderation/test_watermark)
+
+### 下一步 (Agent B)
+- 获取 API Key → CogView-3 / DeepSeek 端到端验证
+- Week 5: 后端联调 (评估→生成→消息投递全链路)
+
+### 已完成 (Agent C — Apollo Flutter 用户端)
+- **环境**: Flutter 3.41.5 stable + Dart 3.11.3 安装验证通过
+- **项目创建**: `flutter create --org com.aetherverse --project-name aetherverse_app --platforms web,android,ios`
+- **Core 层** (4 files): constants / theme (M3 light+dark 品牌色) / router (GoRouter+auth guard+ShellRoute) / app
+- **Services 层** (4 files): api_client (Dio+JWT 401→refresh→retry) / ws_client (心跳30s+指数退避重连) / auth_service (7 API) / storage_service
+- **Providers** (2 files): auth_provider (AsyncNotifier) / room_provider (StateNotifier+游标分页)
+- **Screens** (5 files): splash / login (密码+验证码双模式) / register / forgot_password / home (NavigationBar 4 tab)
+- **Widgets** (2 files): room_card (CachedNetworkImage) / loading_indicator + EmptyState
+- **验证**: `flutter pub get` 79 packages + `flutter analyze` No issues found!
+
+### 下一步 (Agent C)
+- 待原型图: 全部 UI 还原
+- Week 5: 与后端 API 联调 + WebSocket 测试
+
+### 已完成 (Agent C — 业务逻辑层，不依赖原型图)
+- **模型** (4 files): message / agent / topic / point_notification — 覆盖全部 API Schema
+- **服务** (8 files): message / agent / topic / point / notification / misc(Report+User+Upload) / room — 覆盖全部 REST 端点
+- **Providers** (3 files): message (WS实时+历史+typing+私聊列表) / agent (CRUD+乐观更新+模板) / notification_point (未读数+积分余额+套餐)
+- **验证**: `flutter analyze` No issues found! (40.1s)
+
+### 已完成 (Agent C — 测试 + 基础设施增强)
+- **单元测试** (4 files, 51 cases): models序列化 / providers状态流转 / WsClient事件 / Widget/Theme
+- **i18n**: `strings.dart` — 150+ 中文字符串常量, 12 分类, 预留多语言扩展
+- **错误处理**: `error_handling.dart` — AppSnackBar (error/success/retry) + safeCall/safeCallWithRetry + ErrorBoundary
+- **集成**: ErrorBoundary + scaffoldMessengerKey 接入 app.dart
+
+### 已完成 (Agent C — 代码审查修复, 7 items)
+- BUG-1: shared_types.dart 清理重复模型 (-160行)
+- BUG-2: WS 事件名 冒号→WsEvents 常量
+- BUG-3: WsClient 单例模式
+- S-1~S-4: auth loading保留user / Agent.copyWith / /topics→/discover / 乐观删除+回滚
+- **验证**: flutter test 53 passed, flutter analyze 0 issues
+

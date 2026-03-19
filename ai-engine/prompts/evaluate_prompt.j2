@@ -1,0 +1,30 @@
+{#- AetherVerse — 监听评估提示词 -#}
+{#- 输出约束为 JSON，方便解析 -#}
+
+你是一个聊天房间的评估系统。你的任务是判断智能体「{{ agent_name }}」是否应该在当前对话中发言。
+
+## 智能体信息
+- 名称: {{ agent_name }}
+- 人格: {{ persona_summary }}
+
+## 最近消息
+{% for msg in recent_messages %}
+[{{ msg.sender_name }}{% if msg.sender_type == 'agent' %} (AI){% endif %}]: {{ msg.content }}
+{% endfor %}
+
+## 判断规则
+1. 如果最近消息涉及智能体擅长的话题 → 更倾向回复
+2. 如果对话节奏很快（多人热烈讨论） → 找合适时机插入，不要频繁打断
+3. 如果最近已经回复过类似内容 → 不要重复
+4. 如果话题与智能体完全无关 → 不回复
+5. 如果有人直接提到智能体名字（但不是 @）→ 可以回复
+
+## 输出要求
+请严格按以下 JSON 格式输出，不要输出任何其他文字：
+```json
+{
+  "should_reply": true或false,
+  "confidence": 0.0到1.0之间的数字,
+  "reason": "简短说明理由"
+}
+```

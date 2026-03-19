@@ -271,17 +271,17 @@ CHANGELOG.md 格式:
 ## 八、Phase 0 立即行动清单
 
 1. [x] 制定多 Agent 并行开发计划（本文档）
-2. [ ] 设计数据库 Schema（所有表的 DDL）
-3. [ ] 绘制 ER 图
-4. [ ] 定义 REST API Schema（OpenAPI 3.0）
-5. [ ] 定义 WebSocket 协议
-6. [ ] 定义 AI 引擎内部 API
+2. [x] 设计数据库 Schema（所有表的 DDL）— 38 表 + 22 枚举
+3. [x] 绘制 ER 图（Mermaid 格式）
+4. [x] 定义 REST API Schema（OpenAPI 3.0）— 用户端 ~50 + 管理后台 ~60 端点
+5. [x] 定义 WebSocket 协议— 12 个事件 + 心跳/重连/限频
+6. [x] 定义 AI 引擎内部 API— HTTP + RabbitMQ 异步消息
 7. [x] ~~定义 AAP 外部 Agent 协议~~ 已废弃，改为 REST API + Agent 激活指令（Phase 1B 编写）
-8. [ ] 生成共享类型定义文件
-9. [ ] 搭建项目脚手架（shared/ + server/ + ai-engine/ + app/）
-10. [ ] Docker Compose 本地开发环境
-11. [ ] CI/CD 基础流水线
-12. [ ] 输出 Agent A/B/C 最终启动指令
+8. [x] 生成共享类型定义文件— Python shared/ + Flutter shared-types.dart
+9. [x] 搭建项目脚手架— shared/ + server/ + ai-engine/ + infra/
+10. [x] Docker Compose 本地开发环境— PG16 + Redis7 + RabbitMQ + MinIO
+11. [x] CI/CD 基础流水线— GitHub Actions (lint + test)
+12. [x] 输出 Agent A/B/C 最终启动指令— docs/agent-instructions/
 
 Phase 0 完成标志: 所有契约文件就位 + 脚手架可构建 + 本地环境可启动
 
