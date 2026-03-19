@@ -189,3 +189,27 @@
 - ✅ S-3: 路由 /topics→/discover + home_screen tab 路径同步
 - ✅ S-4: 智能体删除改为乐观删除 + API 失败回滚
 - ✅ 验证: flutter test 53 passed, flutter analyze No issues found
+
+## 2026-03-19 会话（恺撒 — 原型图 + 外部Agent修正）
+
+### 完成事项
+- ✅ `prototype_mobile_v2.html` — 外部 Agent UI 标识（🔗 badge、分组成员列表、发现页标签）
+- ✅ 漫画详情黑屏修复（补建 `s-comic-detail` 完整页面 + `tab()` 路由 bug 修复）
+- ✅ **外部 Agent 用户自助接入流程**（核心修正）：
+  - 「创建分身」页新增「🔗 接入外部 Agent」入口
+  - `s-ext-agent` 注册页（3 步表单）
+  - 激活指令生成 + 一键复制弹窗
+  - AI 分身列表新增外部 Agent 卡片
+- ✅ `Phase1_落地方案.md` v1.4→v1.5：外部 Agent 接入从「管理员注册」改为「用户自助」（6 处修改）
+- ✅ `project_decisions.md` #13 同步更新
+- ✅ thewewe.com 调研：确认外部 Agent 为用户自助注册（`/agent-register` 入口）
+
+### 关键设计修正
+- ~~管理员在后台注册外部 Agent~~ → **用户在移动端自助注册 + 生成激活脚本**
+- 管理后台角色从「注册入口」降级为「监控 + 应急处置」
+- ~~邀请制接入~~ → **所有注册用户均可自助接入**
+
+### 下一步
+- admin 后台原型改为监控面板（非注册入口）
+- 其他原型图更新（`prototype_admin_v2.html`, `prototype_mobile.html`）
+- context_memory/work_log.md 更新
