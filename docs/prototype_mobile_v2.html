@@ -1390,15 +1390,73 @@ body{background:#050c1a;min-height:100vh;display:flex;align-items:center;justify
 
 
 
-  <!-- 漫画详情（列表与详情一一对应，每页格式由续写者当页选择） -->
+  <!-- 漫画详情 -->
+  <div class="sc" id="s-comic-detail">
+   <div class="comic-d-hdr">
+    <span class="back" onclick="go('s-topics')">←</span>
+    <div class="comic-d-title" id="comic-d-title">《星际漂流记》</div>
+    <div class="comic-d-prog" id="comic-d-prog">已续写 5/9 页</div>
+   </div>
+   <div class="sc-body">
+    <!-- 封面 -->
+    <div class="comic-cover-wrap">
+     <div class="comic-cover-img">🚀</div>
+     <div class="comic-cover-acts">
+      <div class="act" onclick="this.classList.toggle('liked')"><span class="ico">👍</span> 128</div>
+      <div class="act" onclick="openModal('modal-comment')"><span class="ico">💬</span> 36</div>
+      <div class="act" onclick="toast('已转发')"><span class="ico">🔗</span> 分享</div>
+     </div>
+    </div>
+    <div class="comic-cover-lbl">📐 四格漫画 · 9宫格</div>
+    <!-- 格位网格 -->
+    <div class="comic-panels-sec">
+     <div class="sec-t">🎨 画面 (5/9)</div>
+     <div class="comic-grid-9">
+      <div class="panel-cell filled"><div class="cell-placeholder">🚀</div><div class="cell-acts"><span onclick="this.classList.toggle('liked')">👍 42</span><span onclick="openModal('modal-comment')">💬 8</span></div></div>
+      <div class="panel-cell filled"><div class="cell-placeholder">🌌</div><div class="cell-acts"><span onclick="this.classList.toggle('liked')">👍 38</span><span onclick="openModal('modal-comment')">💬 5</span></div></div>
+      <div class="panel-cell filled"><div class="cell-placeholder">🪐</div><div class="cell-acts"><span onclick="this.classList.toggle('liked')">👍 56</span><span onclick="openModal('modal-comment')">💬 12</span></div></div>
+      <div class="panel-cell filled"><div class="cell-placeholder">👽</div><div class="cell-acts"><span onclick="this.classList.toggle('liked')">👍 67</span><span onclick="openModal('modal-comment')">💬 9</span></div></div>
+      <div class="panel-cell filled"><div class="cell-placeholder">🌠</div><div class="cell-acts"><span onclick="this.classList.toggle('liked')">👍 45</span><span onclick="openModal('modal-comment')">💬 7</span></div></div>
+      <div class="panel-cell wait"><div class="cell-placeholder">✏️</div><div class="cell-num">第6格</div></div>
+      <div class="panel-cell wait"><div class="cell-placeholder">✏️</div><div class="cell-num">第7格</div></div>
+      <div class="panel-cell wait"><div class="cell-placeholder">✏️</div><div class="cell-num">第8格</div></div>
+      <div class="panel-cell wait"><div class="cell-placeholder">✏️</div><div class="cell-num">第9格</div></div>
+     </div>
+     <button class="btn-continue" onclick="openModal('modal-continue')">✨ 续写下一格</button>
+    </div>
+    <!-- 创作时间线 -->
+    <div class="comic-timeline">
+     <div class="t-t">📜 创作时间线</div>
+     <div class="t-list">
+      <div class="row"><span class="who">光年</span><span>创建了漫画《星际漂流记》</span></div>
+      <div class="row"><span class="who">星辰AI</span><span>续写了第1格：🚀 飞船起航</span></div>
+      <div class="row"><span class="who">天文台</span><span>续写了第2格：🌌 星际穿越</span></div>
+      <div class="row"><span class="who">创作者AI</span><span>续写了第3-5格</span></div>
+     </div>
+    </div>
+    <div style="height:20px"></div>
+   </div>
+  </div>
 
-  
-
-
-
-  <!-- 续写弹层：自己写提示词需填写；指派分身则无需提示词 -->
-
-  
+  <!-- 续写弹层 -->
+  <div class="modal-mask" id="modal-continue" onclick="if(event.target===this) closeModal(this.id)">
+   <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="m-h">✨ 续写第 6 格 <span class="m-close" onclick="closeModal('modal-continue')">×</span></div>
+    <div class="m-tab-row">
+     <div class="m-tab on" id="tab-prompt" onclick="setContinueMode('prompt')">✍️ 自己写</div>
+     <div class="m-tab" id="tab-avatar" onclick="setContinueMode('avatar')">🤖 指派分身</div>
+    </div>
+    <div id="continue-prompt-wrap">
+     <div class="fg"><label class="flb">创作提示词</label><textarea class="finp" style="height:80px;resize:none" placeholder="描述你想要的画面…&#10;例如：宇航员发现一颗发光的星球"></textarea></div>
+     <div class="pts-row"><label>消耗积分</label><input value="15" readonly></div>
+     <div class="pts-hint">当前余额: 320 积分</div>
+    </div>
+    <div id="continue-avatar-hint" style="display:none;padding:12px;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;font-size:13px;color:var(--tm);line-height:1.5">
+     🤖 将由你的 AI 分身「创作者」自动生成画面<br>消耗 20 积分 · 预计 30 秒内完成
+    </div>
+    <div class="submit-row"><button class="btn-pri" onclick="toast('续写成功！画面生成中…');closeModal('modal-continue')">🎨 开始创作</button></div>
+   </div>
+  </div>
 
 
 
@@ -1993,7 +2051,7 @@ function go(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('
 
 function sa(el){document.querySelectorAll('.sw-btn').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on')}
 
-function tab(t){const m={home:'s-home',msgs:'s-msgs',topics:'发现',mine:'s-mine'};go(m[t])}
+function tab(t){const m={home:'s-home',msgs:'s-msgs',topics:'s-topics',mine:'s-mine'};go(m[t])}
 
 function toast(msg){const el=document.getElementById('t');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
 
